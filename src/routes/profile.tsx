@@ -43,6 +43,7 @@ import HealthDetailsCard from "@/components/passport/HealthDetailsCard";
 import PassportHome from "@/components/passport/PassportHome";
 import PassportNav, { type PassportArea } from "@/components/passport/PassportNav";
 import ClinicRecipientPreview from "@/components/passport/ClinicRecipientPreview";
+import ManageSharing from "@/components/passport/ManageSharing";
 import VisitsTimeline from "@/components/passport/VisitsTimeline";
 import RecordsSection from "@/components/passport/RecordsSection";
 import ShareTabView from "@/components/share/ShareTabView";
@@ -1343,6 +1344,11 @@ function ProfilePage() {
                 sharerName={profile.fullName.trim() || "You"}
                 upcomingAppointments={upcomingAppointments}
               />
+            )}
+            {activeSection === "share" && (
+              <div className="mt-8">
+                <ManageSharing />
+              </div>
             )}
             {activeSection === "share" && (
               <div className="mt-8">

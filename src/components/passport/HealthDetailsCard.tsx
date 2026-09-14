@@ -110,13 +110,18 @@ function CardBack({ details, reviews }: { details: HealthDetails; reviews: ItemR
     label: group.label,
     rows: group.fields
       .map((f) => ({ label: f.label, type: f.type, value: (details[f.id] ?? "").trim(), review: reviews[f.id] }))
-      .filter((r) => r.value.length > 0)
+      // Health and care answers always show, so a blank is read as
+      // "Not answered" and never as "no condition" or "no allergy".
+      .filter((r) => r.value.length > 0 || group.id === "health" || group.id === "care")
       .map((r) => ({
         label: r.label,
         review: r.review,
         // tags/meds store comma-separated lists — render each item on its own line
+        answered: r.value.length > 0,
         values:
-          (r.type === "tags" || r.type === "meds") && /[;,]/.test(r.value)
+          !r.value
+            ? ["Not answered"]
+            : (r.type === "tags" || r.type === "meds") && /[;,]/.test(r.value)
             ? r.value.split(/[;,]/).map((s) => s.trim()).filter(Boolean)
             : r.value.includes(";")
               ? r.value.split(";").map((s) => s.trim()).filter(Boolean)
@@ -161,7 +166,7 @@ function CardBack({ details, reviews }: { details: HealthDetails; reviews: ItemR
                     <dt className="w-[38%] shrink-0 text-[10.5px] font-medium normal-case leading-snug text-white/55">
                       {r.label}
                     </dt>
-                    <dd className="flex-1 space-y-0.5 text-[11.5px] font-medium leading-snug text-white/90">
+                    <dd className={`flex-1 space-y-0.5 text-[11.5px] font-medium leading-snug ${r.answered ? "text-white/90" : "italic text-white/45"}`}>
                       {r.values.slice(0, 4).map((v, i) => (
                         <span key={i} className="block break-words">
                           {v.length > 90 ? `${v.slice(0, 90).trimEnd()}…` : v}
@@ -173,7 +178,11 @@ function CardBack({ details, reviews }: { details: HealthDetails; reviews: ItemR
                         </span>
                       )}
                       <span className="block pt-0.5 text-[9.5px] font-medium text-white/45">
-                        {r.review ? reviewLabel(r.review) : "Patient-provided"}
+                        {!r.answered
+                          ? "You can add this any time"
+                          : r.review
+                            ? reviewLabel(r.review)
+                            : "Entered by you"}
                       </span>
                     </dd>
                   </div>
@@ -479,7 +488,8 @@ function TagsInput({
   const maxItems = field.maxItems ?? 10;
   const maxItemLength = field.maxItemLength ?? 40;
   const exclusive = field.exclusiveOption;
-  const exclusiveOn = Boolean(exclusive && items.length === 1 && items[0] === exclusive);
+  const exclusiveSet = field.exclusiveOptions ?? (exclusive ? [exclusive] : []);
+  const exclusiveOn = items.length === 1 && exclusiveSet.includes(items[0]);
   const full = items.length >= maxItems;
   const custom = items.filter((i) => !(field.options ?? []).includes(i));
   const otherOpen = showOther || custom.length > 0;
@@ -494,17 +504,17 @@ function TagsInput({
   };
 
   const toggle = (opt: string) => {
-    if (exclusive && opt === exclusive) {
-      commit(exclusiveOn ? [] : [exclusive]);
+    if (exclusiveSet.includes(opt)) {
+      commit(items.length === 1 && items[0] === opt ? [] : [opt]);
       return;
     }
-    const without = items.filter((i) => i !== exclusive);
+    const without = items.filter((i) => !exclusiveSet.includes(i));
     commit(without.includes(opt) ? without.filter((i) => i !== opt) : [...without, opt]);
   };
 
   const addDraft = () => {
     if (!draft.trim()) return;
-    commit([...items.filter((i) => i !== exclusive), draft]);
+    commit([...items.filter((i) => !exclusiveSet.includes(i)), draft]);
     setDraft("");
   };
 

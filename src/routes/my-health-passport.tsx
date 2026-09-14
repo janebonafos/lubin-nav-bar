@@ -73,6 +73,7 @@ import VisitsTimeline from "@/components/passport/VisitsTimeline";
 import ClientPrescriptionsSection from "@/components/profile/ClientPrescriptionsSection";
 import RecordsSection from "@/components/passport/RecordsSection";
 import ClinicRecipientPreview from "@/components/passport/ClinicRecipientPreview";
+import ManageSharing from "@/components/passport/ManageSharing";
 import PassportNav, { PassportSubNav, type PassportArea } from "@/components/passport/PassportNav";
 import { loadProxySignup, proxyFirstName } from "@/lib/proxySignup";
 import {
@@ -183,6 +184,7 @@ function PassportPage() {
     ClientUpcomingAppointment[]
   >([]);
   const area = TAB_AREA[tab];
+  const [shareView, setShareView] = useState<"share" | "manage">("share");
   useEffect(() => {
     setUpcomingAppointments(getClientUpcomingAppointments());
   }, []);
@@ -355,6 +357,16 @@ function PassportPage() {
             onChange={(id) => setTab(id as typeof tab)}
           />
         )}
+        {area === "sharing" && (
+          <PassportSubNav
+            value={shareView}
+            options={[
+              { id: "share", label: "Share with a clinic" },
+              { id: "manage", label: "Manage sharing" },
+            ]}
+            onChange={(id) => setShareView(id as "share" | "manage")}
+          />
+        )}
         {area === "wellbeing" && (
           <PassportSubNav
             value={tab === "progress" ? "progress" : "overview"}
@@ -414,7 +426,8 @@ function PassportPage() {
           {tab === "progress" && (
             <Progress checkins={checkins} assessments={assessments} streak={streak} />
           )}
-          {tab === "share" && (
+          {tab === "share" && shareView === "manage" && <ManageSharing />}
+          {tab === "share" && shareView === "share" && (
             <ShareTabView
               checkins={checkins}
               isGuest={readLS<boolean | null>(GUEST_KEY, true) !== false}
@@ -425,7 +438,7 @@ function PassportPage() {
               onAutoOpenHandled={() => setAutoOpenAppointmentId(null)}
             />
           )}
-          {tab === "share" && (
+          {tab === "share" && shareView === "share" && (
             <div className="mt-6">
               <ClinicRecipientPreview patientName={detailsName ?? "Maria Santos"} />
             </div>
