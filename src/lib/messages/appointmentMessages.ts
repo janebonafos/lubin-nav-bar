@@ -169,10 +169,9 @@ export function seedDemoThreads() {
     window.localStorage.setItem(DEMO_FLAG, "1");
     const grouped = new Map<string, AppointmentMessage[]>();
     for (const item of DEMO) {
-      if (getThread(item.appointmentId).length > 0) continue;
-      const list = grouped.get(item.appointmentId) ?? [];
+      const list = grouped.get(item.appointmentId) ?? getThread(item.appointmentId);
       list.push({
-        id: `demo${item.appointmentId}${list.length}`,
+        id: `demo${item.appointmentId}${list.length}${item.minutesAgo}`,
         from: item.from,
         authorName: item.authorName,
         body: item.body,
