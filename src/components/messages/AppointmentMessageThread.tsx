@@ -161,8 +161,9 @@ export default function AppointmentMessageThread({
               />
               <PromptInputFooter className="justify-end">
                 <PromptInputSubmit
+                  size="sm"
                   disabled={!draft.trim()}
-                  className="h-9 w-auto gap-2 rounded-lg bg-brand-purple-dark px-5 text-primary-foreground hover:bg-brand-navy"
+                  className="h-9 min-w-max gap-2 rounded-lg bg-brand-purple-dark px-4 text-primary-foreground hover:bg-brand-navy"
                 >
                   <Send className="h-4 w-4 shrink-0" />
                   <span>{messages.length === 0 ? "Send message" : "Send reply"}</span>
