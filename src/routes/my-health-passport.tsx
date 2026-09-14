@@ -72,6 +72,8 @@ import PassportHome from "@/components/passport/PassportHome";
 import VisitsTimeline from "@/components/passport/VisitsTimeline";
 import ClientPrescriptionsSection from "@/components/profile/ClientPrescriptionsSection";
 import RecordsSection from "@/components/passport/RecordsSection";
+import ClinicRecipientPreview from "@/components/passport/ClinicRecipientPreview";
+import PassportNav, { PassportSubNav, type PassportArea } from "@/components/passport/PassportNav";
 import { loadProxySignup, proxyFirstName } from "@/lib/proxySignup";
 import {
   getProviderGrant,
@@ -136,6 +138,36 @@ const MOODS = [
   { v: 5, emoji: "😄", label: "Great" },
 ];
 
+type PassportTab =
+  | "home"
+  | "overview"
+  | "progress"
+  | "share"
+  | "details"
+  | "visits"
+  | "medications"
+  | "records";
+
+const TAB_AREA: Record<PassportTab, PassportArea> = {
+  home: "overview",
+  details: "overview",
+  visits: "visits",
+  medications: "medications",
+  records: "records",
+  overview: "wellbeing",
+  progress: "wellbeing",
+  share: "sharing",
+};
+
+const AREA_DEFAULT_TAB: Record<PassportArea, PassportTab> = {
+  overview: "home",
+  visits: "visits",
+  medications: "medications",
+  records: "records",
+  wellbeing: "overview",
+  sharing: "share",
+};
+
 // ---------- Page ----------
 function PassportPage() {
   const search = Route.useSearch();
@@ -150,6 +182,7 @@ function PassportPage() {
   const [upcomingAppointments, setUpcomingAppointments] = useState<
     ClientUpcomingAppointment[]
   >([]);
+  const area = TAB_AREA[tab];
   useEffect(() => {
     setUpcomingAppointments(getClientUpcomingAppointments());
   }, []);
@@ -305,53 +338,33 @@ function PassportPage() {
           </div>
         </header>}
 
-        {/* Tabs */}
-        <div className="mt-8 flex gap-6 border-b border-brand-purple/15">
-          {([
-            ["home", "Home"],
-            ["details", detailsName ? `${detailsName}'s card` : "Health card"],
-            ["visits", "Visits"],
-            ["medications", "Medications"],
-            ["records", "Records"],
-            ["overview", "Today"],
-            ["progress", "Patterns"],
-            ["share", "Share"],
-          ] as const).map(([key, label]) => {
-            const active = tab === key;
-            const showDot = key === "progress" && hasInProgress;
-            const showBadge = key === "share" && pendingShareCount > 0;
-            return (
-              <button
-                key={key}
-                onClick={() => setTab(key)}
-                className={`relative -mb-px pb-3 text-sm font-medium transition-colors inline-flex items-center gap-1.5 ${
-                  active
-                    ? "text-brand-purple-dark"
-                    : "text-brand-purple-dark/50 hover:text-brand-purple-dark/80"
-                }`}
-              >
-                {label}
-                {showDot && (
-                  <span
-                    aria-label="In-progress check-in"
-                    className="inline-block h-1.5 w-1.5 rounded-full bg-brand-purple shadow-[0_0_0_3px_rgba(126,107,175,0.18)]"
-                  />
-                )}
-                {showBadge && (
-                  <span
-                    aria-label={`${pendingShareCount} pending share${pendingShareCount === 1 ? "" : "s"}`}
-                    className="ml-0.5 inline-flex min-w-[18px] items-center justify-center rounded-full bg-brand-purple px-1.5 py-0.5 text-[10px] font-bold leading-none text-white shadow-[0_0_0_3px_rgba(126,107,175,0.15)]"
-                  >
-                    {pendingShareCount}
-                  </span>
-                )}
-                {active && (
-                  <span className="absolute inset-x-0 -bottom-px h-[2px] rounded-full bg-brand-purple" />
-                )}
-              </button>
-            );
-          })}
-        </div>
+        {/* Areas */}
+        <PassportNav
+          area={area}
+          onChange={(next) => setTab(AREA_DEFAULT_TAB[next])}
+          badges={{ sharing: pendingShareCount }}
+          dots={{ wellbeing: hasInProgress }}
+        />
+        {area === "overview" && (
+          <PassportSubNav
+            value={tab === "details" ? "details" : "home"}
+            options={[
+              { id: "home", label: "Overview" },
+              { id: "details", label: detailsName ? `${detailsName}'s health card` : "Health card" },
+            ]}
+            onChange={(id) => setTab(id as typeof tab)}
+          />
+        )}
+        {area === "wellbeing" && (
+          <PassportSubNav
+            value={tab === "progress" ? "progress" : "overview"}
+            options={[
+              { id: "overview", label: "Today" },
+              { id: "progress", label: "Patterns & assessments" },
+            ]}
+            onChange={(id) => setTab(id as typeof tab)}
+          />
+        )}
 
         {/* Gentle session prep nudges — same request as the appointment card */}
         {tab !== "home" && tab !== "share" && tab !== "details" && tab !== "visits" && tab !== "medications" && tab !== "records" && upcomingAppointments.length > 0 && (
@@ -411,6 +424,11 @@ function PassportPage() {
               autoOpenAppointmentId={autoOpenAppointmentId}
               onAutoOpenHandled={() => setAutoOpenAppointmentId(null)}
             />
+          )}
+          {tab === "share" && (
+            <div className="mt-6">
+              <ClinicRecipientPreview patientName={detailsName ?? "Maria Santos"} />
+            </div>
           )}
           {tab === "details" && (
             <div className="mx-auto max-w-5xl">
