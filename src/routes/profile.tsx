@@ -145,6 +145,7 @@ function ProfilePage() {
   const [editing, setEditing] = useState<boolean>(false);
   const [savedFlash, setSavedFlash] = useState<boolean>(false);
   const [activeSection, setActiveSection] = useState<Section>("profile");
+  const [passportArea, setPassportArea] = useState<PassportArea>("overview");
   const [connectionWarning, setConnectionWarning] = useState<string | null>(null);
   const [role, setRole] = useState<Role>("client");
   const [isHydrating, setIsHydrating] = useState<boolean>(true);
