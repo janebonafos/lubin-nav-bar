@@ -102,30 +102,26 @@ export default function PassportHome({
             <p className="mt-3 max-w-2xl text-sm leading-relaxed text-brand-purple-dark/65 sm:text-[15px]">
               Keep your details, visits, medications, and records together. Choose what to share with your care team.
             </p>
-            <div className="mt-5 flex flex-wrap gap-2">
-              <Button
-                type="button"
+            <div className="mt-6 grid gap-3 sm:grid-cols-3">
+              <ActionButton
+                icon={UserRound}
+                title="Show health card"
+                detail="Present a readable summary at your next visit."
                 onClick={() => onNavigate("card")}
-                className="h-10 rounded-[12px] bg-brand-purple px-4 text-primary-foreground hover:bg-brand-purple-dark"
-              >
-                <UserRound /> Show health card
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onNavigate("card")}
-                className="h-10 rounded-[12px] border-brand-purple/20 bg-card px-4 text-brand-purple-dark hover:bg-brand-lavender"
-              >
-                Update details
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
+                primary
+              />
+              <ActionButton
+                icon={Share2}
+                title="Use at a clinic"
+                detail="Choose the records to share with your care team."
                 onClick={() => onNavigate("share")}
-                className="h-10 rounded-[12px] border-brand-purple/20 bg-card px-4 text-brand-purple-dark hover:bg-brand-lavender"
-              >
-                <Share2 /> Choose what to share
-              </Button>
+              />
+              <ActionButton
+                icon={ClipboardList}
+                title="Review my details"
+                detail="Check and update the details saved in your passport."
+                onClick={() => onNavigate("details")}
+              />
             </div>
           </div>
 
