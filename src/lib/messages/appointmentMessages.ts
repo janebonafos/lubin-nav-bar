@@ -153,7 +153,7 @@ export function postSystemMessageOnce(
   } catch {
     /* noop */
   }
-  return postSystemMessage(appointmentId, body);
+  return postSystemMessageMirrored(appointmentId, body);
 }
 
 /** Patient shared (or updated) their Health Passport for this appointment. */
