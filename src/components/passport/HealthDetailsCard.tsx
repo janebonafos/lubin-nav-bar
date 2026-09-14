@@ -1257,36 +1257,22 @@ export default function HealthDetailsCard({ showHeader = true }: { showHeader?: 
 
           {!openGroup &&
             (() => {
-              if (allComplete && agreed) {
+              if (essentials.complete) {
                 return (
-                  <div className="mt-2 flex items-center gap-4 rounded-2xl border border-brand-purple/20 bg-brand-purple/[0.05] px-6 py-5">
+                  <div className="mt-2 flex items-start gap-4 rounded-2xl border border-brand-purple/20 bg-brand-purple/[0.05] px-6 py-5">
                     <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-purple text-white">
                       <Check className="h-5 w-5" />
                     </span>
                     <div>
                       <p className="text-[15px] font-bold text-brand-purple-dark">
-                        All set — your health card is complete
+                        Essential details complete — your card is ready to use
                       </p>
-                      <p className="mt-0.5 text-[12.5px] text-brand-purple-dark/55">
-                        You've confirmed everything is accurate. You can still edit any section
-                        above.
+                      <p className="mt-0.5 text-[12.5px] leading-relaxed text-brand-purple-dark/55">
+                        {optional.filled} of {optional.total} optional details added. Everything
+                        above stays editable, and you can print, download or share your card now.
                       </p>
                     </div>
                   </div>
-                );
-              }
-
-              if (allComplete) {
-                return (
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setOpenGroup(HEALTH_DETAIL_GROUPS[HEALTH_DETAIL_GROUPS.length - 1].id)
-                    }
-                    className="mt-2 w-full rounded-2xl bg-brand-purple px-6 py-4 text-[15px] font-bold text-white shadow-[0_12px_28px_-14px_rgba(126,107,175,0.9)] transition hover:brightness-105 active:scale-[0.99]"
-                  >
-                    One last step — review and confirm your health card
-                  </button>
                 );
               }
 
