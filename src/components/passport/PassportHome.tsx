@@ -5,6 +5,7 @@ import {
   Check,
   ClipboardList,
   FileHeart,
+  FolderOpen,
   HeartPulse,
   Lock,
   Pill,
@@ -30,7 +31,14 @@ import {
 } from "@/lib/prescription/documents";
 import { ensureSamplePrescriptionRecord } from "@/lib/prescription/sampleRecord";
 
-type PassportDestination = "card" | "share" | "details" | "visits" | "prescriptions" | "patterns";
+type PassportDestination =
+  | "card"
+  | "share"
+  | "details"
+  | "visits"
+  | "prescriptions"
+  | "patterns"
+  | "records";
 
 export default function PassportHome({
   ownerName = "Maria Santos",
@@ -186,6 +194,15 @@ export default function PassportHome({
           detail={`Allergies: ${allergy}`}
           action="View prescriptions"
           onClick={() => onNavigate("prescriptions")}
+        />
+        <RecordCard
+          icon={FolderOpen}
+          eyebrow="Records and results"
+          title="Lab results, imaging, vaccinations"
+          meta="7 documents · Newest Aug 29, 2026"
+          detail="Add records from other clinics so they are ready at your next visit"
+          action="View records"
+          onClick={() => onNavigate("records")}
         />
         <RecordCard
           icon={ClipboardList}

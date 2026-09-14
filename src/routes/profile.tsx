@@ -42,6 +42,7 @@ import { Overview, Progress } from "@/routes/my-health-passport";
 import HealthDetailsCard from "@/components/passport/HealthDetailsCard";
 import PassportHome from "@/components/passport/PassportHome";
 import VisitsTimeline from "@/components/passport/VisitsTimeline";
+import RecordsSection from "@/components/passport/RecordsSection";
 import ShareTabView from "@/components/share/ShareTabView";
 import ProviderProfileSection from "@/components/profile/ProviderProfileSection";
 import ProviderPrescriptionsSection from "@/components/profile/ProviderPrescriptionsSection";
@@ -1217,6 +1218,15 @@ function ProfilePage() {
                 />
                 <div id="passport-visits" className="mt-8 scroll-mt-28">
                   <VisitsTimeline onOpenPrescriptions={() => setActiveSection("prescriptions")} />
+                </div>
+                <div id="passport-records" className="mt-8 scroll-mt-28">
+                  <RecordsSection
+                    onOpenVisits={() =>
+                      document
+                        .getElementById("passport-visits")
+                        ?.scrollIntoView({ behavior: "smooth", block: "start" })
+                    }
+                  />
                 </div>
                 <div id="passport-health-card" className="mt-8 scroll-mt-28">
                   <HealthDetailsCard />

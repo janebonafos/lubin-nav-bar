@@ -71,6 +71,7 @@ import CaregiverAccessCard from "@/components/passport/CaregiverAccessCard";
 import PassportHome from "@/components/passport/PassportHome";
 import VisitsTimeline from "@/components/passport/VisitsTimeline";
 import ClientPrescriptionsSection from "@/components/profile/ClientPrescriptionsSection";
+import RecordsSection from "@/components/passport/RecordsSection";
 import { loadProxySignup, proxyFirstName } from "@/lib/proxySignup";
 import {
   getProviderGrant,
@@ -82,7 +83,7 @@ export const Route = createFileRoute("/my-health-passport")({
   component: PassportPage,
   validateSearch: z
     .object({
-      tab: z.enum(["home", "overview", "progress", "share", "details", "visits", "medications"]).optional(),
+      tab: z.enum(["home", "overview", "progress", "share", "details", "visits", "medications", "records"]).optional(),
       share: z.string().optional(),
       auth: z.enum(["signup", "signin"]).optional(),
       from: z.string().optional(),
@@ -139,7 +140,7 @@ const MOODS = [
 function PassportPage() {
   const search = Route.useSearch();
   const [tab, setTab] = useState<
-    "home" | "overview" | "progress" | "share" | "details" | "visits" | "medications"
+    "home" | "overview" | "progress" | "share" | "details" | "visits" | "medications" | "records"
   >(
     search.tab ?? "home",
   );
@@ -311,6 +312,7 @@ function PassportPage() {
             ["details", detailsName ? `${detailsName}'s card` : "Health card"],
             ["visits", "Visits"],
             ["medications", "Medications"],
+            ["records", "Records"],
             ["overview", "Today"],
             ["progress", "Patterns"],
             ["share", "Share"],
@@ -352,7 +354,7 @@ function PassportPage() {
         </div>
 
         {/* Gentle session prep nudges — same request as the appointment card */}
-        {tab !== "home" && tab !== "share" && tab !== "details" && tab !== "visits" && tab !== "medications" && upcomingAppointments.length > 0 && (
+        {tab !== "home" && tab !== "share" && tab !== "details" && tab !== "visits" && tab !== "medications" && tab !== "records" && upcomingAppointments.length > 0 && (
           <div className="mt-8 space-y-4">
             {upcomingAppointments.map((appt) => (
               <IntakeRequestCard
@@ -376,6 +378,7 @@ function PassportPage() {
                 else if (destination === "patterns") setTab("progress");
                 else if (destination === "visits") setTab("visits");
                 else if (destination === "prescriptions") setTab("medications");
+                else if (destination === "records") setTab("records");
               }}
             />
           )}
@@ -383,6 +386,7 @@ function PassportPage() {
             <VisitsTimeline onOpenPrescriptions={() => setTab("medications")} />
           )}
           {tab === "medications" && <ClientPrescriptionsSection />}
+          {tab === "records" && <RecordsSection onOpenVisits={() => setTab("visits")} />}
           {tab === "overview" && (
             <Overview
               today={today}
