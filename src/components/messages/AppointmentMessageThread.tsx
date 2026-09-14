@@ -127,7 +127,9 @@ export default function AppointmentMessageThread({
             Appointment messages
           </span>
           <span className="mt-0.5 block truncate text-xs font-normal text-brand-purple">
-            {messages.length === 0
+            {closedReason
+              ? `Conversation with ${otherName}`
+              : messages.length === 0
               ? `Start a conversation with ${otherName}`
               : `${otherName} · Last message ${formatMessageTime(messages[messages.length - 1].at)}`}
           </span>
@@ -144,12 +146,14 @@ export default function AppointmentMessageThread({
 
       {open && (
         <div>
-          {messages.length === 0 && !closedReason ? (
+          {messages.length === 0 ? (
+            closedReason ? null : (
             <div className="px-5 py-8 text-center sm:px-8">
               <MessageCircle className="mx-auto h-6 w-6 text-brand-purple-accent" />
               <p className="mt-2 text-sm font-medium text-brand-purple-dark">No messages yet</p>
               <p className="mt-1 text-xs text-brand-purple">Start the conversation about this appointment below.</p>
             </div>
+            )
           ) : (
             <div className="max-h-96 space-y-5 overflow-y-auto px-5 py-6 sm:px-8">
               {messages.map((m) => {
