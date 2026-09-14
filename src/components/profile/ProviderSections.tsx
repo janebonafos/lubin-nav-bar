@@ -2,9 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { PrescribingVerificationCard } from "@/components/profile/PrescribingVerificationCard";
 import AppointmentMessageButton from "@/components/messages/AppointmentMessageButton";
-import AppointmentMessageThread, {
-  ChatClosedNotice,
-} from "@/components/messages/AppointmentMessageThread";
+import AppointmentMessageThread from "@/components/messages/AppointmentMessageThread";
 import { seedDemoTrailNotices } from "@/lib/messages/appointmentMessages";
 import ProviderIntakeAnswers from "@/components/intake/ProviderIntakeAnswers";
 import {
@@ -1823,22 +1821,21 @@ export function AppointmentsSection() {
                 </div>
                 {isExpanded && (
                   <div className="px-6 pb-8 pt-2">
-                    {a.status === "upcoming" || a.status === "session_review" ? (
-                      <div className="mb-6">
-                        <AppointmentMessageThread
-                          key={`msg-${a.id}-${msgOpen[a.id] ?? 0}`}
-                          appointmentId={a.id}
-                          role="provider"
-                          selfName="You"
-                          otherName={a.client}
-                          defaultOpen={(msgOpen[a.id] ?? 0) > 0}
-                        />
-                      </div>
-                    ) : (
-                      <div className="mb-6">
-                        <ChatClosedNotice reason={a.status} />
-                      </div>
-                    )}
+                    <div className="mb-6">
+                      <AppointmentMessageThread
+                        key={`msg-${a.id}-${msgOpen[a.id] ?? 0}`}
+                        appointmentId={a.id}
+                        role="provider"
+                        selfName="You"
+                        otherName={a.client}
+                        defaultOpen={(msgOpen[a.id] ?? 0) > 0}
+                        closedReason={
+                          a.status === "completed" || a.status === "cancelled"
+                            ? a.status
+                            : undefined
+                        }
+                      />
+                    </div>
                     <div className="mb-6 grid gap-6 sm:grid-cols-3">
                       <DetailItem label="Client" value={a.client} />
                       <DetailItem label="When" value={`${a.month} ${a.date} · ${a.time} · ${a.timezone}`} />
