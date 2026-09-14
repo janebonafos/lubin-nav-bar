@@ -13,7 +13,9 @@ import {
 } from "lucide-react";
 
 import {
+  formatUpdatedAt,
   healthDetailsProgress,
+  healthDetailsUpdatedAt,
   loadHealthDetails,
   subscribeHealthDetails,
   type HealthDetails,
@@ -40,10 +42,14 @@ export default function PassportHome({
   const [details, setDetails] = useState<HealthDetails>({});
   const [prescriptions, setPrescriptions] = useState<SignedPrescriptionDocument[]>([]);
   const [attempts, setAttempts] = useState(() => loadAttempts());
+  const [updatedAt, setUpdatedAt] = useState<number | null>(null);
 
   useEffect(() => {
     ensureSamplePrescriptionRecord();
-    const refreshDetails = () => setDetails(loadHealthDetails());
+    const refreshDetails = () => {
+      setDetails(loadHealthDetails());
+      setUpdatedAt(healthDetailsUpdatedAt());
+    };
     const refreshPrescriptions = () => setPrescriptions(listSignedPrescriptions());
     refreshDetails();
     refreshPrescriptions();
