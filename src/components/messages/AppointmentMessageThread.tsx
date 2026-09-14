@@ -228,7 +228,7 @@ export default function AppointmentMessageThread({
                           onClick={() => setViewingShare(true)}
                           className={`mt-1 inline-flex items-center gap-1.5 rounded-[10px] px-2.5 py-1 text-[11.5px] font-semibold transition ${
                             mine
-                              ? "bg-white/15 text-primary-foreground hover:bg-white/25"
+                              ? "bg-white/20 text-primary-foreground ring-1 ring-white/50 hover:bg-white/30"
                               : "bg-white text-brand-purple-dark ring-1 ring-brand-lavender hover:bg-brand-lavender/20"
                           }`}
                         >
