@@ -280,10 +280,10 @@ function PassportPage() {
       <Navbar />
       <main className="relative mx-auto w-full max-w-[1200px] px-5 md:px-10 pt-32 pb-20">
         {/* Guest nudge banner */}
-        <GuestBanner />
+        {tab !== "home" && <GuestBanner />}
 
         {/* Header */}
-        <header className="mt-6 flex items-start justify-between gap-4">
+        {tab !== "home" && <header className="mt-6 flex items-start justify-between gap-4">
           <div>
             <div className="inline-flex items-center gap-2 rounded-lg bg-white/60 px-3 py-1.5 ring-1 ring-brand-purple/15 backdrop-blur-sm">
               <Sparkles className="h-3 w-3 text-brand-purple" />
@@ -298,7 +298,7 @@ function PassportPage() {
               Keep your details, visits, medications, and records together. Choose what to share with your care team.
             </p>
           </div>
-        </header>
+        </header>}
 
         {/* Tabs */}
         <div className="mt-8 flex gap-6 border-b border-brand-purple/15">
@@ -346,7 +346,7 @@ function PassportPage() {
         </div>
 
         {/* Gentle session prep nudges — same request as the appointment card */}
-        {tab !== "share" && tab !== "details" && upcomingAppointments.length > 0 && (
+        {tab !== "home" && tab !== "share" && tab !== "details" && upcomingAppointments.length > 0 && (
           <div className="mt-8 space-y-4">
             {upcomingAppointments.map((appt) => (
               <IntakeRequestCard
