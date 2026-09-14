@@ -4,6 +4,7 @@ import { PrescribingVerificationCard } from "@/components/profile/PrescribingVer
 import AppointmentMessageButton from "@/components/messages/AppointmentMessageButton";
 import AppointmentMessageThread from "@/components/messages/AppointmentMessageThread";
 import ProviderPassportShareCard from "@/components/share/ProviderPassportShareCard";
+import { seedDemoAppointmentSharing } from "@/lib/share/appointmentSharing";
 import { seedDemoTrailNotices } from "@/lib/messages/appointmentMessages";
 import ProviderIntakeAnswers from "@/components/intake/ProviderIntakeAnswers";
 import {
@@ -1519,6 +1520,7 @@ export function AppointmentsSection() {
   useEffect(() => {
     const t = window.setTimeout(() => setLoading(false), 500);
     seedDemoTrailNotices();
+    seedDemoAppointmentSharing();
     return () => window.clearTimeout(t);
   }, []);
 

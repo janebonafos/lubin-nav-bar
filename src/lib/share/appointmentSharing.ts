@@ -135,9 +135,19 @@ export type ShareState =
   | { kind: "acknowledged"; grant: ProviderShareGrant; ack: ShareAcknowledgment }
   | { kind: "ended"; grant: ProviderShareGrant; reason: "revoked" | "expired" };
 
+/** The two demo ids model one appointment, so a grant counts for both. */
+function grantFor(appointmentId: string, anyState: boolean): ProviderShareGrant | null {
+  const read = anyState ? getAnyProviderGrant : getProviderGrant;
+  for (const id of ackIds(appointmentId)) {
+    const g = read(id);
+    if (g) return g;
+  }
+  return null;
+}
+
 export function shareState(appointmentId: string): ShareState {
-  const active = getProviderGrant(appointmentId);
-  const any = getAnyProviderGrant(appointmentId);
+  const active = grantFor(appointmentId, false);
+  const any = grantFor(appointmentId, true);
   if (!active) {
     if (!any) return { kind: "not_shared" };
     return {
@@ -214,4 +224,32 @@ export function previewExpiry(appointmentTs?: number): number {
   const now = Date.now();
   const base = appointmentTs && appointmentTs > now ? appointmentTs : now;
   return base + 7 * 24 * 60 * 60 * 1000;
+}
+
+/**
+ * Prototype demo: one appointment already has a shared + acknowledged Health
+ * Passport so both states are visible without running the flow. Seeded once.
+ */
+const DEMO_FLAG = "lubin.share.appointmentDemo.v1";
+
+export function seedDemoAppointmentSharing(): void {
+  if (typeof window === "undefined") return;
+  try {
+    if (window.localStorage.getItem(DEMO_FLAG)) return;
+    window.localStorage.setItem(DEMO_FLAG, "1");
+  } catch {
+    return;
+  }
+  if (getAnyProviderGrant("cu2")) return;
+  sharePassportForAppointment({
+    appointmentId: "cu2",
+    providerName: "Coach Liam Park",
+    appointmentLabel: "Mon, Jul 01 · 10:00 AM",
+    includedKeys: ["mood", "health"],
+  });
+  acknowledgeShare({
+    appointmentId: "cu2",
+    providerName: "Coach Liam Park",
+    patientName: "Anna Reyes",
+  });
 }

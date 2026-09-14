@@ -27,6 +27,7 @@ import AppointmentMessageThread from "@/components/messages/AppointmentMessageTh
 import { seedDemoThreads, seedDemoTrailNotices } from "@/lib/messages/appointmentMessages";
 import IntakeRequestCard from "@/components/intake/IntakeRequestCard";
 import AppointmentPassportShare from "@/components/share/AppointmentPassportShare";
+import { seedDemoAppointmentSharing } from "@/lib/share/appointmentSharing";
 import { buildIntakeProgress, subscribeIntake } from "@/lib/intake/store";
 
 type Appt = {
@@ -288,6 +289,7 @@ export default function ClientAppointmentsSection() {
   useEffect(() => {
     seedDemoThreads();
     seedDemoTrailNotices();
+    seedDemoAppointmentSharing();
   }, []);
 
   useEffect(() => {
