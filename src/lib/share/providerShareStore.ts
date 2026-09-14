@@ -11,7 +11,7 @@ import { INCLUDE_OPTIONS } from "@/lib/share/summary";
 import {
   healthPassportRevokedNotice,
   healthPassportSharedNotice,
-  postSystemMessage,
+  postSystemMessageMirrored,
 } from "@/lib/messages/appointmentMessages";
 
 /** Human labels for the shared sections, for the appointment message trail. */
@@ -147,7 +147,7 @@ export function createProviderGrant(input: {
   const store = readStore();
   store[input.appointmentId] = grant;
   writeStore(store);
-  postSystemMessage(
+  postSystemMessageMirrored(
     input.appointmentId,
     healthPassportSharedNotice({
       mode: "shared",
@@ -192,7 +192,7 @@ export function updateProviderGrant(
   };
   store[appointmentId] = next;
   writeStore(store);
-  postSystemMessage(
+  postSystemMessageMirrored(
     appointmentId,
     healthPassportSharedNotice({
       mode: "updated",
@@ -213,7 +213,7 @@ export function revokeProviderGrant(appointmentId: string): void {
     revokeReason: store[appointmentId].revokeReason ?? "user",
   };
   writeStore(store);
-  postSystemMessage(appointmentId, healthPassportRevokedNotice());
+  postSystemMessageMirrored(appointmentId, healthPassportRevokedNotice());
 }
 
 /** Auto-revoke because the appointment was cancelled. */
