@@ -126,6 +126,73 @@ export function subscribeThread(appointmentId: string, handler: () => void) {
   };
 }
 
+/**
+ * Prototype-only demo content so the unread state is visible on first load.
+ * Runs once per browser; never touches threads that already have messages.
+ */
+const DEMO_FLAG = "lubin:appt-thread-demo:v1";
+
+const DEMO: Array<{
+  appointmentId: string;
+  from: MessageAuthor;
+  authorName: string;
+  body: string;
+  minutesAgo: number;
+}> = [
+  {
+    appointmentId: "cu1",
+    from: "provider",
+    authorName: "Dr. Camille Lazaro",
+    body: "Hi Anna! Looking forward to our session today. Could you share how your sleep has been this past week?",
+    minutesAgo: 90,
+  },
+  {
+    appointmentId: "cu1",
+    from: "provider",
+    authorName: "Dr. Camille Lazaro",
+    body: "Also, please join a few minutes early so we can start on time.",
+    minutesAgo: 40,
+  },
+  {
+    appointmentId: "cu2",
+    from: "provider",
+    authorName: "Coach Liam Park",
+    body: "Hey! Before Monday, jot down one habit you want to work on.",
+    minutesAgo: 20,
+  },
+];
+
+export function seedDemoThreads() {
+  if (typeof window === "undefined") return;
+  try {
+    if (window.localStorage.getItem(DEMO_FLAG)) return;
+    window.localStorage.setItem(DEMO_FLAG, "1");
+    const grouped = new Map<string, AppointmentMessage[]>();
+    for (const item of DEMO) {
+      const list = grouped.get(item.appointmentId) ?? getThread(item.appointmentId);
+      list.push({
+        id: `demo${item.appointmentId}${list.length}${item.minutesAgo}`,
+        from: item.from,
+        authorName: item.authorName,
+        body: item.body,
+        at: Date.now() - item.minutesAgo * 60_000,
+        notified: [
+          relayAddress(item.appointmentId, "client"),
+          relayAddress(item.appointmentId, "provider"),
+        ],
+      });
+      grouped.set(item.appointmentId, list);
+    }
+    for (const [appointmentId, list] of grouped) {
+      window.localStorage.setItem(key(appointmentId), JSON.stringify(list));
+      window.localStorage.removeItem(`lubin:appt-thread-seen:${appointmentId}:client`);
+      window.dispatchEvent(new CustomEvent(EVENT, { detail: { appointmentId } }));
+    }
+  } catch {
+    /* noop */
+  }
+}
+
 export function formatMessageTime(ts: number) {
   return new Date(ts).toLocaleString(undefined, {
     month: "short",
