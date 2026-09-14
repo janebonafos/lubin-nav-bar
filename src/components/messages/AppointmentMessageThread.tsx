@@ -37,6 +37,22 @@ export default function AppointmentMessageThread({
   const [justSent, setJustSent] = useState(false);
   const [seenAt, setSeenAt] = useState(0);
   const endRef = useRef<HTMLDivElement | null>(null);
+  const rootRef = useRef<HTMLElement | null>(null);
+
+  // When the thread is opened via the appointment's Message button
+  // (defaultOpen on a fresh mount), bring the conversation into view so the
+  // user lands on the messages — not on a form further down the page.
+  useEffect(() => {
+    if (!defaultOpen) return;
+    const el = rootRef.current;
+    if (!el) return;
+    const t = window.setTimeout(() => {
+      const top = el.getBoundingClientRect().top + window.scrollY - 90;
+      window.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+    }, 80);
+    return () => window.clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const refresh = () => {
