@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { X, ArrowRight, ArrowLeft, Check, Loader2 } from "lucide-react";
 import {
   PROXY_RELATIONSHIPS,
+  loadProxySignup,
   proxyRelationshipSentence,
   relationshipLabel,
   saveProxySignup,
@@ -79,13 +80,18 @@ export default function AuthModal({
   const [mode, setMode] = useState<AuthMode>(initialMode);
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
   const [loadingProvider, setLoadingProvider] = useState<Provider | null>(null);
-  /** "choose" = role + sign-in methods. "proxy" = post-authentication question. */
-  const [step, setStep] = useState<"choose" | "proxy">("choose");
+  /**
+   * "choose" = role + sign-in methods.
+   * "proxy" = post-authentication question, new clients only.
+   * "welcome" = post-authentication confirmation for returning accounts.
+   */
+  const [step, setStep] = useState<"choose" | "proxy" | "welcome">("choose");
   const [authedProvider, setAuthedProvider] = useState<Provider | null>(null);
   const [onBehalf, setOnBehalf] = useState<boolean | null>(null);
   const [relationship, setRelationship] = useState("");
   const [relationshipOther, setRelationshipOther] = useState("");
   const [personName, setPersonName] = useState("");
+  const [savedProxy, setSavedProxy] = useState<ProxySignup | null>(null);
 
   useEffect(() => setMode(initialMode), [initialMode, open]);
 
@@ -99,6 +105,7 @@ export default function AuthModal({
       setRelationship("");
       setRelationshipOther("");
       setPersonName("");
+      setSavedProxy(null);
       return;
     }
 
@@ -162,25 +169,30 @@ export default function AuthModal({
   const handleProvider = (provider: Provider) => {
     if (!selectedRole || loadingProvider) return;
     setLoadingProvider(provider);
-    if (isSignup && selectedRole === "client") {
-      window.setTimeout(() => {
-        setLoadingProvider(null);
-        setAuthedProvider(provider);
+    window.setTimeout(() => {
+      setLoadingProvider(null);
+      setAuthedProvider(provider);
+      if (isSignup && selectedRole === "client") {
         setStep("proxy");
-      }, 650);
-      return;
-    }
-    finish(provider, null);
+        return;
+      }
+      setSavedProxy(selectedRole === "client" ? loadProxySignup() : null);
+      setStep("welcome");
+    }, 650);
   };
 
-  const title = step === "proxy" ? "One last thing" : isSignup ? "Join" : "Welcome";
-  const titleAccent = step === "proxy" ? "" : isSignup ? brandName : "back";
+  const providerLabel = PROVIDER_LABEL[authedProvider ?? "google"];
+  const title =
+    step === "proxy" ? "One last thing" : step === "welcome" ? "You're signed in" : isSignup ? "Join" : "Welcome";
+  const titleAccent = step === "proxy" || step === "welcome" ? "" : isSignup ? brandName : "back";
   const subtitle =
     step === "proxy"
-      ? `You're signed in with ${PROVIDER_LABEL[authedProvider ?? "google"]}. Tell us who this account is for so we can set up the right passport.`
-      : isSignup
-        ? "Tell us how you want to use Lubin so we can tailor the experience for you."
-        : "Tell us who's signing in so we can take you to the right place.";
+      ? `You're signed in with ${providerLabel}. Tell us who this account is for so we can set up the right passport.`
+      : step === "welcome"
+        ? `We recognised your ${providerLabel} account, so there's nothing new to set up.`
+        : isSignup
+          ? "Tell us how you want to use Lubin so we can tailor the experience for you."
+          : "Tell us who's signing in so we can take you to the right place.";
   const footerPrompt = isSignup ? "Already have an account?" : "Need to create an account?";
   const footerCta = isSignup ? "Sign in instead" : "Create an account";
 
@@ -338,6 +350,37 @@ export default function AuthModal({
               </button>
             </p>
           </>
+        )}
+
+        {step === "welcome" && (
+          <div className="mt-6">
+            <div className="rounded-2xl border border-[#E6DFF4] bg-white p-4">
+              <span className="mb-2 flex items-center gap-2 text-[10.5px] font-semibold uppercase tracking-[0.12em] text-[#7E6BAF]">
+                <Check className="h-3.5 w-3.5" /> Existing account
+              </span>
+              <p className="text-[13.5px] leading-snug text-[#1F1B2E]">
+                {selectedRole === "provider"
+                  ? "You're continuing to your provider dashboard and clients."
+                  : savedProxy
+                    ? proxyRelationshipSentence(savedProxy)
+                    : "You manage your own care on this account."}
+              </p>
+              {selectedRole === "client" && (
+                <p className="mt-2 text-[11.5px] leading-snug text-[#5A4E8A]">
+                  This was set when the account was created. You can change it in your profile
+                  settings — signing in never changes it.
+                </p>
+              )}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => finish(authedProvider ?? "google", savedProxy)}
+              className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-[#7E6BAF] px-5 py-3 text-[14px] font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-[#6C5A9E]"
+            >
+              Continue <ArrowRight className="h-4 w-4" />
+            </button>
+          </div>
         )}
 
         {step === "proxy" && (
