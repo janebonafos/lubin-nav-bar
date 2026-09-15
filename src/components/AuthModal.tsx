@@ -228,6 +228,9 @@ export default function AuthModal({
 
   const canShowAuthMethods = selectedRole !== null;
 
+  // The account-holder answer is required: no close button, no click-away.
+  const dismissible = step !== "proxy";
+
   return (
     <div
       className="fixed inset-0 z-[100] flex items-center justify-center p-4 animate-fade-in"
@@ -236,21 +239,27 @@ export default function AuthModal({
       aria-modal="true"
       aria-labelledby="auth-modal-title"
     >
-      <button
-        type="button"
-        aria-label="Close"
-        onClick={onClose}
-        className="absolute inset-0 bg-[#3D2E6B]/55 backdrop-blur-sm"
-      />
-      <div className="relative w-full max-w-[560px] rounded-3xl bg-gradient-to-b from-[#F4EFFB] to-white p-7 shadow-[0_30px_80px_-20px_rgba(61,46,107,0.45)] animate-scale-in sm:p-8">
+      {dismissible ? (
         <button
           type="button"
-          onClick={onClose}
           aria-label="Close"
-          className="absolute right-4 top-4 rounded-full p-1.5 text-[#7E6BAF] transition hover:bg-[#7E6BAF]/10 hover:text-[#3D2E6B]"
-        >
-          <X className="h-5 w-5" />
-        </button>
+          onClick={onClose}
+          className="absolute inset-0 bg-[#3D2E6B]/55 backdrop-blur-sm"
+        />
+      ) : (
+        <div className="absolute inset-0 bg-[#3D2E6B]/55 backdrop-blur-sm" />
+      )}
+      <div className="relative w-full max-w-[560px] rounded-3xl bg-gradient-to-b from-[#F4EFFB] to-white p-7 shadow-[0_30px_80px_-20px_rgba(61,46,107,0.45)] animate-scale-in sm:p-8">
+        {dismissible && (
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className="absolute right-4 top-4 rounded-full p-1.5 text-[#7E6BAF] transition hover:bg-[#7E6BAF]/10 hover:text-[#3D2E6B]"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        )}
 
         <h2 id="auth-modal-title" className="text-[22px] font-bold leading-tight text-[#1F1B2E]">
           {title} {titleAccent && <span className="text-[#7E6BAF]">{titleAccent}</span>}
