@@ -176,7 +176,15 @@ export default function AuthModal({
         setStep("proxy");
         return;
       }
-      setSavedProxy(selectedRole === "client" ? loadProxySignup() : null);
+      const existingProxy = selectedRole === "client" ? loadProxySignup() : null;
+      // A returning client who manages their own account doesn't need a
+      // confirmation — the proxy choice was captured once at registration.
+      // Show the welcome step only when there's a proxy to confirm, or for providers.
+      if (!isSignup && selectedRole === "client" && !existingProxy) {
+        finish(provider, null);
+        return;
+      }
+      setSavedProxy(existingProxy);
       setStep("welcome");
     }, 650);
   };
