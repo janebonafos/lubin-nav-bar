@@ -40,6 +40,7 @@ export default function PassportHome({
   const [prescriptions, setPrescriptions] = useState<SignedPrescriptionDocument[]>([]);
   const [attempts, setAttempts] = useState(() => loadAttempts());
   const [updatedAt, setUpdatedAt] = useState<number | null>(null);
+  const [displayPassportId, setDisplayPassportId] = useState("LBN-0000-0000");
 
   useEffect(() => {
     ensureSamplePrescriptionRecord();
@@ -51,6 +52,7 @@ export default function PassportHome({
     refreshDetails();
     refreshPrescriptions();
     setAttempts(loadAttempts());
+    setDisplayPassportId(passportId());
     const stopDetails = subscribeHealthDetails(refreshDetails);
     const stopPrescriptions = subscribePrescriptionDocuments(refreshPrescriptions);
     return () => {
@@ -191,7 +193,7 @@ export default function PassportHome({
           <div className="mb-10">
             <h3 className="font-display mb-1 text-3xl">{name}</h3>
             <p className="text-sm text-brand-purple-accent">
-              Passport {passportId().replace(/^/, "#")}
+              Passport #{displayPassportId}
             </p>
           </div>
 
