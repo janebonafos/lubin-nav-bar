@@ -105,6 +105,7 @@ export default function AuthModal({
       setRelationship("");
       setRelationshipOther("");
       setPersonName("");
+      setSavedProxy(null);
       return;
     }
 
