@@ -7,6 +7,15 @@
   font-feature-settings: "liga", "kern";
 }
 
+.font-display {
+  font-family: "Fraunces", Georgia, serif;
+  font-feature-settings: "liga", "kern";
+}
+
+.font-body {
+  font-family: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 /*
