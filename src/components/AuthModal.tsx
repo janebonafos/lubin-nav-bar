@@ -167,25 +167,30 @@ export default function AuthModal({
   const handleProvider = (provider: Provider) => {
     if (!selectedRole || loadingProvider) return;
     setLoadingProvider(provider);
-    if (isSignup && selectedRole === "client") {
-      window.setTimeout(() => {
-        setLoadingProvider(null);
-        setAuthedProvider(provider);
+    window.setTimeout(() => {
+      setLoadingProvider(null);
+      setAuthedProvider(provider);
+      if (isSignup && selectedRole === "client") {
         setStep("proxy");
-      }, 650);
-      return;
-    }
-    finish(provider, null);
+        return;
+      }
+      setSavedProxy(selectedRole === "client" ? loadProxySignup() : null);
+      setStep("welcome");
+    }, 650);
   };
 
-  const title = step === "proxy" ? "One last thing" : isSignup ? "Join" : "Welcome";
-  const titleAccent = step === "proxy" ? "" : isSignup ? brandName : "back";
+  const providerLabel = PROVIDER_LABEL[authedProvider ?? "google"];
+  const title =
+    step === "proxy" ? "One last thing" : step === "welcome" ? "You're signed in" : isSignup ? "Join" : "Welcome";
+  const titleAccent = step === "proxy" || step === "welcome" ? "" : isSignup ? brandName : "back";
   const subtitle =
     step === "proxy"
-      ? `You're signed in with ${PROVIDER_LABEL[authedProvider ?? "google"]}. Tell us who this account is for so we can set up the right passport.`
-      : isSignup
-        ? "Tell us how you want to use Lubin so we can tailor the experience for you."
-        : "Tell us who's signing in so we can take you to the right place.";
+      ? `You're signed in with ${providerLabel}. Tell us who this account is for so we can set up the right passport.`
+      : step === "welcome"
+        ? `We recognised your ${providerLabel} account, so there's nothing new to set up.`
+        : isSignup
+          ? "Tell us how you want to use Lubin so we can tailor the experience for you."
+          : "Tell us who's signing in so we can take you to the right place.";
   const footerPrompt = isSignup ? "Already have an account?" : "Need to create an account?";
   const footerCta = isSignup ? "Sign in instead" : "Create an account";
 
