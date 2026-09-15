@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { X, ArrowRight, ArrowLeft, Check, Loader2 } from "lucide-react";
 import {
   PROXY_RELATIONSHIPS,
-  loadProxySignup,
   proxyRelationshipSentence,
   relationshipLabel,
   saveProxySignup,
@@ -14,6 +13,7 @@ export type UserRole = "client" | "provider";
 
 export type { ProxySignup };
 
+type Provider = "google" | "linkedin" | "facebook";
 
 interface AuthModalProps {
   open: boolean;
@@ -56,6 +56,12 @@ function FacebookIcon({ className }: { className?: string }) {
   );
 }
 
+const PROVIDER_LABEL: Record<Provider, string> = {
+  google: "Google",
+  linkedin: "LinkedIn",
+  facebook: "Facebook",
+};
+
 export default function AuthModal({
   open,
   mode: initialMode = "signup",
@@ -72,25 +78,24 @@ export default function AuthModal({
 }: AuthModalProps) {
   const [mode, setMode] = useState<AuthMode>(initialMode);
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
-  const [loadingProvider, setLoadingProvider] = useState<"google" | "linkedin" | "facebook" | null>(null);
-  const [onBehalf, setOnBehalf] = useState(false);
+  const [loadingProvider, setLoadingProvider] = useState<Provider | null>(null);
+  /** "choose" = role + sign-in methods. "proxy" = post-authentication question. */
+  const [step, setStep] = useState<"choose" | "proxy">("choose");
+  const [authedProvider, setAuthedProvider] = useState<Provider | null>(null);
+  const [onBehalf, setOnBehalf] = useState<boolean | null>(null);
   const [relationship, setRelationship] = useState("");
   const [relationshipOther, setRelationshipOther] = useState("");
   const [personName, setPersonName] = useState("");
-  /** Choice captured at registration; on sign-in it is shown read-only. */
-  const [savedProxy, setSavedProxy] = useState<ProxySignup | null>(null);
 
   useEffect(() => setMode(initialMode), [initialMode, open]);
-
-  useEffect(() => {
-    if (open) setSavedProxy(loadProxySignup());
-  }, [open, mode]);
 
   useEffect(() => {
     if (!open) {
       setSelectedRole(null);
       setLoadingProvider(null);
-      setOnBehalf(false);
+      setStep("choose");
+      setAuthedProvider(null);
+      setOnBehalf(null);
       setRelationship("");
       setRelationshipOther("");
       setPersonName("");
@@ -113,12 +118,6 @@ export default function AuthModal({
 
   const handleSelectRole = (role: UserRole) => {
     setSelectedRole(role);
-    if (role !== "client") {
-      setOnBehalf(false);
-      setRelationship("");
-      setRelationshipOther("");
-      setPersonName("");
-    }
     onSelectRole?.(role);
   };
 
@@ -126,43 +125,66 @@ export default function AuthModal({
     const next: AuthMode = isSignup ? "signin" : "signup";
     setMode(next);
     setSelectedRole(null);
+    setStep("choose");
+    setAuthedProvider(null);
     onSwitchMode?.(next);
   };
 
-  const title = isSignup ? "Join" : "Welcome";
-  const titleAccent = isSignup ? brandName : "back";
-  const subtitle = isSignup
-    ? "Tell us how you want to use Lubin so we can tailor the experience for you."
-    : "Tell us who's signing in so we can take you to the right place.";
-  const footerPrompt = isSignup ? "Already have an account?" : "Need to create an account?";
-  const footerCta = isSignup ? "Sign in instead" : "Create an account";
-
-  /** The "who is this account for" question is asked once, at registration only. */
-  const showProxyOption = selectedRole === "client" && isSignup;
-  /** On sign-in the same information is shown read-only, never editable. */
-  const showProxySummary = selectedRole === "client" && !isSignup;
   const needsOtherText = relationship === "other" && relationshipOther.trim().length < 2;
   const proxyIncomplete =
-    showProxyOption && onBehalf && (!relationship || needsOtherText || personName.trim().length < 2);
-  const proxyPayload: ProxySignup | null = isSignup
-    ? showProxyOption && onBehalf && !proxyIncomplete
+    onBehalf === null || (onBehalf && (!relationship || needsOtherText || personName.trim().length < 2));
+  const proxyPayload: ProxySignup | null =
+    onBehalf && !proxyIncomplete
       ? {
           relationship,
           relationshipLabel: relationshipLabel(relationship),
           ...(relationship === "other" ? { relationshipOther: relationshipOther.trim() } : {}),
           personName: personName.trim(),
         }
-      : null
-    : savedProxy;
-  const canShowAuthMethods = selectedRole !== null;
-  const blocked = loadingProvider !== null || proxyIncomplete;
+      : null;
 
-  /** Persist the relationship for every signup entry point, not just /auth. */
-  const persistProxy = () => {
-    if (selectedRole !== "client" || !isSignup) return;
-    saveProxySignup(proxyPayload);
+  const finish = (provider: Provider, proxy: ProxySignup | null) => {
+    if (isSignup && selectedRole === "client") saveProxySignup(proxy);
+    const cb =
+      provider === "google"
+        ? onContinueWithGoogle
+        : provider === "linkedin"
+          ? onContinueWithLinkedIn
+          : onContinueWithFacebook;
+    cb?.(selectedRole ?? undefined, proxy);
   };
 
+  /**
+   * Authentication happens on this click. Only after it succeeds do we ask a
+   * new client who the account is for — the answer is captured once, at
+   * registration, and never re-asked on sign-in.
+   */
+  const handleProvider = (provider: Provider) => {
+    if (!selectedRole || loadingProvider) return;
+    setLoadingProvider(provider);
+    if (isSignup && selectedRole === "client") {
+      window.setTimeout(() => {
+        setLoadingProvider(null);
+        setAuthedProvider(provider);
+        setStep("proxy");
+      }, 650);
+      return;
+    }
+    finish(provider, null);
+  };
+
+  const title = step === "proxy" ? "One last thing" : isSignup ? "Join" : "Welcome";
+  const titleAccent = step === "proxy" ? "" : isSignup ? brandName : "back";
+  const subtitle =
+    step === "proxy"
+      ? `You're signed in with ${PROVIDER_LABEL[authedProvider ?? "google"]}. Tell us who this account is for so we can set up the right passport.`
+      : isSignup
+        ? "Tell us how you want to use Lubin so we can tailor the experience for you."
+        : "Tell us who's signing in so we can take you to the right place.";
+  const footerPrompt = isSignup ? "Already have an account?" : "Need to create an account?";
+  const footerCta = isSignup ? "Sign in instead" : "Create an account";
+
+  const canShowAuthMethods = selectedRole !== null;
 
   return (
     <div
@@ -188,309 +210,261 @@ export default function AuthModal({
           <X className="h-5 w-5" />
         </button>
 
-        <h2
-          id="auth-modal-title"
-          className="text-[22px] font-bold leading-tight text-[#1F1B2E]"
-        >
-          {title} <span className="text-[#7E6BAF]">{titleAccent}</span>
+        <h2 id="auth-modal-title" className="text-[22px] font-bold leading-tight text-[#1F1B2E]">
+          {title} {titleAccent && <span className="text-[#7E6BAF]">{titleAccent}</span>}
         </h2>
-        <p className="mt-2 text-[14px] leading-relaxed text-[#5A4E8A]">
-          {subtitle}
-        </p>
+        <p className="mt-2 text-[14px] leading-relaxed text-[#5A4E8A]">{subtitle}</p>
 
-        <div className="mt-6 flex flex-col gap-3">
-            {([
-              {
-                role: "client" as UserRole,
-                title: isSignup ? "I need support" : "I'm a client",
-                desc: isSignup
-                  ? "Find providers, track your wellness, and access mental health resources"
-                  : "Continue to your wellness space and providers",
-              },
-              {
-                role: "provider" as UserRole,
-                title: "I'm a provider",
-                desc: isSignup
-                  ? "Offer sessions, manage clients, and grow your practice"
-                  : "Continue to your provider dashboard and clients",
-              },
-            ]).map((opt) => {
-              const active = selectedRole === opt.role;
-              return (
-                <button
-                  key={opt.role}
-                  type="button"
-                  onClick={() => handleSelectRole(opt.role)}
-                  aria-pressed={active}
-                  className={`group flex items-center gap-3 rounded-2xl border p-4 text-left transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_24px_-10px_rgba(126,107,175,0.45)] sm:gap-4 sm:p-5 ${
-                    active
-                      ? "border-[#7E6BAF] bg-[#7E6BAF] text-white shadow-sm"
-                      : "border-[#E9E4F1] bg-white hover:border-[#7E6BAF]/40 hover:bg-[#F5F3F9]"
-                  }`}
-                >
-                  <div className="min-w-0">
-
-                    <span className={`block text-[15px] font-semibold ${active ? "text-white" : "text-[#1F1B2E]"}`}>
-                      {opt.title}
-                    </span>
-                    <span className={`mt-0.5 block text-[13px] leading-snug ${active ? "text-white/80" : "text-[#5A4E8A]"}`}>
-                      {opt.desc}
-                    </span>
-                  </div>
-                  {active ? (
-                    <span className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white text-[#7E6BAF]">
-                      <Check className="h-3.5 w-3.5" />
-                    </span>
-                  ) : (
-                    <ArrowRight className="ml-auto h-5 w-5 shrink-0 text-[#C9BEE5] transition-all group-hover:translate-x-0.5 group-hover:text-[#7E6BAF]" />
-                  )}
-                </button>
-              );
-            })}
-          </div>
-
-        {showProxyOption && (
-          <div className="mt-4 rounded-2xl border border-[#E6DFF4] bg-white p-3.5">
-            <span className="mb-2 block text-[10.5px] font-semibold uppercase tracking-[0.12em] text-[#7E6BAF]">
-              Who is this account for?
-            </span>
-            <div className="grid grid-cols-1 gap-2 min-[380px]:grid-cols-2">
+        {step === "choose" && (
+          <>
+            <div className="mt-6 flex flex-col gap-3">
               {([
                 {
-                  value: false,
-                  title: "It's for me",
-                  desc: isSignup ? "I'm the one seeking support" : "I manage my own care",
+                  role: "client" as UserRole,
+                  title: isSignup ? "I need support" : "I'm a client",
+                  desc: isSignup
+                    ? "Find providers, track your wellness, and access mental health resources"
+                    : "Continue to your wellness space and providers",
                 },
                 {
-                  value: true,
-                  title: "For someone else",
-                  desc: "I'm a parent, partner or caregiver",
+                  role: "provider" as UserRole,
+                  title: "I'm a provider",
+                  desc: isSignup
+                    ? "Offer sessions, manage clients, and grow your practice"
+                    : "Continue to your provider dashboard and clients",
                 },
               ]).map((opt) => {
-                const active = onBehalf === opt.value;
+                const active = selectedRole === opt.role;
                 return (
                   <button
-                    key={String(opt.value)}
+                    key={opt.role}
                     type="button"
-                    onClick={() => setOnBehalf(opt.value)}
+                    onClick={() => handleSelectRole(opt.role)}
                     aria-pressed={active}
-                    className={`rounded-xl border px-3 py-2.5 text-left transition ${
+                    className={`group flex items-center gap-3 rounded-2xl border p-4 text-left transition-all hover:-translate-y-0.5 hover:shadow-[0_8px_24px_-10px_rgba(126,107,175,0.45)] sm:gap-4 sm:p-5 ${
                       active
                         ? "border-[#7E6BAF] bg-[#7E6BAF] text-white shadow-sm"
                         : "border-[#E9E4F1] bg-white hover:border-[#7E6BAF]/40 hover:bg-[#F5F3F9]"
                     }`}
                   >
-                    <span className={`block text-[13px] font-semibold ${active ? "text-white" : "text-[#1F1B2E]"}`}>
-                      {opt.title}
-                    </span>
-
-                    <span className={`mt-0.5 block text-[11.5px] leading-snug ${active ? "text-white/80" : "text-[#5A4E8A]"}`}>
-                      {opt.desc}
-                    </span>
+                    <div className="min-w-0">
+                      <span className={`block text-[15px] font-semibold ${active ? "text-white" : "text-[#1F1B2E]"}`}>
+                        {opt.title}
+                      </span>
+                      <span className={`mt-0.5 block text-[13px] leading-snug ${active ? "text-white/80" : "text-[#5A4E8A]"}`}>
+                        {opt.desc}
+                      </span>
+                    </div>
+                    {active ? (
+                      <span className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white text-[#7E6BAF]">
+                        <Check className="h-3.5 w-3.5" />
+                      </span>
+                    ) : (
+                      <ArrowRight className="ml-auto h-5 w-5 shrink-0 text-[#C9BEE5] transition-all group-hover:translate-x-0.5 group-hover:text-[#7E6BAF]" />
+                    )}
                   </button>
                 );
               })}
             </div>
 
-
-            {onBehalf && (
-              <div className="mt-3 space-y-3">
-                <div className="rounded-2xl border border-[#7E6BAF]/10 bg-[#FAF9FC] p-4">
-                  <span className="mb-3 block text-[11px] font-bold uppercase tracking-[0.12em] text-[#7E6BAF]">
-                    Your relationship to them
-                  </span>
-                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                    {PROXY_RELATIONSHIPS.map((opt) => {
-                      const active = relationship === opt.value;
-                      return (
-                        <button
-                          key={opt.value}
-                          type="button"
-                          onClick={() => setRelationship(opt.value)}
-                          aria-pressed={active}
-                          className={`flex items-center px-4 py-3.5 text-left text-[13.5px] font-medium leading-snug transition-all ${
-                            active
-                              ? "rounded-xl border border-[#7E6BAF] bg-[#7E6BAF] text-white shadow-sm"
-                              : "rounded-xl border border-[#E9E4F1] bg-white text-[#7E6BAF] hover:border-[#7E6BAF]/40 hover:bg-[#F5F3F9]"
-                          }`}
-                        >
-                          {opt.label}
-                        </button>
-                      );
-                    })}
-                  </div>
+            {canShowAuthMethods && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedRole(null);
+                    setLoadingProvider(null);
+                  }}
+                  className="mt-5 flex items-center gap-1 text-xs font-semibold text-[#7E6BAF] transition hover:text-[#3D2E6B]"
+                >
+                  <ArrowLeft className="h-3.5 w-3.5" /> Back to role selection
+                </button>
+                {isSignup && (
+                  <p className="mt-3 text-center text-[12px] text-[#7E6BAF]">
+                    By continuing with Google, LinkedIn or Facebook, you agree to {brandName}'s{" "}
+                    <a href={termsHref} className="font-medium text-[#5A4E8A] underline underline-offset-2 hover:text-[#3D2E6B]">
+                      Terms
+                    </a>{" "}
+                    and{" "}
+                    <a href={privacyHref} className="font-medium text-[#5A4E8A] underline underline-offset-2 hover:text-[#3D2E6B]">
+                      Privacy Policy
+                    </a>
+                    .
+                  </p>
+                )}
+                <div className="mt-4 flex flex-col gap-2.5">
+                  {([
+                    { key: "google" as Provider, Icon: GoogleIcon },
+                    { key: "linkedin" as Provider, Icon: LinkedInIcon },
+                    { key: "facebook" as Provider, Icon: FacebookIcon },
+                  ]).map(({ key, Icon }) => {
+                    const busy = loadingProvider === key;
+                    const blocked = loadingProvider !== null;
+                    return (
+                      <button
+                        key={key}
+                        type="button"
+                        disabled={blocked}
+                        onClick={() => handleProvider(key)}
+                        className={`group flex items-center justify-center gap-3 rounded-full border border-[#E6DFF4] bg-white px-5 py-3 text-[14px] font-medium text-[#1F1B2E] transition-all ${
+                          !blocked
+                            ? "hover:-translate-y-0.5 hover:border-[#C9BEE5] hover:shadow-[0_8px_20px_-10px_rgba(126,107,175,0.5)]"
+                            : "opacity-60 cursor-not-allowed"
+                        }`}
+                      >
+                        {busy ? (
+                          <Loader2 className="h-5 w-5 animate-spin text-[#7E6BAF]" />
+                        ) : (
+                          <Icon className="h-5 w-5" />
+                        )}
+                        {busy
+                          ? `Continuing with ${PROVIDER_LABEL[key]}…`
+                          : `Continue with ${PROVIDER_LABEL[key]}`}
+                      </button>
+                    );
+                  })}
                 </div>
+              </>
+            )}
 
-                {relationship === "other" && (
+            <p className="mt-4 text-center text-[13px] text-[#5A4E8A]">
+              {footerPrompt}{" "}
+              <button
+                type="button"
+                onClick={switchMode}
+                className="font-semibold text-[#7E6BAF] underline-offset-2 hover:underline hover:text-[#3D2E6B]"
+              >
+                {footerCta}
+              </button>
+            </p>
+          </>
+        )}
+
+        {step === "proxy" && (
+          <div className="mt-6">
+            <div className="rounded-2xl border border-[#E6DFF4] bg-white p-3.5">
+              <span className="mb-2 block text-[10.5px] font-semibold uppercase tracking-[0.12em] text-[#7E6BAF]">
+                Who is this account for?
+              </span>
+              <div className="grid grid-cols-1 gap-2 min-[380px]:grid-cols-2">
+                {([
+                  { value: false, title: "It's for me", desc: "I'm the one seeking support" },
+                  { value: true, title: "For someone else", desc: "I'm a parent, partner or caregiver" },
+                ]).map((opt) => {
+                  const active = onBehalf === opt.value;
+                  return (
+                    <button
+                      key={String(opt.value)}
+                      type="button"
+                      onClick={() => setOnBehalf(opt.value)}
+                      aria-pressed={active}
+                      className={`rounded-xl border px-3 py-2.5 text-left transition ${
+                        active
+                          ? "border-[#7E6BAF] bg-[#7E6BAF] text-white shadow-sm"
+                          : "border-[#E9E4F1] bg-white hover:border-[#7E6BAF]/40 hover:bg-[#F5F3F9]"
+                      }`}
+                    >
+                      <span className={`block text-[13px] font-semibold ${active ? "text-white" : "text-[#1F1B2E]"}`}>
+                        {opt.title}
+                      </span>
+                      <span className={`mt-0.5 block text-[11.5px] leading-snug ${active ? "text-white/80" : "text-[#5A4E8A]"}`}>
+                        {opt.desc}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {onBehalf === true && (
+                <div className="mt-3 space-y-3">
+                  <div className="rounded-2xl border border-[#7E6BAF]/10 bg-[#FAF9FC] p-4">
+                    <span className="mb-3 block text-[11px] font-bold uppercase tracking-[0.12em] text-[#7E6BAF]">
+                      Your relationship to them
+                    </span>
+                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                      {PROXY_RELATIONSHIPS.map((opt) => {
+                        const active = relationship === opt.value;
+                        return (
+                          <button
+                            key={opt.value}
+                            type="button"
+                            onClick={() => setRelationship(opt.value)}
+                            aria-pressed={active}
+                            className={`flex items-center px-4 py-3.5 text-left text-[13.5px] font-medium leading-snug transition-all ${
+                              active
+                                ? "rounded-xl border border-[#7E6BAF] bg-[#7E6BAF] text-white shadow-sm"
+                                : "rounded-xl border border-[#E9E4F1] bg-white text-[#7E6BAF] hover:border-[#7E6BAF]/40 hover:bg-[#F5F3F9]"
+                            }`}
+                          >
+                            {opt.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {relationship === "other" && (
+                    <label className="block">
+                      <span className="mb-1 block text-[10.5px] font-semibold uppercase tracking-[0.12em] text-[#7E6BAF]">
+                        How are you related?
+                      </span>
+                      <input
+                        type="text"
+                        value={relationshipOther}
+                        maxLength={60}
+                        onChange={(e) => setRelationshipOther(e.target.value)}
+                        placeholder="e.g. Family friend"
+                        className="w-full rounded-lg border border-[#E6DFF4] bg-white px-3 py-2 text-[13.5px] text-[#1F1B2E] outline-none placeholder:text-[#C9BEE5] focus:border-[#7E6BAF]"
+                      />
+                    </label>
+                  )}
+
                   <label className="block">
                     <span className="mb-1 block text-[10.5px] font-semibold uppercase tracking-[0.12em] text-[#7E6BAF]">
-                      How are you related?
+                      Their first name
                     </span>
                     <input
                       type="text"
-                      value={relationshipOther}
+                      value={personName}
                       maxLength={60}
-                      onChange={(e) => setRelationshipOther(e.target.value)}
-                      placeholder="e.g. Family friend"
+                      onChange={(e) => setPersonName(e.target.value)}
+                      placeholder="e.g. Anna"
                       className="w-full rounded-lg border border-[#E6DFF4] bg-white px-3 py-2 text-[13.5px] text-[#1F1B2E] outline-none placeholder:text-[#C9BEE5] focus:border-[#7E6BAF]"
                     />
                   </label>
-                )}
 
-                <label className="block">
-                  <span className="mb-1 block text-[10.5px] font-semibold uppercase tracking-[0.12em] text-[#7E6BAF]">
-                    Their first name
-                  </span>
-                  <input
-                    type="text"
-                    value={personName}
-                    maxLength={60}
-                    onChange={(e) => setPersonName(e.target.value)}
-                    placeholder="e.g. Anna"
-                    className="w-full rounded-lg border border-[#E6DFF4] bg-white px-3 py-2 text-[13.5px] text-[#1F1B2E] outline-none placeholder:text-[#C9BEE5] focus:border-[#7E6BAF]"
-                  />
-                </label>
+                  {proxyIncomplete ? (
+                    <p className="text-[11.5px] text-[#7E6BAF]">
+                      Pick your relationship and add their first name to continue.
+                    </p>
+                  ) : (
+                    <p className="text-[11.5px] text-[#5A4E8A]">
+                      {proxyRelationshipSentence(proxyPayload)}
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
 
-                {proxyIncomplete ? (
-                  <p className="text-[11.5px] text-[#7E6BAF]">
-                    Pick your relationship and add their first name to continue.
-                  </p>
-                ) : (
-                  <p className="text-[11.5px] text-[#5A4E8A]">
-                    We'll set the passport up for {personName.trim()} and note that you're their{" "}
-                    {(relationship === "other" ? relationshipOther.trim() : relationshipLabel(relationship)).toLowerCase()}.
-                  </p>
-                )}
-              </div>
-            )}
+            <p className="mt-3 text-[11.5px] leading-snug text-[#5A4E8A]">
+              This is asked once, now. You can change it later in your profile settings — signing in
+              again won't ask you to choose.
+            </p>
 
+            <button
+              type="button"
+              disabled={proxyIncomplete}
+              onClick={() => finish(authedProvider ?? "google", proxyPayload)}
+              className={`mt-4 flex w-full items-center justify-center gap-2 rounded-full px-5 py-3 text-[14px] font-semibold text-white transition-all ${
+                proxyIncomplete
+                  ? "cursor-not-allowed bg-[#C9BEE5]"
+                  : "bg-[#7E6BAF] hover:-translate-y-0.5 hover:bg-[#6C5A9E]"
+              }`}
+            >
+              Continue <ArrowRight className="h-4 w-4" />
+            </button>
           </div>
         )}
-
-        {showProxySummary && (
-          <div className="mt-4 rounded-2xl border border-[#E6DFF4] bg-white p-3.5">
-            <span className="mb-1.5 block text-[10.5px] font-semibold uppercase tracking-[0.12em] text-[#7E6BAF]">
-              This account
-            </span>
-            <p className="text-[13px] font-semibold leading-snug text-[#1F1B2E]">
-              {savedProxy
-                ? proxyRelationshipSentence(savedProxy)
-                : "You manage your own care on this account."}
-            </p>
-            <p className="mt-1 text-[11.5px] leading-snug text-[#5A4E8A]">
-              This was set when the account was created. To change who it's for, open your profile
-              settings after signing in.
-            </p>
-          </div>
-        )}
-
-        {canShowAuthMethods && (
-        <>
-        <button
-          type="button"
-          onClick={() => {
-            setSelectedRole(null);
-            setLoadingProvider(null);
-          }}
-          className="mt-5 flex items-center gap-1 text-xs font-semibold text-[#7E6BAF] transition hover:text-[#3D2E6B]"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" /> Back to role selection
-        </button>
-        {isSignup && (
-          <p className="mt-3 text-center text-[12px] text-[#7E6BAF]">
-            By continuing with Google, LinkedIn or Facebook, you agree to {brandName}'s{" "}
-            <a href={termsHref} className="font-medium text-[#5A4E8A] underline underline-offset-2 hover:text-[#3D2E6B]">
-              Terms
-            </a>{" "}
-            and{" "}
-            <a href={privacyHref} className="font-medium text-[#5A4E8A] underline underline-offset-2 hover:text-[#3D2E6B]">
-              Privacy Policy
-            </a>
-            .
-          </p>
-        )}
-        <div className="mt-4 flex flex-col gap-2.5">
-          <button
-            type="button"
-            disabled={blocked}
-            onClick={() => {
-              if (!selectedRole || proxyIncomplete) return;
-              setLoadingProvider("google");
-              persistProxy();
-              onContinueWithGoogle?.(selectedRole, proxyPayload);
-            }}
-            className={`group flex items-center justify-center gap-3 rounded-full border border-[#E6DFF4] bg-white px-5 py-3 text-[14px] font-medium text-[#1F1B2E] transition-all ${
-              !blocked
-                ? "hover:-translate-y-0.5 hover:border-[#C9BEE5] hover:shadow-[0_8px_20px_-10px_rgba(126,107,175,0.5)]"
-                : "opacity-60 cursor-not-allowed"
-            }`}
-          >
-            {loadingProvider === "google" ? (
-              <Loader2 className="h-5 w-5 animate-spin text-[#7E6BAF]" />
-            ) : (
-              <GoogleIcon className="h-5 w-5" />
-            )}
-            {loadingProvider === "google" ? "Continuing with Google…" : "Continue with Google"}
-          </button>
-          <button
-            type="button"
-            disabled={blocked}
-            onClick={() => {
-              if (!selectedRole || proxyIncomplete) return;
-              setLoadingProvider("linkedin");
-              persistProxy();
-              onContinueWithLinkedIn?.(selectedRole, proxyPayload);
-            }}
-            className={`group flex items-center justify-center gap-3 rounded-full border border-[#E6DFF4] bg-white px-5 py-3 text-[14px] font-medium text-[#1F1B2E] transition-all ${
-              !blocked
-                ? "hover:-translate-y-0.5 hover:border-[#C9BEE5] hover:shadow-[0_8px_20px_-10px_rgba(126,107,175,0.5)]"
-                : "opacity-60 cursor-not-allowed"
-            }`}
-          >
-            {loadingProvider === "linkedin" ? (
-              <Loader2 className="h-5 w-5 animate-spin text-[#7E6BAF]" />
-            ) : (
-              <LinkedInIcon className="h-5 w-5" />
-            )}
-            {loadingProvider === "linkedin" ? "Continuing with LinkedIn…" : "Continue with LinkedIn"}
-          </button>
-          <button
-            type="button"
-            disabled={blocked}
-            onClick={() => {
-              if (!selectedRole || proxyIncomplete) return;
-              setLoadingProvider("facebook");
-              persistProxy();
-              onContinueWithFacebook?.(selectedRole, proxyPayload);
-            }}
-            className={`group flex items-center justify-center gap-3 rounded-full border border-[#E6DFF4] bg-white px-5 py-3 text-[14px] font-medium text-[#1F1B2E] transition-all ${
-              !blocked
-                ? "hover:-translate-y-0.5 hover:border-[#C9BEE5] hover:shadow-[0_8px_20px_-10px_rgba(126,107,175,0.5)]"
-                : "opacity-60 cursor-not-allowed"
-            }`}
-          >
-            {loadingProvider === "facebook" ? (
-              <Loader2 className="h-5 w-5 animate-spin text-[#7E6BAF]" />
-            ) : (
-              <FacebookIcon className="h-5 w-5" />
-            )}
-            {loadingProvider === "facebook" ? "Continuing with Facebook…" : "Continue with Facebook"}
-          </button>
-        </div>
-
-        </>
-        )}
-
-        <p className="mt-4 text-center text-[13px] text-[#5A4E8A]">
-          {footerPrompt}{" "}
-          <button
-            type="button"
-            onClick={switchMode}
-            className="font-semibold text-[#7E6BAF] underline-offset-2 hover:underline hover:text-[#3D2E6B]"
-          >
-            {footerCta}
-          </button>
-        </p>
       </div>
     </div>
   );
