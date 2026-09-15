@@ -191,7 +191,7 @@ export default function PassportHome({
           <div className="mb-10">
             <h3 className="font-display mb-1 text-3xl">{name}</h3>
             <p className="text-sm text-brand-purple-accent">
-              Passport {passportId()}
+              Passport {passportId().replace(/^/, "#")}
             </p>
           </div>
 
