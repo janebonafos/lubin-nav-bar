@@ -80,8 +80,12 @@ export default function AuthModal({
   const [mode, setMode] = useState<AuthMode>(initialMode);
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
   const [loadingProvider, setLoadingProvider] = useState<Provider | null>(null);
-  /** "choose" = role + sign-in methods. "proxy" = post-authentication question. */
-  const [step, setStep] = useState<"choose" | "proxy">("choose");
+  /**
+   * "choose" = role + sign-in methods.
+   * "proxy" = post-authentication question, new clients only.
+   * "welcome" = post-authentication confirmation for returning accounts.
+   */
+  const [step, setStep] = useState<"choose" | "proxy" | "welcome">("choose");
   const [authedProvider, setAuthedProvider] = useState<Provider | null>(null);
   const [onBehalf, setOnBehalf] = useState<boolean | null>(null);
   const [relationship, setRelationship] = useState("");
