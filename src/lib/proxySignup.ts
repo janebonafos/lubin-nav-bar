@@ -95,3 +95,42 @@ export function proxyRelationshipSentence(proxy: ProxySignup | null): string | n
   ).toLowerCase();
   return `You manage this passport as ${name}'s ${label}.`;
 }
+
+/**
+ * Prototype-only marker for "authenticated, but hasn't answered who the account
+ * is for yet". While this exists the account-holder step is required: the modal
+ * cannot be dismissed, and a refresh brings the user straight back to it.
+ */
+const PENDING_KEY = "lubin.proxyPending";
+
+export type ProxyPending = { role: string; provider: string };
+
+export function loadProxyPending(): ProxyPending | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(PENDING_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed.role === "string" ? (parsed as ProxyPending) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function saveProxyPending(pending: ProxyPending) {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(PENDING_KEY, JSON.stringify(pending));
+  } catch {
+    /* storage unavailable */
+  }
+}
+
+export function clearProxyPending() {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.removeItem(PENDING_KEY);
+  } catch {
+    /* storage unavailable */
+  }
+}
