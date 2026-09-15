@@ -367,6 +367,23 @@ export default function AuthModal({
           </div>
         )}
 
+        {showProxySummary && (
+          <div className="mt-4 rounded-2xl border border-[#E6DFF4] bg-white p-3.5">
+            <span className="mb-1.5 block text-[10.5px] font-semibold uppercase tracking-[0.12em] text-[#7E6BAF]">
+              This account
+            </span>
+            <p className="text-[13px] font-semibold leading-snug text-[#1F1B2E]">
+              {savedProxy
+                ? proxyRelationshipSentence(savedProxy)
+                : "You manage your own care on this account."}
+            </p>
+            <p className="mt-1 text-[11.5px] leading-snug text-[#5A4E8A]">
+              This was set when the account was created. To change who it's for, open your profile
+              settings after signing in.
+            </p>
+          </div>
+        )}
+
         {canShowAuthMethods && (
         <>
         <button
