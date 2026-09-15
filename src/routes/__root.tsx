@@ -15,6 +15,7 @@ import { Toaster } from "@/components/ui/sonner";
 import ChatWaitlistModal from "@/components/ChatWaitlistModal";
 import RouteTransitionVeil from "@/components/RouteTransitionVeil";
 import { AnalyticsProvider } from "@/components/analytics/AnalyticsProvider";
+import RequiredAccountHolderGuard from "@/components/RequiredAccountHolderGuard";
 import { ConsentBanner } from "@/components/analytics/ConsentBanner";
 
 function NotFoundComponent() {
@@ -137,6 +138,7 @@ function RootComponent() {
       <RouteProgressBar />
       <RouteTransitionVeil />
       <AnalyticsProvider />
+      <RequiredAccountHolderGuard />
       <Outlet />
       <Toaster />
       <ChatWaitlistModal />
