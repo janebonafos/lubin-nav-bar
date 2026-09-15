@@ -112,7 +112,10 @@ export default function AuthModal({
       return;
     }
 
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    const onKey = (e: KeyboardEvent) => {
+      // The account-holder step is required — Escape must not skip it.
+      if (e.key === "Escape" && step !== "proxy") onClose();
+    };
     window.addEventListener("keydown", onKey);
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -120,7 +123,21 @@ export default function AuthModal({
       window.removeEventListener("keydown", onKey);
       document.body.style.overflow = prev;
     };
-  }, [open, onClose]);
+  }, [open, onClose, step]);
+
+  /**
+   * A refresh mid-question brings the user straight back to it: the answer is
+   * required before they can continue anywhere.
+   */
+  useEffect(() => {
+    if (!open) return;
+    const pending = loadProxyPending();
+    if (!pending) return;
+    setMode("signup");
+    setSelectedRole("client");
+    setAuthedProvider((pending.provider as Provider) ?? "google");
+    setStep("proxy");
+  }, [open]);
 
   if (!open) return null;
 
