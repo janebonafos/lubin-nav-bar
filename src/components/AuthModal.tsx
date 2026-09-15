@@ -91,6 +91,7 @@ export default function AuthModal({
   const [relationship, setRelationship] = useState("");
   const [relationshipOther, setRelationshipOther] = useState("");
   const [personName, setPersonName] = useState("");
+  const [savedProxy, setSavedProxy] = useState<ProxySignup | null>(null);
 
   useEffect(() => setMode(initialMode), [initialMode, open]);
 
