@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { X, ArrowRight, ArrowLeft, Check, Loader2 } from "lucide-react";
 import {
   PROXY_RELATIONSHIPS,
+  loadProxySignup,
   proxyRelationshipSentence,
   relationshipLabel,
   saveProxySignup,
