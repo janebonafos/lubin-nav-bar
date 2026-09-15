@@ -194,6 +194,7 @@ export default function AuthModal({
       setLoadingProvider(null);
       setAuthedProvider(provider);
       if (isSignup && selectedRole === "client") {
+        saveProxyPending({ role: selectedRole, provider });
         setStep("proxy");
         return;
       }
