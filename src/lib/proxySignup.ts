@@ -27,7 +27,7 @@ export type ProxySignup = {
 
 export const PROXY_RELATIONSHIPS: { value: ProxyRelationship; label: string }[] = [
   { value: "parent", label: "Parent or guardian" },
-  { value: "child", label: "Adult child" },
+  { value: "child", label: "Adult dependent" },
   { value: "partner", label: "Partner or spouse" },
   { value: "sibling", label: "Sibling" },
   { value: "relative", label: "Another family member" },
