@@ -18,7 +18,7 @@ import {
   type SignedPrescriptionDocument,
 } from "@/lib/prescription/documents";
 import { ensureSamplePrescriptionRecord } from "@/lib/prescription/sampleRecord";
-import { passportCardId } from "@/lib/intake/healthDetails";
+import { passportId } from "@/lib/intake/healthDetails";
 
 type PassportDestination =
   | "card"
@@ -191,7 +191,7 @@ export default function PassportHome({
           <div className="mb-10">
             <h3 className="font-display mb-1 text-3xl">{name}</h3>
             <p className="text-sm text-brand-purple-accent">
-              Passport {passportCardId()}
+              Passport {passportId()}
             </p>
           </div>
 
