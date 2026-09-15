@@ -137,6 +137,7 @@ function RootComponent() {
       <RouteProgressBar />
       <RouteTransitionVeil />
       <AnalyticsProvider />
+      <RequiredAccountHolderGuard />
       <Outlet />
       <Toaster />
       <ChatWaitlistModal />
