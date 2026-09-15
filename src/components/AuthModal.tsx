@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { X, ArrowRight, ArrowLeft, Check, Loader2 } from "lucide-react";
 import {
   PROXY_RELATIONSHIPS,
+  loadProxySignup,
+  proxyRelationshipSentence,
   relationshipLabel,
   saveProxySignup,
   type ProxySignup,
@@ -75,8 +77,14 @@ export default function AuthModal({
   const [relationship, setRelationship] = useState("");
   const [relationshipOther, setRelationshipOther] = useState("");
   const [personName, setPersonName] = useState("");
+  /** Choice captured at registration; on sign-in it is shown read-only. */
+  const [savedProxy, setSavedProxy] = useState<ProxySignup | null>(null);
 
   useEffect(() => setMode(initialMode), [initialMode, open]);
+
+  useEffect(() => {
+    if (open) setSavedProxy(loadProxySignup());
+  }, [open, mode]);
 
   useEffect(() => {
     if (!open) {
@@ -129,25 +137,29 @@ export default function AuthModal({
   const footerPrompt = isSignup ? "Already have an account?" : "Need to create an account?";
   const footerCta = isSignup ? "Sign in instead" : "Create an account";
 
-  const showProxyOption = selectedRole === "client";
+  /** The "who is this account for" question is asked once, at registration only. */
+  const showProxyOption = selectedRole === "client" && isSignup;
+  /** On sign-in the same information is shown read-only, never editable. */
+  const showProxySummary = selectedRole === "client" && !isSignup;
   const needsOtherText = relationship === "other" && relationshipOther.trim().length < 2;
   const proxyIncomplete =
     showProxyOption && onBehalf && (!relationship || needsOtherText || personName.trim().length < 2);
-  const proxyPayload: ProxySignup | null =
-    showProxyOption && onBehalf && !proxyIncomplete
+  const proxyPayload: ProxySignup | null = isSignup
+    ? showProxyOption && onBehalf && !proxyIncomplete
       ? {
           relationship,
           relationshipLabel: relationshipLabel(relationship),
           ...(relationship === "other" ? { relationshipOther: relationshipOther.trim() } : {}),
           personName: personName.trim(),
         }
-      : null;
+      : null
+    : savedProxy;
   const canShowAuthMethods = selectedRole !== null;
   const blocked = loadingProvider !== null || proxyIncomplete;
 
   /** Persist the relationship for every signup entry point, not just /auth. */
   const persistProxy = () => {
-    if (selectedRole !== "client") return;
+    if (selectedRole !== "client" || !isSignup) return;
     saveProxySignup(proxyPayload);
   };
 
@@ -352,6 +364,23 @@ export default function AuthModal({
               </div>
             )}
 
+          </div>
+        )}
+
+        {showProxySummary && (
+          <div className="mt-4 rounded-2xl border border-[#E6DFF4] bg-white p-3.5">
+            <span className="mb-1.5 block text-[10.5px] font-semibold uppercase tracking-[0.12em] text-[#7E6BAF]">
+              This account
+            </span>
+            <p className="text-[13px] font-semibold leading-snug text-[#1F1B2E]">
+              {savedProxy
+                ? proxyRelationshipSentence(savedProxy)
+                : "You manage your own care on this account."}
+            </p>
+            <p className="mt-1 text-[11.5px] leading-snug text-[#5A4E8A]">
+              This was set when the account was created. To change who it's for, open your profile
+              settings after signing in.
+            </p>
           </div>
         )}
 
