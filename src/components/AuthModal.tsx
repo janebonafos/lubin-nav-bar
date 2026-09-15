@@ -352,6 +352,37 @@ export default function AuthModal({
           </>
         )}
 
+        {step === "welcome" && (
+          <div className="mt-6">
+            <div className="rounded-2xl border border-[#E6DFF4] bg-white p-4">
+              <span className="mb-2 flex items-center gap-2 text-[10.5px] font-semibold uppercase tracking-[0.12em] text-[#7E6BAF]">
+                <Check className="h-3.5 w-3.5" /> Existing account
+              </span>
+              <p className="text-[13.5px] leading-snug text-[#1F1B2E]">
+                {selectedRole === "provider"
+                  ? "You're continuing to your provider dashboard and clients."
+                  : savedProxy
+                    ? proxyRelationshipSentence(savedProxy)
+                    : "You manage your own care on this account."}
+              </p>
+              {selectedRole === "client" && (
+                <p className="mt-2 text-[11.5px] leading-snug text-[#5A4E8A]">
+                  This was set when the account was created. You can change it in your profile
+                  settings — signing in never changes it.
+                </p>
+              )}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => finish(authedProvider ?? "google", savedProxy)}
+              className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-[#7E6BAF] px-5 py-3 text-[14px] font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-[#6C5A9E]"
+            >
+              Continue <ArrowRight className="h-4 w-4" />
+            </button>
+          </div>
+        )}
+
         {step === "proxy" && (
           <div className="mt-6">
             <div className="rounded-2xl border border-[#E6DFF4] bg-white p-3.5">
