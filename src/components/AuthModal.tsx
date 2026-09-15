@@ -77,8 +77,14 @@ export default function AuthModal({
   const [relationship, setRelationship] = useState("");
   const [relationshipOther, setRelationshipOther] = useState("");
   const [personName, setPersonName] = useState("");
+  /** Choice captured at registration; on sign-in it is shown read-only. */
+  const [savedProxy, setSavedProxy] = useState<ProxySignup | null>(null);
 
   useEffect(() => setMode(initialMode), [initialMode, open]);
+
+  useEffect(() => {
+    if (open) setSavedProxy(loadProxySignup());
+  }, [open, mode]);
 
   useEffect(() => {
     if (!open) {
