@@ -137,25 +137,29 @@ export default function AuthModal({
   const footerPrompt = isSignup ? "Already have an account?" : "Need to create an account?";
   const footerCta = isSignup ? "Sign in instead" : "Create an account";
 
-  const showProxyOption = selectedRole === "client";
+  /** The "who is this account for" question is asked once, at registration only. */
+  const showProxyOption = selectedRole === "client" && isSignup;
+  /** On sign-in the same information is shown read-only, never editable. */
+  const showProxySummary = selectedRole === "client" && !isSignup;
   const needsOtherText = relationship === "other" && relationshipOther.trim().length < 2;
   const proxyIncomplete =
     showProxyOption && onBehalf && (!relationship || needsOtherText || personName.trim().length < 2);
-  const proxyPayload: ProxySignup | null =
-    showProxyOption && onBehalf && !proxyIncomplete
+  const proxyPayload: ProxySignup | null = isSignup
+    ? showProxyOption && onBehalf && !proxyIncomplete
       ? {
           relationship,
           relationshipLabel: relationshipLabel(relationship),
           ...(relationship === "other" ? { relationshipOther: relationshipOther.trim() } : {}),
           personName: personName.trim(),
         }
-      : null;
+      : null
+    : savedProxy;
   const canShowAuthMethods = selectedRole !== null;
   const blocked = loadingProvider !== null || proxyIncomplete;
 
   /** Persist the relationship for every signup entry point, not just /auth. */
   const persistProxy = () => {
-    if (selectedRole !== "client") return;
+    if (selectedRole !== "client" || !isSignup) return;
     saveProxySignup(proxyPayload);
   };
 
