@@ -172,6 +172,7 @@ export default function AuthModal({
 
   const finish = (provider: Provider, proxy: ProxySignup | null) => {
     if (isSignup && selectedRole === "client") saveProxySignup(proxy);
+    clearProxyPending();
     const cb =
       provider === "google"
         ? onContinueWithGoogle
