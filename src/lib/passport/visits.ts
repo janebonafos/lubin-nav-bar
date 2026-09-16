@@ -37,6 +37,11 @@ export type PassportVisit = {
   /** Set when the record came from the clinic rather than the patient. */
   recordedBy?: string;
   preparation?: string[];
+  /** "patient" = added by the patient for a visit that happened outside Lubin. */
+  origin?: "lubin" | "patient";
+  /** Patient's own note about an outside visit. */
+  note?: string;
+  addedAt?: number;
 };
 
 export const PASSPORT_VISITS: PassportVisit[] = [
