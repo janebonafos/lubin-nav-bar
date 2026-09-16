@@ -264,6 +264,13 @@ function PassportCard({
                   Health Network
                 </p>
               </div>
+              <div className="flex items-center gap-2.5">
+                <span className="hidden items-center gap-1.5 rounded-lg bg-white/10 px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.14em] text-white/70 ring-1 ring-white/15 sm:inline-flex">
+                  <RotateCw className="h-3 w-3" />
+                  See details
+                </span>
+                <DemoQr seed={cardId} color="#ffffff" className="block h-24 w-24" />
+              </div>
             </div>
 
             <div className="mt-auto">
