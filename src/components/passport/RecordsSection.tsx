@@ -19,14 +19,6 @@ import {
 } from "@/lib/passport/records";
 import { PASSPORT_VISITS } from "@/lib/passport/visits";
 
-const ICONS: Record<RecordType, typeof FileText> = {
-  lab: FlaskConical,
-  imaging: ScanLine,
-  vaccination: Syringe,
-  referral: Send,
-  discharge: FileText,
-  other: Paperclip,
-};
 
 /** Records and results kept in the Health Passport. Prototype design only. */
 export default function RecordsSection({
