@@ -128,6 +128,47 @@ export default function ClientPrescriptionsSection({
         </p>
       </div>
 
+      {sorted.length > 0 && (
+        <div className="mb-6 space-y-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <input
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search by medication, prescriber or record number"
+              className="w-full rounded-xl border border-[#DCD4F0] bg-white px-4 py-2.5 text-sm text-[#3D2E6B] placeholder:text-[#9C93B8] focus:border-[#7E6BAF] focus:outline-none"
+            />
+            <select
+              value={order}
+              onChange={(e) => setOrder(e.target.value as typeof order)}
+              className="rounded-xl border border-[#DCD4F0] bg-white px-4 py-2.5 text-sm font-medium text-[#3D2E6B] focus:border-[#7E6BAF] focus:outline-none sm:w-48"
+            >
+              <option value="newest">Newest first</option>
+              <option value="oldest">Oldest first</option>
+            </select>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            {STATUS_FILTERS.map((f) => (
+              <button
+                key={f.key}
+                type="button"
+                onClick={() => setStatus(f.key)}
+                className={`rounded-[12px] px-3.5 py-1.5 text-[13px] font-semibold transition-colors ${
+                  status === f.key
+                    ? "bg-[#7E6BAF] text-white"
+                    : "border border-[#DCD4F0] bg-white text-[#5B4B8A] hover:bg-[#EAE7F5]"
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
+            <span className="ml-auto text-[12.5px] text-[#6F6889]">
+              {filtered.length} of {sorted.length} records
+            </span>
+          </div>
+        </div>
+      )}
+
       {sorted.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-[#DCD4F0] bg-white/70 px-5 py-8 text-center">
           <img src={rxIcon.url} alt="Rx" className="mx-auto h-8 w-8" />
