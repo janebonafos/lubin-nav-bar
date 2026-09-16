@@ -180,7 +180,8 @@ function isoDate(at: number) {
  * into the prescribed entries so both views always agree.
  */
 export function medicationList(): MedicationEntry[] {
-  const prescribed = [...DEMO_PRESCRIBED];
+  const removed = loadRemovedIds();
+  const prescribed = [...DEMO_PRESCRIBED].filter((m) => !removed.has(m.id));
 
   for (const doc of listSignedPrescriptions()) {
     for (const medication of doc.medications) {
