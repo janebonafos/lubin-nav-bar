@@ -20,6 +20,8 @@ import {
   allRecords,
   fileSizeLabel,
   formatRecordDate,
+  recordReviewLabel,
+
   linkRecordToVisit,
   saveUploadedRecord,
   subscribeRecords,
@@ -160,7 +162,7 @@ export default function VisitsTimeline({
           />
           <TimelineGroup
             title="Completed visits"
-            hint="Recorded by clinic"
+            hint="Already happened"
             visits={completed}
             selectedId={selectedId}
             onSelect={setSelectedId}
@@ -371,9 +373,9 @@ function VisitDetail({
             </DetailSection>
             <VisitDocuments visitId={visit.id} visitLabel={visitOptionLabel(visit)} />
             <p className="rounded-2xl bg-brand-lavender/40 px-5 py-4 text-[13px] leading-relaxed text-brand-purple-dark/65">
-              You added this visit and any documents attached to it. Nothing here has been reviewed by
-              a clinician.
+              You added this visit. Each document shows its own source and review status.
             </p>
+
           </>
         ) : scheduled ? (
           <>
@@ -740,6 +742,10 @@ function VisitDocuments({ visitId, visitLabel }: { visitId: string; visitLabel: 
                 <p className="text-[11.5px] text-brand-purple-accent">
                   {formatRecordDate(record.date)} · {record.source} · Also in Records
                 </p>
+                <p className="text-[11.5px] text-brand-purple-dark/60">
+                  {recordReviewLabel(record) ?? "No clinician review recorded"}
+                </p>
+
               </div>
               <div className="flex items-center gap-4">
                 <button
