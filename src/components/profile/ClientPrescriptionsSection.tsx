@@ -180,9 +180,29 @@ export default function ClientPrescriptionsSection({
             here with the medication details and a copy you can download.
           </p>
         </div>
+      ) : filtered.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-[#DCD4F0] bg-white/70 px-5 py-8 text-center">
+          <p className="text-[13.5px] font-semibold text-[#3D2E6B]">
+            No prescriptions match your search
+          </p>
+          <p className="mt-1 text-[12.5px] text-[#6F6889]">
+            Try a different medication, prescriber or record number, or clear
+            the filters.
+          </p>
+          <button
+            type="button"
+            onClick={() => {
+              setQuery("");
+              setStatus("all");
+            }}
+            className="mt-3 rounded-[12px] border border-[#A89BD0] bg-white px-4 py-2 text-[13px] font-semibold text-[#3D2E6B] hover:bg-[#EAE7F5]"
+          >
+            Clear filters
+          </button>
+        </div>
       ) : (
         <ul className="grid grid-cols-1 gap-5 md:grid-cols-2">
-          {sorted.map((doc) => {
+          {filtered.slice(0, visible).map((doc) => {
             const medNames = doc.medications
               .map((m) => m.genericName || m.name)
               .filter(Boolean);
