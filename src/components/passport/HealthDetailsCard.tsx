@@ -197,6 +197,18 @@ function CardBack({ details, reviews }: { details: HealthDetails; reviews: ItemR
   );
 }
 
+/** Prototype-only: the date the user "joined Lubin", stored once in localStorage. */
+const JOINED_KEY = "lubin.joinedAt";
+function loadJoinedLubin(): string {
+  if (typeof window === "undefined") return "12 Aug 2025";
+  let stored = window.localStorage.getItem(JOINED_KEY);
+  if (!stored) {
+    stored = "12 Aug 2025";
+    window.localStorage.setItem(JOINED_KEY, stored);
+  }
+  return stored;
+}
+
 function PassportCard({
   details,
   filled,
@@ -220,6 +232,7 @@ function PassportCard({
   const dob = details["identity.dob"] ?? "";
   const age = ageFrom(dob);
   const lastUpdated = formatUpdatedAt(updatedAt);
+  const [joinedLubin] = useState(() => loadJoinedLubin());
 
   const pct = total ? Math.round((filled / total) * 100) : 0;
 
@@ -228,6 +241,7 @@ function PassportCard({
     dob: dob ? `${formatDob(dob)}${age ? ` · ${age} yrs` : ""}` : "",
     passportId: cardId,
     lastUpdated,
+    joinedLubin,
   };
 
   return (
@@ -321,6 +335,14 @@ function PassportCard({
                   </p>
                   <p className="font-mono text-sm font-medium tracking-widest text-white">
                     {cardId}
+                  </p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-[9px] uppercase tracking-wider text-brand-purple-accent">
+                    Joined Lubin
+                  </p>
+                  <p className="font-mono text-sm font-medium tracking-wider text-white">
+                    {joinedLubin}
                   </p>
                 </div>
               </div>
