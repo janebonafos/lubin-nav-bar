@@ -11,6 +11,15 @@ import { ensureSamplePrescriptionRecord } from "@/lib/prescription/sampleRecord"
 import { prescriptionViewHref } from "@/lib/prescription/viewHandoff";
 import MedicationList from "@/components/passport/MedicationList";
 
+const PAGE_SIZE = 4;
+
+const STATUS_FILTERS = [
+  { key: "all", label: "All" },
+  { key: "valid", label: "Still valid" },
+  { key: "expired", label: "Expired" },
+  { key: "voided", label: "Voided" },
+] as const;
+
 /** Opens the document behind an opaque id — no patient, medication or
  *  prescription data ever appears in the URL. */
 function prescriptionHref(
@@ -38,7 +47,10 @@ export default function ClientPrescriptionsSection({
   forceEmpty?: boolean;
 }) {
   const [docs, setDocs] = useState<SignedPrescriptionDocument[]>([]);
-
+  const [query, setQuery] = useState("");
+  const [status, setStatus] = useState<"all" | "valid" | "expired" | "voided">("all");
+  const [order, setOrder] = useState<"newest" | "oldest">("newest");
+  const [visible, setVisible] = useState(PAGE_SIZE);
 
   useEffect(() => {
     ensureSamplePrescriptionRecord();
@@ -51,6 +63,32 @@ export default function ClientPrescriptionsSection({
     () => [...docs].sort((a, b) => b.signedAt - a.signedAt),
     [docs],
   );
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    const now = Date.now();
+    const list = sorted.filter((doc) => {
+      const expired = !!doc.validUntil && doc.validUntil < now;
+      if (status === "voided" && !doc.voided) return false;
+      if (status === "expired" && (doc.voided || !expired)) return false;
+      if (status === "valid" && (doc.voided || expired)) return false;
+      if (!q) return true;
+      const haystack = [
+        doc.number,
+        doc.identity?.fullName,
+        ...doc.medications.map((m) => `${m.name ?? ""} ${m.genericName ?? ""}`),
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return haystack.includes(q);
+    });
+    return order === "newest" ? list : [...list].reverse();
+  }, [sorted, query, status, order]);
+
+  useEffect(() => {
+    setVisible(PAGE_SIZE);
+  }, [query, status, order]);
 
   if (forceEmpty) {
     return (
@@ -90,6 +128,47 @@ export default function ClientPrescriptionsSection({
         </p>
       </div>
 
+      {sorted.length > 0 && (
+        <div className="mb-6 space-y-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <input
+              type="search"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search by medication, prescriber or record number"
+              className="w-full rounded-xl border border-[#DCD4F0] bg-white px-4 py-2.5 text-sm text-[#3D2E6B] placeholder:text-[#9C93B8] focus:border-[#7E6BAF] focus:outline-none"
+            />
+            <select
+              value={order}
+              onChange={(e) => setOrder(e.target.value as typeof order)}
+              className="rounded-xl border border-[#DCD4F0] bg-white px-4 py-2.5 text-sm font-medium text-[#3D2E6B] focus:border-[#7E6BAF] focus:outline-none sm:w-48"
+            >
+              <option value="newest">Newest first</option>
+              <option value="oldest">Oldest first</option>
+            </select>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            {STATUS_FILTERS.map((f) => (
+              <button
+                key={f.key}
+                type="button"
+                onClick={() => setStatus(f.key)}
+                className={`rounded-[12px] px-3.5 py-1.5 text-[13px] font-semibold transition-colors ${
+                  status === f.key
+                    ? "bg-[#7E6BAF] text-white"
+                    : "border border-[#DCD4F0] bg-white text-[#5B4B8A] hover:bg-[#EAE7F5]"
+                }`}
+              >
+                {f.label}
+              </button>
+            ))}
+            <span className="ml-auto text-[12.5px] text-[#6F6889]">
+              {filtered.length} of {sorted.length} records
+            </span>
+          </div>
+        </div>
+      )}
+
       {sorted.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-[#DCD4F0] bg-white/70 px-5 py-8 text-center">
           <img src={rxIcon.url} alt="Rx" className="mx-auto h-8 w-8" />
@@ -101,9 +180,29 @@ export default function ClientPrescriptionsSection({
             here with the medication details and a copy you can download.
           </p>
         </div>
+      ) : filtered.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-[#DCD4F0] bg-white/70 px-5 py-8 text-center">
+          <p className="text-[13.5px] font-semibold text-[#3D2E6B]">
+            No prescriptions match your search
+          </p>
+          <p className="mt-1 text-[12.5px] text-[#6F6889]">
+            Try a different medication, prescriber or record number, or clear
+            the filters.
+          </p>
+          <button
+            type="button"
+            onClick={() => {
+              setQuery("");
+              setStatus("all");
+            }}
+            className="mt-3 rounded-[12px] border border-[#A89BD0] bg-white px-4 py-2 text-[13px] font-semibold text-[#3D2E6B] hover:bg-[#EAE7F5]"
+          >
+            Clear filters
+          </button>
+        </div>
       ) : (
         <ul className="grid grid-cols-1 gap-5 md:grid-cols-2">
-          {sorted.map((doc) => {
+          {filtered.slice(0, visible).map((doc) => {
             const medNames = doc.medications
               .map((m) => m.genericName || m.name)
               .filter(Boolean);
@@ -191,6 +290,33 @@ export default function ClientPrescriptionsSection({
             );
           })}
         </ul>
+      )}
+
+      {filtered.length > visible && (
+        <div className="mt-6 flex flex-col items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setVisible((v) => v + PAGE_SIZE)}
+            className="rounded-[12px] border border-[#A89BD0] bg-white px-5 py-2.5 text-sm font-bold text-[#3D2E6B] transition-colors hover:bg-[#EAE7F5]"
+          >
+            Show {Math.min(PAGE_SIZE, filtered.length - visible)} more
+          </button>
+          <p className="text-[12px] text-[#6F6889]">
+            Showing {visible} of {filtered.length} records
+          </p>
+        </div>
+      )}
+
+      {visible > PAGE_SIZE && filtered.length <= visible && (
+        <div className="mt-6 flex justify-center">
+          <button
+            type="button"
+            onClick={() => setVisible(PAGE_SIZE)}
+            className="rounded-[12px] border border-[#DCD4F0] bg-white px-5 py-2.5 text-sm font-semibold text-[#5B4B8A] transition-colors hover:bg-[#EAE7F5]"
+          >
+            Show fewer
+          </button>
+        </div>
       )}
     </section>
   );
