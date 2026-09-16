@@ -267,7 +267,22 @@ export function medicationList(): MedicationEntry[] {
     }
   }
 
-  return [...prescribed, ...DEMO_REPORTED].filter((m) => !removed.has(m.id));
+  const notTaking = loadNotTaking();
+  return [...prescribed, ...DEMO_REPORTED]
+    .filter((m) => !removed.has(m.id))
+    .map((entry) => {
+      const stopped = notTaking[entry.id];
+      if (!stopped) return entry;
+      // The original prescription and clinician-authored details stay as they
+      // are; only the patient's own report of stopping is added.
+      return {
+        ...entry,
+        status: "stopped" as MedicationStatus,
+        endDate: entry.endDate ?? stopped,
+        patientReportedStop: stopped,
+      };
+    });
+
 }
 
 export function groupMedications(entries: MedicationEntry[] = medicationList()) {
