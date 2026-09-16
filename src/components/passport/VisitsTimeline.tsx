@@ -1,14 +1,5 @@
 import { useMemo, useState } from "react";
-import {
-  ArrowRight,
-  CalendarClock,
-  ClipboardList,
-  FlaskConical,
-  MapPin,
-  Pill,
-  Stethoscope,
-  UserRound,
-} from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 import {
   PASSPORT_VISITS,
@@ -20,6 +11,7 @@ import {
 /**
  * Prototype visit timeline for the patient Health Passport.
  * Demo records only — see src/lib/passport/visits.ts.
+ * Design: "Serene lavender split" — light, editorial, brand lavender.
  */
 export default function VisitsTimeline({
   onOpenPrescriptions,
@@ -41,53 +33,67 @@ export default function VisitsTimeline({
     [],
   );
   const counts = visitCounts();
-  const [selectedId, setSelectedId] = useState<string>(completed[0]?.id ?? scheduled[0]?.id ?? "");
-  const selected = PASSPORT_VISITS.find((v) => v.id === selectedId) ?? completed[0];
+  const [selectedId, setSelectedId] = useState<string>(
+    completed[0]?.id ?? scheduled[0]?.id ?? "",
+  );
+  const selected =
+    PASSPORT_VISITS.find((v) => v.id === selectedId) ?? completed[0];
 
   return (
-    <section className="space-y-5" aria-label="Visits and checkups">
-      <div className="rounded-[12px] border border-brand-purple/15 bg-card p-5 shadow-sm sm:p-6">
-        <div className="flex items-center gap-2 text-brand-purple">
-          <Stethoscope className="h-4 w-4" />
-          <span className="text-[11px] font-bold uppercase tracking-[0.15em]">
-            Visits and checkups
-          </span>
-        </div>
-        <h2 className="mt-3 text-xl font-bold text-brand-purple-dark sm:text-2xl">
+    <section className="space-y-8" aria-label="Visits and checkups">
+      {/* Header Card */}
+      <header className="rounded-[2rem] border border-brand-lavender bg-card p-8 shadow-[0_12px_40px_-12px_color-mix(in_oklab,var(--color-brand-purple)_18%,transparent)] sm:p-10">
+        <span className="block text-[11px] font-bold uppercase tracking-[0.15em] text-brand-purple">
+          Visits and checkups
+        </span>
+        <h2 className="mt-3 font-display text-4xl font-semibold leading-tight text-brand-purple-dark lg:text-5xl">
           Every visit in one timeline
         </h2>
-        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-brand-purple-dark/65">
-          Upcoming appointments are what is still ahead. Completed visits hold what the clinician
-          recorded — summary, findings, tests, prescriptions, and follow-up.
+        <p className="mt-4 max-w-2xl text-sm leading-relaxed text-brand-purple-dark/65 lg:text-base">
+          Upcoming appointments are what is still ahead. Completed visits hold
+          what the clinician recorded — summary, findings, tests,
+          prescriptions, and follow-up.
         </p>
-        <div className="mt-4 flex flex-wrap gap-2">
-          <Pill2 tone="scheduled">{counts.scheduled} scheduled appointments</Pill2>
-          <Pill2 tone="completed">{counts.completed} completed visits</Pill2>
-          <Pill2 tone="muted">Demo records in this prototype</Pill2>
+        <div className="mt-6 flex flex-wrap gap-3">
+          <FilterPill tone="scheduled">
+            {counts.scheduled} scheduled appointments
+          </FilterPill>
+          <FilterPill tone="completed">
+            {counts.completed} completed visits
+          </FilterPill>
+          <span className="px-5 py-2 text-xs font-medium uppercase italic tracking-wider text-brand-purple/55 self-center">
+            Demo records in this prototype
+          </span>
         </div>
-      </div>
+      </header>
 
-      <div className="grid gap-5 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:items-start">
-        <div className="space-y-6">
+      {/* Main Grid */}
+      <div className="grid gap-8 lg:grid-cols-12 lg:items-start">
+        {/* Left: Timeline */}
+        <div className="space-y-8 lg:col-span-5">
           <TimelineGroup
             title="Scheduled appointments"
-            hint="Not yet happened · nothing recorded"
+            hint="Not yet happened"
             visits={scheduled}
             selectedId={selectedId}
             onSelect={setSelectedId}
           />
           <TimelineGroup
             title="Completed visits"
-            hint="Recorded by the clinic"
+            hint="Recorded by clinic"
             visits={completed}
             selectedId={selectedId}
             onSelect={setSelectedId}
           />
         </div>
 
-        <div className="lg:sticky lg:top-24">
+        {/* Right: Detail Panel */}
+        <div className="lg:col-span-7 lg:sticky lg:top-24">
           {selected ? (
-            <VisitDetail visit={selected} onOpenPrescriptions={onOpenPrescriptions} />
+            <VisitDetail
+              visit={selected}
+              onOpenPrescriptions={onOpenPrescriptions}
+            />
           ) : null}
         </div>
       </div>
@@ -110,62 +116,79 @@ function TimelineGroup({
 }) {
   if (!visits.length) return null;
   return (
-    <div>
-      <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h3 className="text-[13px] font-bold uppercase tracking-[0.14em] text-brand-purple-dark/70">
+    <section>
+      <div className="mb-6 flex items-end justify-between">
+        <h3 className="text-xs font-bold uppercase tracking-[0.15em] text-brand-purple-accent">
           {title}
         </h3>
-        <span className="text-[11.5px] text-brand-purple-dark/45">{hint}</span>
+        <span className="text-[10px] uppercase italic tracking-wide text-brand-purple-accent/60">
+          {hint}
+        </span>
       </div>
-      <ol className="mt-3 space-y-2.5 border-l border-brand-purple/15 pl-4">
+
+      <div className="relative space-y-4 pl-8">
+        {/* Timeline line */}
+        <div className="absolute bottom-2 left-0 top-2 w-px bg-gradient-to-b from-brand-lavender via-brand-lavender to-transparent" />
+
         {visits.map((visit) => {
           const active = visit.id === selectedId;
-          const scheduled = visit.kind === "scheduled";
+          const isScheduled = visit.kind === "scheduled";
           return (
-            <li key={visit.id} className="relative">
+            <div key={visit.id} className="relative">
+              {/* Timeline dot */}
               <span
                 aria-hidden
-                className={`absolute -left-[21px] top-5 h-2.5 w-2.5 rounded-full ${
-                  scheduled
-                    ? "border-2 border-brand-purple/50 bg-card"
-                    : "bg-brand-purple"
+                className={`absolute -left-[36px] top-6 h-4 w-4 rounded-full ring-4 ring-white ${
+                  active
+                    ? isScheduled
+                      ? "border-2 border-brand-lavender bg-card"
+                      : "bg-brand-purple shadow-sm"
+                    : isScheduled
+                      ? "border-2 border-brand-lavender bg-card"
+                      : "bg-brand-purple-accent/40"
                 }`}
               />
               <button
                 type="button"
                 onClick={() => onSelect(visit.id)}
                 aria-current={active}
-                className={`w-full rounded-[12px] border p-4 text-left transition ${
+                className={`w-full rounded-2xl border p-5 text-left transition-all ${
                   active
-                    ? "border-brand-purple/45 bg-brand-lavender/50 shadow-sm"
-                    : "border-brand-purple/15 bg-card hover:border-brand-purple/35 hover:bg-brand-lavender/30"
+                    ? "border-2 border-brand-purple/20 bg-brand-lavender/40 ring-4 ring-brand-purple/5"
+                    : "border-brand-lavender bg-card/60 hover:border-brand-purple/30"
                 }`}
               >
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-[12.5px] font-bold text-brand-purple-dark">
+                <div className="mb-2 flex items-start justify-between gap-2">
+                  <span
+                    className={`text-xs font-semibold ${
+                      active ? "text-brand-purple-dark" : "text-brand-purple"
+                    }`}
+                  >
                     {formatVisitDate(visit.date)}
                     {visit.time ? ` · ${visit.time}` : ""}
                   </span>
-                  <Pill2 tone={scheduled ? "scheduled" : "completed"}>
-                    {scheduled ? "Scheduled" : "Completed visit"}
-                  </Pill2>
+                  <StatusPill tone={isScheduled ? "scheduled" : "completed"}>
+                    {isScheduled ? "Scheduled" : active ? "Selected" : "Completed"}
+                  </StatusPill>
                 </div>
-                <p className="mt-1.5 text-[14px] font-semibold text-brand-purple-dark">
+                <h4 className="mb-1 font-display text-lg font-semibold text-brand-purple-dark">
                   {visit.reason}
-                </p>
-                <p className="mt-1 text-[12px] text-brand-purple-dark/60">
+                </h4>
+                <p className="text-xs text-brand-purple/70">
                   {visit.clinician} · {visit.clinic}
                 </p>
-                <span className="mt-2 inline-flex items-center gap-1 text-[12px] font-semibold text-brand-purple">
-                  {scheduled ? "View appointment" : "View visit details"}
-                  <ArrowRight className="h-3.5 w-3.5" />
-                </span>
+                {!active && (
+                  <span className="mt-4 flex items-center text-xs font-semibold text-brand-purple transition-transform">
+                    {isScheduled ? "View appointment" : "View visit details"}
+                    <ArrowRight className="ml-1 h-3.5 w-3.5" />
+                  </span>
+                )}
               </button>
-            </li>
+            </div>
           );
         })}
-      </ol>
-    </div>
+      </div>
+    </section>
   );
 }
 
@@ -178,43 +201,63 @@ function VisitDetail({
 }) {
   const scheduled = visit.kind === "scheduled";
   return (
-    <article className="overflow-hidden rounded-[12px] border border-brand-purple/15 bg-card shadow-sm">
-      <header className="bg-brand-lavender/45 px-5 py-4 sm:px-6">
-        <div className="flex flex-wrap items-center gap-2">
-          <Pill2 tone={scheduled ? "scheduled" : "completed"}>
-            {scheduled ? "Scheduled appointment" : "Completed visit"}
-          </Pill2>
-          <span className="text-[12px] font-medium text-brand-purple-dark/60">
+    <article className="overflow-hidden rounded-[2rem] border border-brand-lavender bg-card shadow-[0_20px_60px_-15px_color-mix(in_oklab,var(--color-brand-purple)_18%,transparent)]">
+      {/* Detail Header */}
+      <div className="border-b border-brand-lavender bg-brand-lavender/30 p-8 sm:p-10">
+        <div className="mb-4 flex items-center gap-2">
+          <span className="rounded bg-brand-purple px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-white">
+            {scheduled ? "Scheduled" : "Completed visit"}
+          </span>
+          <span className="text-xs italic text-brand-purple-accent">
             {visit.recordedBy ?? "Nothing recorded yet"}
           </span>
         </div>
-        <h3 className="mt-2.5 text-[17px] font-bold text-brand-purple-dark">{visit.reason}</h3>
-        <div className="mt-2 grid gap-1.5 text-[12.5px] text-brand-purple-dark/65 sm:grid-cols-2">
-          <span className="inline-flex items-center gap-1.5">
-            <CalendarClock className="h-3.5 w-3.5 text-brand-purple" />
-            {formatVisitDate(visit.date)}
-            {visit.time ? ` · ${visit.time}` : ""}
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <UserRound className="h-3.5 w-3.5 text-brand-purple" />
-            {visit.clinician} · {visit.clinicianRole}
-          </span>
-          <span className="inline-flex items-center gap-1.5 sm:col-span-2">
-            <MapPin className="h-3.5 w-3.5 text-brand-purple" />
-            {visit.clinic}
-          </span>
+        <h3 className="mb-6 font-display text-3xl font-semibold leading-tight text-brand-purple-dark">
+          {visit.reason}
+        </h3>
+        <div className="grid gap-6 text-sm sm:grid-cols-2">
+          <div className="space-y-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-brand-purple-accent">
+              Date & Time
+            </span>
+            <p className="font-medium text-brand-purple-dark">
+              {formatVisitDate(visit.date)}
+              {visit.time ? ` · ${visit.time}` : ""}
+            </p>
+          </div>
+          <div className="space-y-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-brand-purple-accent">
+              Provider
+            </span>
+            <p className="font-medium text-brand-purple-dark">
+              {visit.clinician} · {visit.clinicianRole}
+            </p>
+          </div>
+          <div className="space-y-1 sm:col-span-2">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-brand-purple-accent">
+              Facility
+            </span>
+            <p className="font-medium text-brand-purple-dark">{visit.clinic}</p>
+          </div>
         </div>
-      </header>
+      </div>
 
-      <div className="space-y-5 px-5 py-5 sm:px-6">
+      {/* Detail Body */}
+      <div className="space-y-10 p-8 sm:p-10">
         {scheduled ? (
           <>
-            <Block icon={ClipboardList} title="Before this appointment">
+            <DetailSection title="Before this appointment">
               {visit.preparation?.length ? (
                 <ul className="space-y-1.5">
                   {visit.preparation.map((item) => (
-                    <li key={item} className="flex gap-2 text-[13px] text-brand-purple-dark/75">
-                      <span aria-hidden className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-purple/50" />
+                    <li
+                      key={item}
+                      className="flex gap-2 text-[15px] leading-relaxed text-brand-purple-dark/80"
+                    >
+                      <span
+                        aria-hidden
+                        className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-purple/50"
+                      />
                       {item}
                     </li>
                   ))}
@@ -222,105 +265,123 @@ function VisitDetail({
               ) : (
                 <Empty>Nothing to prepare yet.</Empty>
               )}
-            </Block>
-            <p className="rounded-[12px] bg-brand-lavender/40 px-4 py-3 text-[12.5px] leading-relaxed text-brand-purple-dark/65">
-              A summary, findings, tests, and follow-up appear here once the visit is completed and
-              the clinician records it.
-            </p>
+            </DetailSection>
+            <div className="rounded-2xl bg-brand-lavender/40 px-5 py-4">
+              <p className="text-sm leading-relaxed text-brand-purple-dark/65">
+                A summary, findings, tests, and follow-up appear here once the
+                visit is completed and the clinician records it.
+              </p>
+            </div>
           </>
         ) : (
           <>
-            <Block icon={ClipboardList} title="Visit summary">
-              <p className="text-[13px] leading-relaxed text-brand-purple-dark/75">
+            <DetailSection title="Visit summary">
+              <p className="text-[15px] leading-relaxed text-brand-purple-dark/90">
                 {visit.summary}
               </p>
-            </Block>
+            </DetailSection>
 
-            <Block icon={Stethoscope} title="Diagnoses or findings">
+            <DetailSection title="Diagnoses or findings">
               {visit.findings?.length ? (
-                <ul className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2">
                   {visit.findings.map((finding) => (
-                    <li
+                    <span
                       key={finding}
-                      className="rounded-[10px] border border-brand-purple/20 bg-brand-lavender/35 px-2.5 py-1 text-[12.5px] font-medium text-brand-purple-dark"
+                      className="rounded-xl border border-brand-lavender bg-brand-lavender/30 px-4 py-2 text-xs font-medium text-brand-purple-dark"
                     >
                       {finding}
-                    </li>
+                    </span>
                   ))}
-                </ul>
+                </div>
               ) : (
-                <Empty>The clinician did not record a diagnosis for this visit.</Empty>
+                <Empty>
+                  The clinician did not record a diagnosis for this visit.
+                </Empty>
               )}
-            </Block>
+            </DetailSection>
 
-            <Block icon={FlaskConical} title="Tests ordered">
+            <DetailSection title="Tests ordered">
               {visit.tests?.length ? (
-                <ul className="space-y-2">
+                <div className="space-y-2">
                   {visit.tests.map((test) => (
-                    <li
+                    <div
                       key={test.name}
-                      className="rounded-[12px] border border-brand-purple/15 px-3.5 py-2.5"
+                      className="flex items-center justify-between rounded-2xl border border-brand-lavender bg-card p-4"
                     >
-                      <div className="flex flex-wrap items-center justify-between gap-2">
-                        <span className="text-[13px] font-semibold text-brand-purple-dark">
+                      <div>
+                        <p className="text-sm font-semibold text-brand-purple-dark">
                           {test.name}
-                        </span>
-                        <Pill2 tone="muted">{test.status}</Pill2>
+                        </p>
+                        {test.detail ? (
+                          <p className="text-[11px] text-brand-purple-accent">
+                            {test.detail}
+                          </p>
+                        ) : null}
                       </div>
-                      {test.detail ? (
-                        <p className="mt-1 text-[12.5px] text-brand-purple-dark/60">{test.detail}</p>
-                      ) : null}
-                    </li>
+                      <span className="rounded bg-brand-lavender px-2 py-1 text-[9px] font-bold uppercase tracking-widest text-brand-purple">
+                        {test.status}
+                      </span>
+                    </div>
                   ))}
-                </ul>
+                </div>
               ) : (
                 <Empty>No tests were ordered.</Empty>
               )}
-            </Block>
+            </DetailSection>
 
-            <Block icon={Pill} title="Prescriptions from this visit">
+            <DetailSection title="Prescriptions from this visit">
               {visit.prescriptions?.length ? (
-                <ul className="space-y-2">
+                <div className="space-y-2">
                   {visit.prescriptions.map((rx) => (
-                    <li
+                    <div
                       key={rx.label}
-                      className="flex flex-wrap items-center justify-between gap-2 rounded-[12px] border border-brand-purple/15 px-3.5 py-2.5"
+                      className="flex items-center justify-between rounded-2xl border-2 border-dashed border-brand-lavender p-5"
                     >
-                      <span>
-                        <span className="block text-[13px] font-semibold text-brand-purple-dark">
+                      <div>
+                        <p className="text-sm font-bold text-brand-purple-dark">
                           {rx.label}
-                        </span>
-                        <span className="block text-[12.5px] text-brand-purple-dark/60">
+                        </p>
+                        <p className="text-[11px] text-brand-purple/70">
                           {rx.detail}
-                        </span>
-                      </span>
+                        </p>
+                      </div>
                       {onOpenPrescriptions ? (
                         <button
                           type="button"
                           onClick={onOpenPrescriptions}
-                          className="inline-flex items-center gap-1 text-[12.5px] font-semibold text-brand-purple hover:text-brand-purple-dark"
+                          className="text-xs font-bold text-brand-purple underline decoration-2 decoration-brand-lavender underline-offset-4 hover:decoration-brand-purple"
                         >
-                          Open prescription <ArrowRight className="h-3.5 w-3.5" />
+                          Open prescription
                         </button>
                       ) : null}
-                    </li>
+                    </div>
                   ))}
-                </ul>
+                </div>
               ) : (
                 <Empty>No prescription was issued at this visit.</Empty>
               )}
-            </Block>
+            </DetailSection>
 
-            <Block icon={CalendarClock} title="Follow-up and next appointment">
-              <p className="text-[13px] leading-relaxed text-brand-purple-dark/75">
+            <div className="space-y-3 rounded-2xl bg-brand-lavender/30 p-6">
+              <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-purple">
+                Follow-up & next step
+              </h4>
+              <p className="text-sm leading-relaxed text-brand-purple-dark/80">
                 {visit.followUp ?? "No follow-up instructions were recorded."}
               </p>
-              <p className="mt-2 text-[12.5px] font-medium text-brand-purple-dark/60">
-                {visit.nextAppointment
-                  ? `Next appointment: ${visit.nextAppointment}`
-                  : "No next appointment booked yet."}
-              </p>
-            </Block>
+              {visit.nextAppointment ? (
+                <div className="flex items-center gap-2 border-t border-brand-lavender pt-3">
+                  <span className="h-1.5 w-1.5 rounded-full bg-brand-purple" />
+                  <p className="text-xs font-semibold text-brand-purple-dark">
+                    Next appointment: {visit.nextAppointment}
+                  </p>
+                </div>
+              ) : (
+                <p className="text-xs font-medium text-brand-purple-dark/60">
+                  No next appointment booked yet.
+                </p>
+              )}
+            </div>
           </>
         )}
       </div>
@@ -328,46 +389,61 @@ function VisitDetail({
   );
 }
 
-function Block({
-  icon: Icon,
+function DetailSection({
   title,
   children,
 }: {
-  icon: typeof CalendarClock;
   title: string;
   children: React.ReactNode;
 }) {
   return (
-    <section>
-      <h4 className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.14em] text-brand-purple">
-        <Icon className="h-3.5 w-3.5" />
+    <section className="space-y-3">
+      <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-purple">
         {title}
       </h4>
-      <div className="mt-2">{children}</div>
+      {children}
     </section>
   );
 }
 
 function Empty({ children }: { children: React.ReactNode }) {
-  return <p className="text-[12.5px] italic text-brand-purple-dark/45">{children}</p>;
+  return <p className="text-[13px] italic text-brand-purple-dark/45">{children}</p>;
 }
 
-function Pill2({
+function FilterPill({
   tone,
   children,
 }: {
-  tone: "scheduled" | "completed" | "muted";
+  tone: "scheduled" | "completed";
   children: React.ReactNode;
 }) {
   const styles =
     tone === "completed"
-      ? "bg-brand-purple text-primary-foreground"
-      : tone === "scheduled"
-        ? "border border-brand-purple/35 bg-card text-brand-purple"
-        : "bg-brand-purple/10 text-brand-purple-dark/65";
+      ? "bg-brand-purple text-white shadow-sm shadow-brand-purple/20"
+      : "border border-brand-lavender bg-brand-lavender/30 text-brand-purple-dark hover:bg-brand-lavender";
   return (
     <span
-      className={`inline-flex items-center rounded-[10px] px-2 py-0.5 text-[10.5px] font-bold uppercase tracking-[0.1em] ${styles}`}
+      className={`rounded-full px-5 py-2 text-xs font-semibold transition-colors ${styles}`}
+    >
+      {children}
+    </span>
+  );
+}
+
+function StatusPill({
+  tone,
+  children,
+}: {
+  tone: "scheduled" | "completed";
+  children: React.ReactNode;
+}) {
+  const styles =
+    tone === "completed"
+      ? "bg-brand-purple text-white"
+      : "border border-brand-lavender text-brand-purple-accent";
+  return (
+    <span
+      className={`rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${styles}`}
     >
       {children}
     </span>
