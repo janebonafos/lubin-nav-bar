@@ -235,7 +235,7 @@ function PassportCard({
       <button
         type="button"
         onClick={() => setFlipped((v) => !v)}
-        aria-label={flipped ? "Show card front" : "Show everything on this card"}
+        aria-label={flipped ? "Show card front" : "Show card back"}
         data-no-hover
         className="relative block aspect-[1.58/1] w-full cursor-pointer text-left transition-transform duration-700"
         style={{
@@ -256,73 +256,86 @@ function PassportCard({
           <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-brand-purple-accent/20 blur-3xl" />
           <div className="pointer-events-none absolute -bottom-20 -left-20 h-56 w-56 rounded-full bg-brand-purple/25 blur-3xl" />
 
-          <div className="relative flex h-full flex-col justify-between p-6 text-white sm:p-7">
+          <div className="relative flex h-full flex-col justify-between p-6 text-white sm:p-8">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="text-[11px] font-black italic uppercase tracking-tight">Lubin</p>
-                <p className="text-[9px] font-medium uppercase tracking-[0.2em] text-white/55">
+                <p className="font-display text-xl font-bold leading-tight tracking-tight">Lubin</p>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-purple-accent">
                   Health Network
                 </p>
               </div>
-              <DemoQr seed={cardId} color="#ffffff" className="block h-24 w-24" />
+              {/* QR inset panel */}
+              <div className="rounded-xl bg-white p-1.5 shadow-lg [transform:rotate(3deg)]">
+                <DemoQr seed={cardId} color="#3D2E6B" className="block h-16 w-16 rounded-lg" />
+              </div>
             </div>
 
             <div className="mt-auto">
               <p className="text-[10px] font-medium uppercase tracking-[0.18em] text-white/50">
                 Cardholder
               </p>
-              <h3 className="truncate text-xl font-semibold tracking-tight sm:text-2xl">
+              <h3 className="truncate font-display text-2xl font-semibold tracking-tight sm:text-3xl">
                 {name || "Your name"}
               </h3>
-
-              <div className="mt-4 flex flex-wrap gap-x-7 gap-y-3 border-t border-white/10 pt-4">
-                <div>
-                  <p className="text-[9px] font-medium uppercase tracking-[0.16em] text-white/40">
-                    Date of birth
-                  </p>
-                  <p className="mt-0.5 font-mono text-[11px] tracking-wider text-white/80">
-                    {dob ? `${formatDob(dob)}${age ? ` · ${age} yrs` : ""}` : "—"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-[9px] font-medium uppercase tracking-[0.16em] text-white/40">
-                    Passport ID
-                  </p>
-                  <p className="mt-0.5 font-mono text-[11px] tracking-wider text-white/80">
-                    {cardId}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-[9px] font-medium uppercase tracking-[0.16em] text-white/40">
-                    Last updated
-                  </p>
-                  <p className="mt-0.5 font-mono text-[11px] tracking-wider text-white/80">
-                    {lastUpdated}
-                  </p>
-                </div>
-              </div>
             </div>
-          </div>
-
-          {/* progress band */}
-          <div className="absolute bottom-0 left-0 right-0 h-1.5 bg-white/10">
-            <div
-              className="h-full bg-brand-purple-accent transition-all duration-500"
-              style={{ width: `${Math.max(pct, filled ? 4 : 0)}%` }}
-            />
           </div>
         </div>
 
-        {/* back */}
+        {/* back — point-in-time snapshot */}
         <div
-          className="absolute inset-0 overflow-hidden rounded-[28px] bg-gradient-to-br from-brand-purple to-brand-purple-dark shadow-[0_28px_70px_-30px_rgba(61,46,107,0.65)]"
+          className="absolute inset-0 overflow-hidden rounded-[28px] bg-brand-purple-dark shadow-[0_28px_70px_-30px_rgba(61,46,107,0.65)]"
           style={{
             transform: "rotateY(180deg)",
             backfaceVisibility: "hidden",
             WebkitBackfaceVisibility: "hidden",
           }}
         >
-          <CardBack details={details} reviews={reviews} />
+          {/* dot pattern overlay */}
+          <div
+            className="pointer-events-none absolute inset-0 opacity-[0.04]"
+            style={{
+              backgroundImage: "radial-gradient(#fff 1px, transparent 1px)",
+              backgroundSize: "16px 16px",
+            }}
+          />
+          <div className="relative flex h-full items-stretch">
+            {/* left — QR echo */}
+            <div className="flex w-5/12 flex-col items-center justify-center border-r border-white/10 bg-white/5 p-4 backdrop-blur-md">
+              <div className="rounded-2xl bg-white p-2 shadow-[0_0_30px_rgba(177,161,226,0.25)]">
+                <DemoQr seed={cardId} color="#3D2E6B" className="block h-20 w-20" />
+              </div>
+              <p className="mt-3 text-center text-[8px] font-bold uppercase tracking-[0.18em] text-brand-purple-accent">
+                Digital source of truth
+              </p>
+            </div>
+            {/* right — snapshot data */}
+            <div className="flex w-7/12 flex-col justify-between p-5 sm:p-6">
+              <div className="space-y-4">
+                <div className="space-y-1">
+                  <p className="text-[9px] uppercase tracking-wider text-brand-purple-accent">
+                    Date of birth
+                  </p>
+                  <p className="font-mono text-sm font-medium tracking-wider text-white">
+                    {dob ? `${formatDob(dob)}${age ? ` · ${age} yrs` : ""}` : "—"}
+                  </p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-[9px] uppercase tracking-wider text-brand-purple-accent">
+                    Passport ID
+                  </p>
+                  <p className="font-mono text-sm font-medium tracking-widest text-white">
+                    {cardId}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 border-t border-white/10 pt-3">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                <p className="text-[10px] font-medium text-white/60">
+                  As of {lastUpdated}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </button>
 
