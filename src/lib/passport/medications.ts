@@ -220,7 +220,7 @@ export function medicationList(): MedicationEntry[] {
     }
   }
 
-  return [...prescribed, ...DEMO_REPORTED];
+  return [...prescribed, ...DEMO_REPORTED.filter((m) => !removed.has(m.id))];
 }
 
 export function groupMedications(entries: MedicationEntry[] = medicationList()) {
