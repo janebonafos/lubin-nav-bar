@@ -265,6 +265,17 @@ function PassportCard({
     joinedLubin,
   };
 
+  const summaryData = useMemo(
+    () => ({
+      name: cardData.name,
+      dob: cardData.dob,
+      passportId: cardId,
+      lastUpdated,
+      sections: buildSummarySections(details),
+    }),
+    [cardData.name, cardData.dob, cardId, lastUpdated, details],
+  );
+
   return (
     <div className="[perspective:1400px]">
       <button
