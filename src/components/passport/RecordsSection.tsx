@@ -136,7 +136,7 @@ export default function RecordsSection({
 
 /** Prototype document preview: shows the real uploaded file when available,
  * otherwise a demo placeholder page for fictional records. */
-function DocumentViewer({ record, onClose }: { record: PassportRecord; onClose: () => void }) {
+export function DocumentViewer({ record, onClose }: { record: PassportRecord; onClose: () => void }) {
   return (
     <div
       className="fixed inset-0 z-[160] flex items-center justify-center bg-[#2C2B4B]/60 p-4 backdrop-blur-sm"
