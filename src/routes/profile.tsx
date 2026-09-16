@@ -73,6 +73,9 @@ const profileSearchSchema = z.object({
       "prescriptions",
       "clients",
       "passport",
+      "visits",
+      "records",
+      "wellbeing",
       "discovery",
       "share",
       "chat",
@@ -132,6 +135,9 @@ type Section =
   | "payments"
   | "verification"
   | "passport"
+  | "visits"
+  | "records"
+  | "wellbeing"
   | "discovery"
   | "chat"
   | "share";
@@ -480,8 +486,11 @@ function ProfilePage() {
       : [
           { key: "profile", label: "Profile Overview", icon: <User className="h-5 w-5" /> },
           { key: "appointments", label: "Appointments", icon: <CalendarClock className="h-5 w-5" /> },
-          { key: "prescriptions", label: "My Prescriptions", icon: <Pill className="h-5 w-5" /> },
           { key: "passport", label: "Health Passport", icon: <HeartPulse className="h-5 w-5" /> },
+          { key: "visits", label: "Visits", icon: <CalendarDays className="h-5 w-5" /> },
+          { key: "prescriptions", label: "Medications", icon: <Pill className="h-5 w-5" /> },
+          { key: "records", label: "Records", icon: <ClipboardList className="h-5 w-5" /> },
+          { key: "wellbeing", label: "Wellbeing", icon: <HeartPulse className="h-5 w-5" /> },
           { key: "discovery", label: "Self Discovery", icon: <Compass className="h-5 w-5" /> },
           { key: "share", label: "Share", icon: <Share2 className="h-5 w-5" /> },
           { key: "chat", label: "Chat", icon: <MessageCircle className="h-5 w-5" /> },
@@ -516,7 +525,7 @@ function ProfilePage() {
       subtitle: "Track earnings and manage where your payouts land",
     },
     prescriptions: {
-      title: role === "provider" ? "Prescriptions & Medications" : "My Prescriptions",
+      title: role === "provider" ? "Prescriptions & Medications" : "Medications",
       subtitle:
         role === "provider"
           ? "Patients you have issued prescriptions to"
@@ -536,7 +545,19 @@ function ProfilePage() {
     },
     passport: {
       title: "Health Passport",
-      subtitle: "Your health details, visits, medications, results, and wellbeing records",
+      subtitle: "Your health card and the details you can share with your care team",
+    },
+    visits: {
+      title: "Visits",
+      subtitle: "Your appointments, checkups, and what happened in each visit",
+    },
+    records: {
+      title: "Records",
+      subtitle: "Lab results, imaging, vaccinations, and documents you've uploaded",
+    },
+    wellbeing: {
+      title: "Wellbeing",
+      subtitle: "Your daily check-ins and how you've been feeling over time",
     },
     discovery: {
       title: "Self Discovery",
