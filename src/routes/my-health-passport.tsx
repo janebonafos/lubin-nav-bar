@@ -318,12 +318,20 @@ function PassportPage() {
       <div aria-hidden className="pointer-events-none absolute -top-32 -right-40 h-[480px] w-[480px] rounded-full bg-brand-purple/15 blur-[120px]" />
       <div aria-hidden className="pointer-events-none absolute top-1/3 -left-40 h-[420px] w-[420px] rounded-full bg-brand-purple-accent/20 blur-[120px]" />
       <Navbar />
-      <main className="relative mx-auto w-full max-w-[1200px] px-5 md:px-10 pt-32 pb-20">
+      <main className="relative mx-auto w-full max-w-[1200px] px-5 md:px-10 pt-24 pb-20">
         {/* Guest nudge banner */}
         {tab !== "home" && <GuestBanner />}
 
+        {/* Areas — nav sits at the top of the page so there's no empty gap above it */}
+        <PassportNav
+          area={area}
+          onChange={(next) => setTab(AREA_DEFAULT_TAB[next])}
+          badges={{ sharing: pendingShareCount }}
+          dots={{ wellbeing: hasInProgress }}
+        />
+
         {/* Header */}
-        {tab !== "home" && <header className="mt-6 flex items-start justify-between gap-4">
+        {tab !== "home" && <header className="mt-8 flex items-start justify-between gap-4">
           <div>
             <div className="inline-flex items-center gap-2 rounded-lg bg-white/60 px-3 py-1.5 ring-1 ring-brand-purple/15 backdrop-blur-sm">
               <Sparkles className="h-3 w-3 text-brand-purple" />
@@ -339,14 +347,6 @@ function PassportPage() {
             </p>
           </div>
         </header>}
-
-        {/* Areas */}
-        <PassportNav
-          area={area}
-          onChange={(next) => setTab(AREA_DEFAULT_TAB[next])}
-          badges={{ sharing: pendingShareCount }}
-          dots={{ wellbeing: hasInProgress }}
-        />
         {area === "overview" && (
           <PassportSubNav
             value={tab === "details" ? "details" : "home"}
