@@ -772,11 +772,12 @@ function EmptyState({
       {/* Copy */}
       <div className="relative z-10 space-y-3">
         <h3 className="text-2xl font-semibold text-[#3D2E6B]">
-          Your future summaries will live here
+          No wellbeing summary yet
         </h3>
         <p className="mx-auto max-w-md text-base leading-relaxed text-[#7E6BAF]">
-          Nothing to share yet — once you've checked in a few times, you'll be
-          able to create a simple summary to share.
+          Once you've checked in a few times, a simple wellbeing summary will
+          appear here. You can still use your health card and share your health
+          details for a Lubin appointment without it.
         </p>
       </div>
 
