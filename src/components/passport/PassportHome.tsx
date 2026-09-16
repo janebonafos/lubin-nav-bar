@@ -38,7 +38,7 @@ export default function PassportHome({
 }) {
   const [details, setDetails] = useState<HealthDetails>({});
   const [prescriptions, setPrescriptions] = useState<SignedPrescriptionDocument[]>([]);
-  const [attempts, setAttempts] = useState(() => loadAttempts());
+  const [attempts, setAttempts] = useState<ReturnType<typeof loadAttempts>>([]);
   const [updatedAt, setUpdatedAt] = useState<number | null>(null);
   const [displayPassportId, setDisplayPassportId] = useState("LBN-0000-0000");
 
