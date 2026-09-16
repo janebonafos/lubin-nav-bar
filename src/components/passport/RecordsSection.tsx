@@ -61,9 +61,9 @@ export default function RecordsSection({
         <button
           type="button"
           onClick={() => setUploadOpen((v) => !v)}
-          className="inline-flex h-10 items-center gap-2 rounded-xl bg-[#3D2E6B] px-4 text-[13px] font-semibold text-white transition hover:bg-[#33265A]"
+          className="inline-flex h-10 items-center rounded-xl bg-[#3D2E6B] px-4 text-[13px] font-semibold text-white transition hover:bg-[#33265A]"
         >
-          <Upload className="h-4 w-4" /> Add a record
+          Add a record
         </button>
       </div>
 
