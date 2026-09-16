@@ -399,6 +399,7 @@ function PassportPage() {
           {tab === "home" && (
             <PassportHome
               ownerName={detailsName ?? "Maria Santos"}
+              forceEmpty={forceEmpty}
               onNavigate={(destination) => {
                 if (destination === "card" || destination === "details") setTab("details");
                 else if (destination === "share") setTab("share");
@@ -410,10 +411,17 @@ function PassportPage() {
             />
           )}
           {tab === "visits" && (
-            <VisitsTimeline onOpenPrescriptions={() => setTab("medications")} />
+            <VisitsTimeline
+              forceEmpty={forceEmpty}
+              onOpenPrescriptions={() => setTab("medications")}
+            />
           )}
-          {tab === "medications" && <ClientPrescriptionsSection />}
-          {tab === "records" && <RecordsSection onOpenVisits={() => setTab("visits")} />}
+          {tab === "medications" && (
+            <ClientPrescriptionsSection forceEmpty={forceEmpty} />
+          )}
+          {tab === "records" && (
+            <RecordsSection forceEmpty={forceEmpty} onOpenVisits={() => setTab("visits")} />
+          )}
           {tab === "overview" && (
             <Overview
               today={today}
