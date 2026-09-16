@@ -161,9 +161,8 @@ function RecordRow({
               <button
                 type="button"
                 onClick={() => onOpenVisits?.(record.visitId!)}
-                className="inline-flex items-center gap-1.5 font-semibold text-[#3D2E6B] hover:text-[#7E6BAF]"
+                className="font-semibold text-[#3D2E6B] hover:text-[#7E6BAF]"
               >
-                <CalendarCheck className="h-3.5 w-3.5" />
                 {record.visitLabel ?? "Related visit"}
               </button>
             ) : (
