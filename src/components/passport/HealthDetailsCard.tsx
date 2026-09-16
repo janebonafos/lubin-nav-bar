@@ -389,59 +389,66 @@ function PassportCard({
         </div>
       </button>
 
-      {/* Two things a clinic may ask for, kept side by side: the identity card,
-          and the health information the patient chose to keep. */}
-      <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
-        <div className="rounded-[14px] border border-brand-purple/15 bg-white/70 p-3">
-          <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-brand-purple">
-            Identification
-          </p>
-          <p className="mt-1 text-[11.5px] leading-snug text-brand-purple-dark/60">
-            Name, date of birth, Passport ID and QR.
-          </p>
-          <div className="mt-2.5 flex flex-wrap gap-2">
+      {/* A single clinic-ready utility surface keeps the card and summary distinct
+          without making them feel like two unrelated panels. */}
+      <div className="mt-4 overflow-hidden rounded-[12px] border border-brand-purple/25 bg-brand-purple-dark shadow-lg shadow-brand-purple-dark/10">
+        <div className="grid gap-4 px-4 py-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:px-5">
+          <div className="min-w-0">
+            <h3 className="font-display text-[17px] leading-tight text-primary-foreground">
+              Identification card
+            </h3>
+            <p className="mt-1 text-[11.5px] leading-relaxed text-brand-lavender/65">
+              Name, date of birth, Passport ID and QR.
+            </p>
+          </div>
+          <div className="grid grid-cols-2 gap-2 sm:flex sm:shrink-0">
             <button
               type="button"
               onClick={() => printPassportCard(cardData)}
-              className="inline-flex items-center gap-1.5 rounded-[12px] border border-brand-purple/25 bg-white px-3 py-1.5 text-[12px] font-semibold text-brand-purple-dark transition hover:border-brand-purple/45 hover:bg-brand-lavender"
+              className="inline-flex min-h-10 items-center justify-center gap-2 rounded-[10px] border border-brand-lavender/20 bg-brand-lavender/10 px-3 text-[12px] font-semibold text-primary-foreground hover:bg-brand-lavender/20"
             >
-              <Printer className="h-3.5 w-3.5" /> Print card
+              <Printer className="h-3.5 w-3.5 shrink-0 opacity-70" /> Print card
             </button>
             <button
               type="button"
               onClick={() => downloadPassportCard(cardData)}
-              className="inline-flex items-center gap-1.5 rounded-[12px] border border-brand-purple/25 bg-white px-3 py-1.5 text-[12px] font-semibold text-brand-purple-dark transition hover:border-brand-purple/45 hover:bg-brand-lavender"
+              className="inline-flex min-h-10 items-center justify-center gap-2 rounded-[10px] bg-brand-purple px-3 text-[12px] font-semibold text-primary-foreground hover:bg-brand-purple-accent"
             >
-              <Download className="h-3.5 w-3.5" /> Download card
+              <Download className="h-3.5 w-3.5 shrink-0" /> Download
             </button>
           </div>
         </div>
-        <div className="rounded-[14px] border border-brand-purple/15 bg-white/70 p-3">
-          <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-brand-purple">
-            Health summary
-          </p>
-          <p className="mt-1 text-[11.5px] leading-snug text-brand-purple-dark/60">
-            Contacts, medications, allergies and relevant history.
-          </p>
-          <div className="mt-2.5 flex flex-wrap gap-2">
+
+        <div className="mx-4 h-px bg-brand-lavender/15 sm:mx-5" aria-hidden />
+
+        <div className="grid gap-4 px-4 py-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center sm:px-5">
+          <div className="min-w-0">
+            <h3 className="font-display text-[17px] leading-tight text-primary-foreground">
+              Health summary
+            </h3>
+            <p className="mt-1 text-[11.5px] leading-relaxed text-brand-lavender/65">
+              Contacts, medications, allergies and relevant history.
+            </p>
+          </div>
+          <div className="grid grid-cols-2 gap-2 sm:flex sm:shrink-0">
             <button
               type="button"
               onClick={() => printHealthSummary(summaryData)}
-              className="inline-flex items-center gap-1.5 rounded-[12px] border border-brand-purple/25 bg-white px-3 py-1.5 text-[12px] font-semibold text-brand-purple-dark transition hover:border-brand-purple/45 hover:bg-brand-lavender"
+              className="inline-flex min-h-10 items-center justify-center gap-2 rounded-[10px] border border-brand-lavender/20 bg-brand-lavender/10 px-3 text-[12px] font-semibold text-primary-foreground hover:bg-brand-lavender/20"
             >
-              <Printer className="h-3.5 w-3.5" /> Print summary
+              <Printer className="h-3.5 w-3.5 shrink-0 opacity-70" /> Print summary
             </button>
             <button
               type="button"
               onClick={() => downloadHealthSummary(summaryData)}
-              className="inline-flex items-center gap-1.5 rounded-[12px] border border-brand-purple/25 bg-white px-3 py-1.5 text-[12px] font-semibold text-brand-purple-dark transition hover:border-brand-purple/45 hover:bg-brand-lavender"
+              className="inline-flex min-h-10 items-center justify-center gap-2 rounded-[10px] bg-brand-purple px-3 text-[12px] font-semibold text-primary-foreground hover:bg-brand-purple-accent"
             >
-              <Download className="h-3.5 w-3.5" /> Download summary
+              <Download className="h-3.5 w-3.5 shrink-0" /> Download
             </button>
           </div>
         </div>
       </div>
-      <p className="mt-2 text-center text-[11.5px] leading-relaxed text-brand-purple-dark/50">
+      <p className="mt-3 text-center text-[11.5px] leading-relaxed text-brand-purple-dark/50">
         Patient-provided · {filled} of {total} details added. If a clinic can't scan, the summary is
         a reference you can hand over — some clinics will still ask you to fill in their own form.
         The QR block is a demo placeholder in this prototype.
