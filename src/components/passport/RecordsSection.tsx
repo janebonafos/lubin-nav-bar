@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { X } from "lucide-react";
 import { toast } from "sonner";
+import PassportEmptyState from "./PassportEmptyState";
 
 import {
   allRecords,
@@ -22,8 +23,10 @@ import { PASSPORT_VISITS } from "@/lib/passport/visits";
 
 /** Records and results kept in the Health Passport. Prototype design only. */
 export default function RecordsSection({
+  forceEmpty = false,
   onOpenVisits,
 }: {
+  forceEmpty?: boolean;
   onOpenVisits?: (visitId: string) => void;
 }) {
   const [records, setRecords] = useState<PassportRecord[]>([]);
@@ -43,6 +46,22 @@ export default function RecordsSection({
   }, [records]);
 
   const visible = filter === "all" ? records : records.filter((r) => r.type === filter);
+
+  if (forceEmpty) {
+    return (
+      <section
+        className="rounded-2xl border border-[#E3DBF5]/60 bg-[#FBF9FF]/90 p-6 shadow-md shadow-[#3D2E6B]/5 backdrop-blur-xl sm:p-8"
+        aria-label="Records and results"
+      >
+        <PassportEmptyState
+          eyebrow="Records and results"
+          title="No records yet"
+          description="Lab results, imaging, vaccinations, referrals, and discharge summaries live here. Upload documents from outside Lubin, or records shared by a clinic appear automatically when linked to a visit."
+          action={{ label: "Add a record", onClick: () => setUploadOpen(true) }}
+        />
+      </section>
+    );
+  }
 
   return (
     <section

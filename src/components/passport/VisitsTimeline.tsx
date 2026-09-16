@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { ArrowRight } from "lucide-react";
+import PassportEmptyState from "./PassportEmptyState";
 
 import {
   PASSPORT_VISITS,
@@ -14,8 +15,10 @@ import {
  * Design: "Serene lavender split" — light, editorial, brand lavender.
  */
 export default function VisitsTimeline({
+  forceEmpty = false,
   onOpenPrescriptions,
 }: {
+  forceEmpty?: boolean;
   onOpenPrescriptions?: () => void;
 }) {
   const scheduled = useMemo(
@@ -32,6 +35,20 @@ export default function VisitsTimeline({
       ),
     [],
   );
+
+  if (forceEmpty) {
+    return (
+      <section aria-label="Visits and checkups">
+        <PassportEmptyState
+          eyebrow="Visits and checkups"
+          title="No visits yet"
+          description="When you book a session through Lubin, it shows up here as an upcoming appointment. After the visit, the clinician's summary, findings, tests, and prescriptions are added automatically — so every visit is in one timeline."
+          secondary={{ label: "Review my health details", onClick: () => onOpenPrescriptions?.() }}
+        />
+      </section>
+    );
+  }
+
   const counts = visitCounts();
   const [selectedId, setSelectedId] = useState<string>(
     completed[0]?.id ?? scheduled[0]?.id ?? "",

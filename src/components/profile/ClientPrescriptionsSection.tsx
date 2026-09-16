@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { ShieldAlert, Ban } from "lucide-react";
 import rxIcon from "@/assets/rx-icon.png.asset.json";
+import PassportEmptyState from "@/components/passport/PassportEmptyState";
 import {
   listSignedPrescriptions,
   subscribePrescriptionDocuments,
@@ -31,7 +32,11 @@ function prescriptionHref(
  * newest first, so they never need to open an appointment to view or
  * download a prescription.
  */
-export default function ClientPrescriptionsSection() {
+export default function ClientPrescriptionsSection({
+  forceEmpty = false,
+}: {
+  forceEmpty?: boolean;
+}) {
   const [docs, setDocs] = useState<SignedPrescriptionDocument[]>([]);
 
 
@@ -46,6 +51,18 @@ export default function ClientPrescriptionsSection() {
     () => [...docs].sort((a, b) => b.signedAt - a.signedAt),
     [docs],
   );
+
+  if (forceEmpty) {
+    return (
+      <section className="rounded-2xl border border-[#E3DBF5]/60 bg-[#FBF9FF]/90 p-6 shadow-md shadow-[#3D2E6B]/5 backdrop-blur-xl sm:p-8">
+        <PassportEmptyState
+          eyebrow="My prescriptions"
+          title="No prescriptions yet"
+          description="When a prescriber issues a prescription after a session, it appears here with the medication details and a copy you can download. You can also add medications you're currently taking to keep your daily list in one place."
+        />
+      </section>
+    );
+  }
 
   return (
     <section className="rounded-2xl border border-[#E3DBF5]/60 bg-[#FBF9FF]/90 p-6 shadow-md shadow-[#3D2E6B]/5 backdrop-blur-xl sm:p-8">

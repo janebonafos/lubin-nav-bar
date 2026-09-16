@@ -19,6 +19,7 @@ import {
 } from "@/lib/prescription/documents";
 import { ensureSamplePrescriptionRecord } from "@/lib/prescription/sampleRecord";
 import { passportId } from "@/lib/intake/healthDetails";
+import PassportEmptyState from "./PassportEmptyState";
 
 type PassportDestination =
   | "card"
@@ -31,9 +32,11 @@ type PassportDestination =
 
 export default function PassportHome({
   ownerName = "Maria Santos",
+  forceEmpty = false,
   onNavigate,
 }: {
   ownerName?: string;
+  forceEmpty?: boolean;
   onNavigate: (destination: PassportDestination) => void;
 }) {
   const [details, setDetails] = useState<HealthDetails>({});
@@ -93,6 +96,20 @@ export default function PassportHome({
   ];
 
   const pct = Math.round((progress.filled / Math.max(progress.total, 1)) * 100);
+
+  if (forceEmpty) {
+    return (
+      <section aria-label="Health Passport overview" className="font-body">
+        <PassportEmptyState
+          eyebrow="Welcome"
+          title="Your Health Passport is ready to build"
+          description="Add your basic health details to get started — identity, emergency contact, medications, and allergies. Visits, records, and prescriptions will appear here automatically as you use Lubin."
+          action={{ label: "Add my health details", onClick: () => onNavigate("details") }}
+          secondary={{ label: "Share with a clinic", onClick: () => onNavigate("share") }}
+        />
+      </section>
+    );
+  }
 
   return (
     <section
