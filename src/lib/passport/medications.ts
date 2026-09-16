@@ -181,7 +181,9 @@ function isoDate(at: number) {
  */
 export function medicationList(): MedicationEntry[] {
   const removed = loadRemovedIds();
-  const prescribed = [...DEMO_PRESCRIBED].filter((m) => !removed.has(m.id));
+  // Keep all demo entries during matching so a removed demo med still absorbs
+  // its signed-prescription counterpart (no duplicate) — filtered out at return.
+  const prescribed = [...DEMO_PRESCRIBED];
 
   for (const doc of listSignedPrescriptions()) {
     for (const medication of doc.medications) {
