@@ -320,8 +320,9 @@ function UploadPanel({
     if (f.size <= 3 * 1024 * 1024) {
       const reader = new FileReader();
       reader.onload = () => {
-        if (typeof reader.result === "string") {
-          setFile((prev) => (prev?.name === f.name ? { ...prev, dataUrl: reader.result } : prev));
+        const dataUrl = typeof reader.result === "string" ? reader.result : undefined;
+        if (dataUrl) {
+          setFile((prev) => (prev?.name === f.name ? { ...prev, dataUrl } : prev));
         }
       };
       reader.readAsDataURL(f);
