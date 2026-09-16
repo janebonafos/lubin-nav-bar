@@ -126,11 +126,6 @@ function MedicationRow({
               <span className="font-semibold"> · {entry.strength}</span>
             ) : null}
           </h4>
-          <span
-            className={`rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${statusTone(entry.status)}`}
-          >
-            {statusLabel(entry.status)}
-          </span>
         </div>
         <p className="text-sm text-[#6F6889]">
           {[entry.dose, entry.frequency].filter(Boolean).join(" • ") ||
@@ -145,6 +140,11 @@ function MedicationRow({
       </div>
 
       <div className="flex shrink-0 items-center gap-5">
+        <span
+          className={`rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${statusTone(entry.status)}`}
+        >
+          {statusLabel(entry.status)}
+        </span>
         {canOpen ? (
           <button
             type="button"
