@@ -160,7 +160,7 @@ export default function VisitsTimeline({
           />
           <TimelineGroup
             title="Completed visits"
-            hint="Recorded by clinic"
+            hint="Already happened"
             visits={completed}
             selectedId={selectedId}
             onSelect={setSelectedId}
