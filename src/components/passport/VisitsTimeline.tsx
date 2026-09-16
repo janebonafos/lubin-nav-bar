@@ -1,13 +1,29 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ArrowRight } from "lucide-react";
+import { toast } from "sonner";
 import PassportEmptyState from "./PassportEmptyState";
+import { UploadPanel } from "./RecordsSection";
 
 import {
+  DEMO_OUTSIDE_VISIT,
+  OUTSIDE_LABEL,
   PASSPORT_VISITS,
+  allVisits,
   formatVisitDate,
+  saveOutsideVisit,
+  subscribeVisits,
   visitCounts,
+  visitOptionLabel,
   type PassportVisit,
 } from "@/lib/passport/visits";
+import {
+  allRecords,
+  formatRecordDate,
+  linkRecordToVisit,
+  subscribeRecords,
+  unlinkRecordFromVisit,
+  type PassportRecord,
+} from "@/lib/passport/records";
 
 /**
  * Prototype visit timeline for the patient Health Passport.
@@ -17,23 +33,39 @@ import {
 export default function VisitsTimeline({
   forceEmpty = false,
   onOpenPrescriptions,
+  focusVisitId,
 }: {
   forceEmpty?: boolean;
   onOpenPrescriptions?: () => void;
+  /** When a document's "Related visit" is tapped, select that exact visit. */
+  focusVisitId?: string;
 }) {
+  const [visits, setVisits] = useState<PassportVisit[]>(() => [
+    DEMO_OUTSIDE_VISIT,
+    ...PASSPORT_VISITS,
+  ]);
+  const [selectedId, setSelectedId] = useState<string>("");
+  const [adding, setAdding] = useState(false);
+
+  useEffect(() => {
+    const read = () => setVisits(allVisits());
+    read();
+    return subscribeVisits(read);
+  }, []);
+
+  useEffect(() => {
+    if (focusVisitId) setSelectedId(focusVisitId);
+  }, [focusVisitId]);
+
   const scheduled = useMemo(
     () =>
-      PASSPORT_VISITS.filter((v) => v.kind === "scheduled").sort((a, b) =>
-        a.date.localeCompare(b.date),
-      ),
-    [],
+      visits.filter((v) => v.kind === "scheduled").sort((a, b) => a.date.localeCompare(b.date)),
+    [visits],
   );
   const completed = useMemo(
     () =>
-      PASSPORT_VISITS.filter((v) => v.kind === "completed").sort((a, b) =>
-        b.date.localeCompare(a.date),
-      ),
-    [],
+      visits.filter((v) => v.kind === "completed").sort((a, b) => b.date.localeCompare(a.date)),
+    [visits],
   );
 
   if (forceEmpty) {
@@ -42,19 +74,17 @@ export default function VisitsTimeline({
         <PassportEmptyState
           eyebrow="Visits and checkups"
           title="No visits yet"
-          description="When you book a session through Lubin, it shows up here as an upcoming appointment. After the visit, the clinician's summary, findings, tests, and prescriptions are added automatically — so every visit is in one timeline."
+          description="When you book a session through Lubin, it shows up here as an upcoming appointment. After the visit, the clinician's summary, findings, tests, and prescriptions are added automatically. You can also add a visit that happened outside Lubin."
+          action={{ label: "Add outside visit", onClick: () => setAdding(true) }}
           secondary={{ label: "Review my health details", onClick: () => onOpenPrescriptions?.() }}
         />
       </section>
     );
   }
 
-  const counts = visitCounts();
-  const [selectedId, setSelectedId] = useState<string>(
-    completed[0]?.id ?? scheduled[0]?.id ?? "",
-  );
+  const counts = visitCounts(visits);
   const selected =
-    PASSPORT_VISITS.find((v) => v.id === selectedId) ?? completed[0];
+    visits.find((v) => v.id === selectedId) ?? completed[0] ?? scheduled[0];
 
   return (
     <section className="space-y-8" aria-label="Visits and checkups">
@@ -82,6 +112,28 @@ export default function VisitsTimeline({
             Demo records in this prototype
           </span>
         </div>
+        <div className="mt-6 border-t border-brand-lavender pt-6">
+          <button
+            type="button"
+            onClick={() => setAdding((v) => !v)}
+            className="inline-flex h-10 items-center rounded-xl bg-brand-purple-dark px-4 text-[13px] font-semibold text-white transition hover:opacity-90"
+          >
+            Add outside visit
+          </button>
+          <p className="mt-2 text-[12.5px] text-brand-purple-dark/60">
+            Went to another clinic or hospital? Add it yourself. You can attach documents now or later.
+          </p>
+          {adding ? (
+            <OutsideVisitForm
+              onCancel={() => setAdding(false)}
+              onSaved={(visit) => {
+                setAdding(false);
+                setSelectedId(visit.id);
+                toast.success("Visit added to your Health Passport");
+              }}
+            />
+          ) : null}
+        </div>
       </header>
 
       {/* Main Grid */}
@@ -108,6 +160,7 @@ export default function VisitsTimeline({
         <div className="lg:col-span-7 lg:sticky lg:top-24">
           {selected ? (
             <VisitDetail
+              key={selected.id}
               visit={selected}
               onOpenPrescriptions={onOpenPrescriptions}
             />
@@ -199,8 +252,15 @@ function TimelineGroup({
                   {visit.reason}
                 </h4>
                 <p className="text-xs text-brand-purple/70">
-                  {visit.clinician} · {visit.clinic}
+                  {visit.origin === "patient"
+                    ? visit.clinic
+                    : `${visit.clinician} · ${visit.clinic}`}
                 </p>
+                {visit.origin === "patient" ? (
+                  <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.1em] text-brand-purple-accent">
+                    {OUTSIDE_LABEL}
+                  </p>
+                ) : null}
                 {!active && (
                   <span className="mt-4 flex items-center text-xs font-semibold text-brand-purple transition-transform">
                     {isScheduled ? "View appointment" : "View visit details"}
