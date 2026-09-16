@@ -268,9 +268,11 @@ function PassportCard({
                   <RotateCw className="h-3 w-3" />
                   See details
                 </span>
-                <span className="rounded-[10px] bg-white p-1.5 text-center">
-                  <DemoQr seed={cardId} color="#3D2E6B" className="h-11 w-11" />
-                  <span className="mt-0.5 block text-[7px] font-bold uppercase tracking-[0.12em] text-brand-purple">
+                <span className="flex flex-col items-center gap-1">
+                  <span className="rounded-2xl bg-white p-2 shadow-[0_8px_20px_-8px_rgba(20,12,48,0.55)] ring-1 ring-white/40">
+                    <DemoQr seed={cardId} color="#3D2E6B" className="block h-10 w-10" />
+                  </span>
+                  <span className="text-[7.5px] font-semibold uppercase tracking-[0.18em] text-white/45">
                     Demo QR
                   </span>
                 </span>
