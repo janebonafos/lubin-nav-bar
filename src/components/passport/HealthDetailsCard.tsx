@@ -372,13 +372,6 @@ function PassportCard({
         >
           <Download className="h-3.5 w-3.5" /> Download card
         </button>
-        <button
-          type="button"
-          onClick={() => setFlipped((v) => !v)}
-          className="inline-flex items-center gap-1.5 rounded-[12px] px-3 py-2 text-[12.5px] font-semibold text-brand-purple underline-offset-2 hover:underline"
-        >
-          {flipped ? "Back to card" : "See everything you've added"}
-        </button>
       </div>
       <p className="mt-2 text-center text-[11.5px] leading-relaxed text-brand-purple-dark/50">
         Patient-provided card · {filled} of {total} details added. The QR block is a demo
