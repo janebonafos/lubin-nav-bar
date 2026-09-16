@@ -139,7 +139,7 @@ function MedicationRow({
         {entry.prescriptionNumber ? (
           <p className="mt-1 text-[11px] font-medium text-[#A89BD0]">
             From prescription {entry.prescriptionNumber}
-            {entry.startedAt ? ` · started ${formatMedDate(entry.startedAt)}` : ""}
+            {entry.startDate ? ` · started ${formatMedDate(entry.startDate)}` : ""}
           </p>
         ) : null}
       </div>
