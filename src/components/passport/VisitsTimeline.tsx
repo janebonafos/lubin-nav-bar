@@ -48,6 +48,7 @@ export default function VisitsTimeline({
   ]);
   const [selectedId, setSelectedId] = useState<string>("");
   const [adding, setAdding] = useState(false);
+  const detailRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const read = () => setVisits(allVisits());
@@ -56,7 +57,15 @@ export default function VisitsTimeline({
   }, []);
 
   useEffect(() => {
-    if (focusVisitId) setSelectedId(focusVisitId);
+    if (!focusVisitId) return;
+    setSelectedId(focusVisitId);
+    // Bring the visit's details into view rather than leaving the
+    // patient at the top of the Visits page (esp. on mobile, where the
+    // detail panel sits below the timeline).
+    const t = window.setTimeout(() => {
+      detailRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 150);
+    return () => window.clearTimeout(t);
   }, [focusVisitId]);
 
   const scheduled = useMemo(
@@ -159,7 +168,7 @@ export default function VisitsTimeline({
         </div>
 
         {/* Right: Detail Panel */}
-        <div className="lg:col-span-7 lg:sticky lg:top-24">
+        <div ref={detailRef} className="scroll-mt-24 lg:col-span-7 lg:sticky lg:top-24">
           {selected ? (
             <VisitDetail
               key={selected.id}
@@ -189,6 +198,12 @@ function TimelineGroup({
   onSelect: (id: string) => void;
 }) {
   const [expanded, setExpanded] = useState(false);
+  // Auto-expand when the focused visit is hidden behind "Show earlier visits".
+  useEffect(() => {
+    if (visits.slice(COLLAPSED_COUNT).some((v) => v.id === selectedId)) {
+      setExpanded(true);
+    }
+  }, [selectedId, visits]);
   const hiddenCount = visits.length - COLLAPSED_COUNT;
   const visible =
     expanded || hiddenCount <= 0 ? visits : visits.slice(0, COLLAPSED_COUNT);

@@ -428,7 +428,6 @@ function PassportPage() {
               onOpenVisits={(visitId) => {
                 setFocusVisitId(visitId);
                 setTab("visits");
-                window.setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 0);
               }}
             />
           )}
