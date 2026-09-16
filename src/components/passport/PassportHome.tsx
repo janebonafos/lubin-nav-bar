@@ -253,7 +253,9 @@ export default function PassportHome({
                   )}
                   <span>
                     {item.label}
-                    {item.label === "Allergies" ? ` (${allergy})` : ""}
+                    {item.label === "Allergies" && (!allergyAnswer || allergyAnswer === "I don't know" || allergyAnswer === "None known")
+                      ? ` (${allergy})`
+                      : ""}
                   </span>
                 </div>
               ))}
