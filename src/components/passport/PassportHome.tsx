@@ -19,6 +19,7 @@ import {
 } from "@/lib/prescription/documents";
 import { ensureSamplePrescriptionRecord } from "@/lib/prescription/sampleRecord";
 import { passportId } from "@/lib/intake/healthDetails";
+import PassportEmptyState from "./PassportEmptyState";
 
 type PassportDestination =
   | "card"
