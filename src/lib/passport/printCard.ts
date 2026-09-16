@@ -51,6 +51,7 @@ export function passportCardDocument(data: PassportCardData): string {
     <div class="grid">
       <div><p class="eyebrow">Date of birth</p><p>${escapeHtml(data.dob || "—")}</p></div>
       <div><p class="eyebrow">Passport ID</p><p>${escapeHtml(data.passportId)}</p></div>
+      <div><p class="eyebrow">Joined Lubin</p><p>${escapeHtml(data.joinedLubin || "—")}</p></div>
       <div><p class="eyebrow">Last updated</p><p>${escapeHtml(data.lastUpdated)}</p></div>
     </div>
   </div>
