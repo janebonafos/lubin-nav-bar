@@ -1253,11 +1253,20 @@ function ProfilePage() {
             )}
 
             {activeSection === "visits" && role === "client" && (
-              <VisitsTimeline onOpenPrescriptions={() => setActiveSection("prescriptions")} />
+              <VisitsTimeline
+                focusVisitId={focusVisitId}
+                onOpenPrescriptions={() => setActiveSection("prescriptions")}
+              />
             )}
 
             {activeSection === "records" && role === "client" && (
-              <RecordsSection onOpenVisits={() => setActiveSection("visits")} />
+              <RecordsSection
+                onOpenVisits={(visitId) => {
+                  setFocusVisitId(visitId);
+                  setActiveSection("visits");
+                  window.setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 0);
+                }}
+              />
             )}
 
             {activeSection === "wellbeing" && role === "client" && (
