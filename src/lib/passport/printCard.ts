@@ -9,6 +9,7 @@ export type PassportCardData = {
   dob: string;
   passportId: string;
   lastUpdated: string;
+  joinedLubin?: string;
 };
 
 function escapeHtml(value: string): string {
