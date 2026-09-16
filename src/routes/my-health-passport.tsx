@@ -173,6 +173,7 @@ const AREA_DEFAULT_TAB: Record<PassportArea, PassportTab> = {
 // ---------- Page ----------
 function PassportPage() {
   const search = Route.useSearch();
+  const forceEmpty = search.empty === true;
   const [tab, setTab] = useState<
     "home" | "overview" | "progress" | "share" | "details" | "visits" | "medications" | "records"
   >(
