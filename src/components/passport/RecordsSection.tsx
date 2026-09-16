@@ -303,7 +303,7 @@ function UploadPanel({
   const [date, setDate] = useState("");
   const [source, setSource] = useState("");
   const [visitId, setVisitId] = useState("");
-  const [file, setFile] = useState<{ name: string; size: string } | null>(null);
+  const [file, setFile] = useState<{ name: string; size: string; dataUrl?: string; mime?: string } | null>(null);
   const [dragging, setDragging] = useState(false);
 
   const completedVisits = PASSPORT_VISITS.filter((v) => v.kind === "completed");
@@ -311,7 +311,22 @@ function UploadPanel({
 
   const pick = (f: File | undefined) => {
     if (!f) return;
-    setFile({ name: f.name, size: fileSizeLabel(f.size) });
+    const next: { name: string; size: string; dataUrl?: string; mime?: string } = {
+      name: f.name,
+      size: fileSizeLabel(f.size),
+      mime: f.type || undefined,
+    };
+    // Prototype: keep files locally so they can be reopened (skip very large files).
+    if (f.size <= 3 * 1024 * 1024) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (typeof reader.result === "string") {
+          setFile((prev) => (prev?.name === f.name ? { ...prev, dataUrl: reader.result } : prev));
+        }
+      };
+      reader.readAsDataURL(f);
+    }
+    setFile(next);
     if (!title.trim()) setTitle(f.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " "));
   };
 
