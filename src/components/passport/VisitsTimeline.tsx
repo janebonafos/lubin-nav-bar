@@ -194,6 +194,18 @@ function TimelineGroup({
             </div>
           );
         })}
+
+        {hiddenCount > 0 && (
+          <button
+            type="button"
+            onClick={() => setExpanded((v) => !v)}
+            className="mt-2 w-full rounded-2xl border border-dashed border-brand-purple/25 bg-brand-lavender/20 px-5 py-3 text-center text-xs font-semibold text-brand-purple-dark transition-colors hover:bg-brand-lavender/40"
+          >
+            {expanded
+              ? "Show fewer visits"
+              : `Show ${hiddenCount} earlier ${hiddenCount === 1 ? "visit" : "visits"}`}
+          </button>
+        )}
       </div>
     </section>
   );
