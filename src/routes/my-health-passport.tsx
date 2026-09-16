@@ -90,6 +90,7 @@ export const Route = createFileRoute("/my-health-passport")({
       share: z.string().optional(),
       auth: z.enum(["signup", "signin"]).optional(),
       from: z.string().optional(),
+      empty: z.boolean().optional(),
     })
     .partial(),
   head: () => ({
