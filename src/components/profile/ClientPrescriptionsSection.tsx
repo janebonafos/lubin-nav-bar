@@ -291,6 +291,33 @@ export default function ClientPrescriptionsSection({
           })}
         </ul>
       )}
+
+      {filtered.length > visible && (
+        <div className="mt-6 flex flex-col items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setVisible((v) => v + PAGE_SIZE)}
+            className="rounded-[12px] border border-[#A89BD0] bg-white px-5 py-2.5 text-sm font-bold text-[#3D2E6B] transition-colors hover:bg-[#EAE7F5]"
+          >
+            Show {Math.min(PAGE_SIZE, filtered.length - visible)} more
+          </button>
+          <p className="text-[12px] text-[#6F6889]">
+            Showing {visible} of {filtered.length} records
+          </p>
+        </div>
+      )}
+
+      {visible > PAGE_SIZE && filtered.length <= visible && (
+        <div className="mt-6 flex justify-center">
+          <button
+            type="button"
+            onClick={() => setVisible(PAGE_SIZE)}
+            className="rounded-[12px] border border-[#DCD4F0] bg-white px-5 py-2.5 text-sm font-semibold text-[#5B4B8A] transition-colors hover:bg-[#EAE7F5]"
+          >
+            Show fewer
+          </button>
+        </div>
+      )}
     </section>
   );
 }
