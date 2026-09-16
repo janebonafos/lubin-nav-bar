@@ -703,7 +703,11 @@ function Step1({
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-semibold text-[#3D2E6B]">{label}</p>
                     <p className="mt-0.5 text-xs text-[#5A4A8A]">
-                      {disabled ? "Nothing to share yet." : opt.description}
+                      {disabled
+                        ? opt.key === "mood" || opt.key === "assessments"
+                          ? "No wellbeing summary yet."
+                          : "Nothing added yet."
+                        : opt.description}
                     </p>
                   </div>
                   <span

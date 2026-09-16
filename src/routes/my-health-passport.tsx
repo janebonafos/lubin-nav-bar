@@ -363,7 +363,7 @@ function PassportPage() {
           <PassportSubNav
             value={shareView}
             options={[
-              { id: "share", label: "Share with a clinic" },
+              { id: "share", label: "Share for an appointment" },
               { id: "manage", label: "Manage sharing" },
             ]}
             onChange={(id) => setShareView(id as "share" | "manage")}
@@ -466,7 +466,7 @@ function PassportPage() {
           {tab === "share" && shareView === "share" && (
             forceEmpty ? (
               <PassportEmptyState
-                eyebrow="Share with a clinic"
+                eyebrow="Share for an appointment"
                 title="Nothing shared yet"
                 description="Share your health details, medications, and records with a clinic ahead of your visit so they can review your information before you arrive. You choose what to include, every time."
               />

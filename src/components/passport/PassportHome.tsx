@@ -113,7 +113,7 @@ export default function PassportHome({
           title="Your Health Passport is ready to build"
           description="Add your basic health details to get started — identity, emergency contact, medications, and allergies. Visits, records, and prescriptions will appear here automatically as you use Lubin."
           action={{ label: "Add my health details", onClick: () => onNavigate("details") }}
-          secondary={{ label: "Share with a clinic", onClick: () => onNavigate("share") }}
+          secondary={{ label: "Show health card", onClick: () => onNavigate("card") }}
         />
       </section>
     );
@@ -143,13 +143,6 @@ export default function PassportHome({
                 className="rounded-full bg-brand-purple px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-brand-purple-dark"
               >
                 Show health card
-              </button>
-              <button
-                type="button"
-                onClick={() => onNavigate("share")}
-                className="rounded-full border border-brand-purple/20 bg-brand-lavender/60 px-6 py-3 text-sm font-semibold text-brand-purple-dark backdrop-blur-sm transition-all hover:bg-brand-lavender"
-              >
-                Use at a clinic
               </button>
               <button
                 type="button"
