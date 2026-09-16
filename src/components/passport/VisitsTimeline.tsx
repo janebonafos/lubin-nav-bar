@@ -371,9 +371,9 @@ function VisitDetail({
             </DetailSection>
             <VisitDocuments visitId={visit.id} visitLabel={visitOptionLabel(visit)} />
             <p className="rounded-2xl bg-brand-lavender/40 px-5 py-4 text-[13px] leading-relaxed text-brand-purple-dark/65">
-              You added this visit and any documents attached to it. Nothing here has been reviewed by
-              a clinician.
+              You added this visit. Each document shows its own source and review status.
             </p>
+
           </>
         ) : scheduled ? (
           <>
