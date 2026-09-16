@@ -44,11 +44,53 @@ export function isMedicationRemoved(id: string): boolean {
   return loadRemovedIds().has(id);
 }
 
+/* ------------------------------------------------------------------ *
+ * Patient-reported "no longer taking" (prototype, local only).
+ * This records what the patient reports. It never changes the original
+ * prescription or any clinician-authored information, and it is not
+ * advice to stop a medication.
+ * ------------------------------------------------------------------ */
+
+const NOT_TAKING_KEY = "lubin.passport.medications.notTaking.v1";
+
+function loadNotTaking(): Record<string, string> {
+  if (typeof window === "undefined") return {};
+  try {
+    const raw = window.localStorage.getItem(NOT_TAKING_KEY);
+    return raw ? (JSON.parse(raw) as Record<string, string>) : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveNotTaking(next: Record<string, string>) {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(NOT_TAKING_KEY, JSON.stringify(next));
+  listeners.forEach((cb) => cb());
+}
+
+/** Patient reports they are no longer taking this medication; moves it to history. */
+export function markMedicationNotTaking(id: string, date = isoDate(Date.now())) {
+  saveNotTaking({ ...loadNotTaking(), [id]: date });
+}
+
+/** Undo a patient-reported stop; the medication returns to the current list. */
+export function resumeMedication(id: string) {
+  const next = { ...loadNotTaking() };
+  delete next[id];
+  saveNotTaking(next);
+}
+
+export function isMedicationNotTaking(id: string): boolean {
+  return id in loadNotTaking();
+}
+
 /** Subscribe to medication changes (removals/restores). Returns an unsubscribe fn. */
 export function subscribeMedications(cb: () => void): () => void {
   listeners.add(cb);
   return () => listeners.delete(cb);
 }
+
 
 export type MedicationStatus = "current" | "completed" | "stopped";
 export type MedicationSource = "prescribed" | "patient-reported";
