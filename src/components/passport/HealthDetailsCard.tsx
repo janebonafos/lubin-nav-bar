@@ -281,16 +281,61 @@ function PassportCard({
           </div>
         </div>
 
-        {/* back */}
+        {/* back — point-in-time snapshot */}
         <div
-          className="absolute inset-0 overflow-hidden rounded-[28px] bg-gradient-to-br from-brand-purple to-brand-purple-dark shadow-[0_28px_70px_-30px_rgba(61,46,107,0.65)]"
+          className="absolute inset-0 overflow-hidden rounded-[28px] bg-brand-purple-dark shadow-[0_28px_70px_-30px_rgba(61,46,107,0.65)]"
           style={{
             transform: "rotateY(180deg)",
             backfaceVisibility: "hidden",
             WebkitBackfaceVisibility: "hidden",
           }}
         >
-          <CardBack details={details} reviews={reviews} />
+          {/* dot pattern overlay */}
+          <div
+            className="pointer-events-none absolute inset-0 opacity-[0.04]"
+            style={{
+              backgroundImage: "radial-gradient(#fff 1px, transparent 1px)",
+              backgroundSize: "16px 16px",
+            }}
+          />
+          <div className="relative flex h-full items-stretch">
+            {/* left — QR echo */}
+            <div className="flex w-5/12 flex-col items-center justify-center border-r border-white/10 bg-white/5 p-4 backdrop-blur-md">
+              <div className="rounded-2xl bg-white p-2 shadow-[0_0_30px_rgba(177,161,226,0.25)]">
+                <DemoQr seed={cardId} color="#3D2E6B" className="block h-20 w-20" />
+              </div>
+              <p className="mt-3 text-center text-[8px] font-bold uppercase tracking-[0.18em] text-brand-purple-accent">
+                Digital source of truth
+              </p>
+            </div>
+            {/* right — snapshot data */}
+            <div className="flex w-7/12 flex-col justify-between p-5 sm:p-6">
+              <div className="space-y-4">
+                <div className="space-y-1">
+                  <p className="text-[9px] uppercase tracking-wider text-brand-purple-accent">
+                    Date of birth
+                  </p>
+                  <p className="font-mono text-sm font-medium tracking-wider text-white">
+                    {dob ? `${formatDob(dob)}${age ? ` · ${age} yrs` : ""}` : "—"}
+                  </p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-[9px] uppercase tracking-wider text-brand-purple-accent">
+                    Passport ID
+                  </p>
+                  <p className="font-mono text-sm font-medium tracking-widest text-white">
+                    {cardId}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 border-t border-white/10 pt-3">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                <p className="text-[10px] font-medium text-white/60">
+                  As of {lastUpdated}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </button>
 
