@@ -48,7 +48,7 @@ export default function MedicationList({
             <Pill className="h-4 w-4 text-[#7E6BAF]" /> Medication list
           </h3>
           <p className="mt-1 max-w-xl text-[13px] leading-relaxed text-[#6F6889]">
-            Everything you take right now, kept as a simple list. Older medicines stay in your history.
+            What you’re taking right now — a simple list, not the official Rx documents. Older medicines stay in your history below.
           </p>
         </div>
       </div>

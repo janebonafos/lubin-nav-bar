@@ -52,8 +52,8 @@ export default function ClientPrescriptionsSection() {
       <div>
         <h3 className="text-[15px] font-bold text-[#3D2E6B]">My prescriptions</h3>
         <p className="mt-1 text-[13px] text-[#6F6889]">
-          Your medication list and every prescription issued to you. Open or download a copy
-          any time — you don’t need to find the appointment first.
+          Two things live here: what you’re taking right now, and the official
+          prescription documents your prescribers have issued.
         </p>
       </div>
 
@@ -66,9 +66,15 @@ export default function ClientPrescriptionsSection() {
         />
       </div>
 
-      <h4 className="mt-8 text-[11px] font-bold uppercase tracking-[0.14em] text-[#7E6BAF]">
-        Prescription documents
-      </h4>
+      <div className="mt-8">
+        <h4 className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#7E6BAF]">
+          Prescription documents
+        </h4>
+        <p className="mt-1 max-w-xl text-[12.5px] leading-relaxed text-[#6F6889]">
+          The official Rx copies issued to you — view or download one any time,
+          without finding the appointment first.
+        </p>
+      </div>
 
 
       {sorted.length === 0 ? (
