@@ -72,6 +72,7 @@ import PassportHome from "@/components/passport/PassportHome";
 import VisitsTimeline from "@/components/passport/VisitsTimeline";
 import ClientPrescriptionsSection from "@/components/profile/ClientPrescriptionsSection";
 import RecordsSection from "@/components/passport/RecordsSection";
+import PassportEmptyState from "@/components/passport/PassportEmptyState";
 import ClinicRecipientPreview from "@/components/passport/ClinicRecipientPreview";
 import ManageSharing from "@/components/passport/ManageSharing";
 import PassportNav, { PassportSubNav, type PassportArea } from "@/components/passport/PassportNav";
