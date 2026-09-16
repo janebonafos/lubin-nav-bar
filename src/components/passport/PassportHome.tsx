@@ -253,7 +253,7 @@ export default function PassportHome({
                   )}
                   <span>
                     {item.label}
-                    {item.label === "Allergies" && !item.ready ? " (None known)" : ""}
+                    {item.label === "Allergies" ? ` (${allergy})` : ""}
                   </span>
                 </div>
               ))}
