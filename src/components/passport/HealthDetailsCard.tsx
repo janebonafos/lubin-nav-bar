@@ -299,9 +299,7 @@ function PassportCard({
           <div className="relative flex h-full items-stretch">
             {/* left — QR echo */}
             <div className="flex w-5/12 flex-col items-center justify-center border-r border-white/10 bg-white/5 p-4 backdrop-blur-md">
-              <div className="rounded-2xl bg-white p-2 shadow-[0_0_30px_rgba(177,161,226,0.25)]">
-                <DemoQr seed={cardId} color="#3D2E6B" className="block h-20 w-20" />
-              </div>
+              <DemoQr seed={cardId} color="#ffffff" className="block h-28 w-28" />
               <p className="mt-3 text-center text-[8px] font-bold uppercase tracking-[0.18em] text-brand-purple-accent">
                 Digital source of truth
               </p>
