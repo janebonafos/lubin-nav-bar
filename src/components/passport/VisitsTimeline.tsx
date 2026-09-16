@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import PassportEmptyState from "./PassportEmptyState";
@@ -18,8 +18,10 @@ import {
 } from "@/lib/passport/visits";
 import {
   allRecords,
+  fileSizeLabel,
   formatRecordDate,
   linkRecordToVisit,
+  saveUploadedRecord,
   subscribeRecords,
   unlinkRecordFromVisit,
   type PassportRecord,
@@ -515,7 +517,53 @@ function OutsideVisitForm({
   const [clinic, setClinic] = useState("");
   const [reason, setReason] = useState("");
   const [note, setNote] = useState("");
+  const [files, setFiles] = useState<
+    { name: string; size: string; dataUrl?: string; mime?: string }[]
+  >([]);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [dragging, setDragging] = useState(false);
   const ready = Boolean(date && clinic.trim());
+
+  const pick = (picked: FileList | null) => {
+    if (!picked?.length) return;
+    Array.from(picked).forEach((f) => {
+      setFiles((prev) =>
+        prev.some((p) => p.name === f.name)
+          ? prev
+          : [...prev, { name: f.name, size: fileSizeLabel(f.size), mime: f.type || undefined }],
+      );
+      // Prototype: keep smaller files locally so they can be reopened.
+      if (f.size <= 3 * 1024 * 1024) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const dataUrl = typeof reader.result === "string" ? reader.result : undefined;
+          if (!dataUrl) return;
+          setFiles((prev) => prev.map((p) => (p.name === f.name ? { ...p, dataUrl } : p)));
+        };
+        reader.readAsDataURL(f);
+      }
+    });
+  };
+
+  const save = () => {
+    const visit = saveOutsideVisit({ date, clinic, reason, note });
+    const label = visitOptionLabel(visit);
+    files.forEach((f) => {
+      saveUploadedRecord({
+        type: "other",
+        title: f.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " "),
+        date: visit.date,
+        source: visit.clinic,
+        visitId: visit.id,
+        visitLabel: label,
+        fileName: f.name,
+        fileSizeLabel: f.size,
+        fileDataUrl: f.dataUrl,
+        fileMime: f.mime,
+      });
+    });
+    onSaved(visit);
+  };
 
   return (
     <div className="mt-4 rounded-2xl border border-brand-lavender bg-card p-5">
@@ -552,11 +600,72 @@ function OutsideVisitForm({
           />
         </FormField>
       </div>
+
+      <p className="mt-4 text-[11px] font-bold uppercase tracking-[0.14em] text-brand-purple-accent">
+        Documents (optional)
+      </p>
+      <button
+        type="button"
+        onClick={() => inputRef.current?.click()}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setDragging(true);
+        }}
+        onDragLeave={() => setDragging(false)}
+        onDrop={(e) => {
+          e.preventDefault();
+          setDragging(false);
+          pick(e.dataTransfer.files);
+        }}
+        className={`mt-2 flex w-full flex-col items-center gap-1 rounded-2xl border border-dashed px-5 py-6 text-center transition ${
+          dragging
+            ? "border-brand-purple bg-brand-lavender/40"
+            : "border-brand-lavender bg-brand-lavender/15 hover:bg-brand-lavender/30"
+        }`}
+      >
+        <span className="text-[13px] font-semibold text-brand-purple-dark">
+          Drop files here or tap to choose
+        </span>
+        <span className="text-[12px] text-brand-purple-dark/55">
+          PDF, JPG or PNG · they are saved with this visit and in Records
+        </span>
+      </button>
+      <input
+        ref={inputRef}
+        type="file"
+        multiple
+        accept="image/*,application/pdf"
+        className="hidden"
+        onChange={(e) => pick(e.target.files)}
+      />
+      {files.length ? (
+        <ul className="mt-2 space-y-1.5">
+          {files.map((f) => (
+            <li
+              key={f.name}
+              className="flex items-center justify-between gap-3 rounded-xl border border-brand-lavender bg-card px-3 py-2"
+            >
+              <span className="min-w-0 truncate text-[12.5px] font-semibold text-brand-purple-dark">
+                {f.name}
+                <span className="ml-2 font-normal text-brand-purple-dark/55">{f.size}</span>
+              </span>
+              <button
+                type="button"
+                onClick={() => setFiles((prev) => prev.filter((p) => p.name !== f.name))}
+                className="shrink-0 text-[12px] font-semibold text-brand-purple transition hover:underline"
+              >
+                Remove
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+
       <div className="mt-4 flex flex-wrap items-center gap-2">
         <button
           type="button"
           disabled={!ready}
-          onClick={() => onSaved(saveOutsideVisit({ date, clinic, reason, note }))}
+          onClick={save}
           className="inline-flex h-10 items-center rounded-xl bg-brand-purple-dark px-4 text-[13px] font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:bg-brand-lavender disabled:text-brand-purple-dark/50"
         >
           Save visit
