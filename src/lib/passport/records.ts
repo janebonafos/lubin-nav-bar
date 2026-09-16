@@ -36,6 +36,9 @@ export type PassportRecord = {
   authoredByClinician?: boolean;
   fileName?: string;
   fileSizeLabel?: string;
+  /** Prototype only: data URL of the uploaded file, kept locally so it can be opened. */
+  fileDataUrl?: string;
+  fileMime?: string;
   addedAt?: number;
 };
 

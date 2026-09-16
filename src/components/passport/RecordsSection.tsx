@@ -32,6 +32,7 @@ export default function RecordsSection({
   const [records, setRecords] = useState<PassportRecord[]>([]);
   const [filter, setFilter] = useState<RecordType | "all">("all");
   const [uploadOpen, setUploadOpen] = useState(false);
+  const [viewing, setViewing] = useState<PassportRecord | null>(null);
 
   useEffect(() => {
     const read = () => setRecords(allRecords());
@@ -119,20 +120,98 @@ export default function RecordsSection({
       ) : (
         <ul className="mt-5 space-y-3">
           {visible.map((record) => (
-            <RecordRow key={record.id} record={record} onOpenVisits={onOpenVisits} />
+            <RecordRow
+              key={record.id}
+              record={record}
+              onOpenVisits={onOpenVisits}
+              onViewFile={record.fileName ? () => setViewing(record) : undefined}
+            />
           ))}
         </ul>
       )}
+      {viewing ? <DocumentViewer record={viewing} onClose={() => setViewing(null)} /> : null}
     </section>
+  );
+}
+
+/** Prototype document preview: shows the real uploaded file when available,
+ * otherwise a demo placeholder page for fictional records. */
+function DocumentViewer({ record, onClose }: { record: PassportRecord; onClose: () => void }) {
+  return (
+    <div
+      className="fixed inset-0 z-[160] flex items-center justify-center bg-[#2C2B4B]/60 p-4 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${record.fileName ?? record.title} preview`}
+      onClick={onClose}
+    >
+      <div
+        className="flex max-h-[85vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between gap-3 border-b border-[#E3DBF5] px-5 py-3.5">
+          <div className="min-w-0">
+            <p className="truncate text-[13.5px] font-bold text-[#2C2B4B]">
+              {record.fileName ?? record.title}
+            </p>
+            <p className="text-[11.5px] text-[#8A7FB0]">
+              {record.fileSizeLabel ? `${record.fileSizeLabel} · ` : ""}
+              {formatRecordDate(record.date)} · {record.source}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close preview"
+            className="rounded-lg p-1.5 text-[#8A7FB0] transition hover:bg-[#F6F4FC] hover:text-[#3D2E6B]"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+        <div className="min-h-0 flex-1 overflow-auto bg-[#F6F4FC] p-5">
+          {record.fileDataUrl && record.fileMime?.startsWith("image/") ? (
+            <img
+              src={record.fileDataUrl}
+              alt={record.title}
+              className="mx-auto max-h-[60vh] rounded-xl border border-[#E3DBF5] bg-white"
+            />
+          ) : record.fileDataUrl ? (
+            <iframe
+              src={record.fileDataUrl}
+              title={record.fileName ?? record.title}
+              className="h-[60vh] w-full rounded-xl border border-[#E3DBF5] bg-white"
+            />
+          ) : (
+            <div className="mx-auto max-w-md rounded-xl border border-[#E3DBF5] bg-white px-8 py-10 shadow-sm">
+              <p className="text-[10.5px] font-bold uppercase tracking-[0.16em] text-[#A79BC7]">
+                Demo document
+              </p>
+              <p className="mt-2 text-[16px] font-bold text-[#2C2B4B]">{record.title}</p>
+              <p className="mt-1 text-[12.5px] text-[#6F6889]">
+                {formatRecordDate(record.date)} · {record.source}
+              </p>
+              {record.summary ? (
+                <p className="mt-4 text-[13px] leading-relaxed text-[#4B4570]">{record.summary}</p>
+              ) : null}
+              <p className="mt-6 border-t border-dashed border-[#DCD4F0] pt-3 text-[11.5px] italic text-[#8A7FB0]">
+                Prototype preview — the real {record.fileName ?? "file"} would open here.
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }
 
 function RecordRow({
   record,
   onOpenVisits,
+  onViewFile,
 }: {
   record: PassportRecord;
   onOpenVisits?: (visitId: string) => void;
+  onViewFile?: () => void;
 }) {
   return (
     <li className="rounded-2xl border border-[#E3DBF5]/70 bg-white p-5">
@@ -171,10 +250,15 @@ function RecordRow({
           ) : null}
           <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[12px] text-[#8A7FB0]">
             {record.fileName ? (
-              <span>
+              <button
+                type="button"
+                onClick={onViewFile}
+                className="inline-flex items-center gap-1.5 rounded-[12px] border border-[#DCD4F0] bg-white px-2.5 py-1 text-[12px] font-semibold text-[#5B4B8A] transition hover:bg-[#F6F4FC]"
+              >
                 {record.fileName}
                 {record.fileSizeLabel ? ` · ${record.fileSizeLabel}` : ""}
-              </span>
+                <span className="text-[#7E6BAF] underline underline-offset-2">View</span>
+              </button>
             ) : null}
             {record.visitId ? (
               <button
@@ -219,7 +303,7 @@ function UploadPanel({
   const [date, setDate] = useState("");
   const [source, setSource] = useState("");
   const [visitId, setVisitId] = useState("");
-  const [file, setFile] = useState<{ name: string; size: string } | null>(null);
+  const [file, setFile] = useState<{ name: string; size: string; dataUrl?: string; mime?: string } | null>(null);
   const [dragging, setDragging] = useState(false);
 
   const completedVisits = PASSPORT_VISITS.filter((v) => v.kind === "completed");
@@ -227,7 +311,23 @@ function UploadPanel({
 
   const pick = (f: File | undefined) => {
     if (!f) return;
-    setFile({ name: f.name, size: fileSizeLabel(f.size) });
+    const next: { name: string; size: string; dataUrl?: string; mime?: string } = {
+      name: f.name,
+      size: fileSizeLabel(f.size),
+      mime: f.type || undefined,
+    };
+    // Prototype: keep files locally so they can be reopened (skip very large files).
+    if (f.size <= 3 * 1024 * 1024) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const dataUrl = typeof reader.result === "string" ? reader.result : undefined;
+        if (dataUrl) {
+          setFile((prev) => (prev?.name === f.name ? { ...prev, dataUrl } : prev));
+        }
+      };
+      reader.readAsDataURL(f);
+    }
+    setFile(next);
     if (!title.trim()) setTitle(f.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " "));
   };
 
@@ -350,6 +450,8 @@ function UploadPanel({
               visitLabel: visit ? `${visit.reason} · ${formatRecordDate(visit.date)}` : undefined,
               fileName: file?.name,
               fileSizeLabel: file?.size,
+              fileDataUrl: file?.dataUrl,
+              fileMime: file?.mime,
             });
             onSaved(saved);
           }}
