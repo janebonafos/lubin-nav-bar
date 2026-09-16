@@ -101,6 +101,8 @@ export default function VisitsTimeline({
   );
 }
 
+const COLLAPSED_COUNT = 4;
+
 function TimelineGroup({
   title,
   hint,
@@ -114,6 +116,11 @@ function TimelineGroup({
   selectedId: string;
   onSelect: (id: string) => void;
 }) {
+  const [expanded, setExpanded] = useState(false);
+  const hiddenCount = visits.length - COLLAPSED_COUNT;
+  const visible =
+    expanded || hiddenCount <= 0 ? visits : visits.slice(0, COLLAPSED_COUNT);
+
   if (!visits.length) return null;
   return (
     <section>
@@ -130,7 +137,7 @@ function TimelineGroup({
         {/* Timeline line */}
         <div className="absolute bottom-2 left-0 top-2 w-px bg-gradient-to-b from-brand-lavender via-brand-lavender to-transparent" />
 
-        {visits.map((visit) => {
+        {visible.map((visit) => {
           const active = visit.id === selectedId;
           const isScheduled = visit.kind === "scheduled";
           return (
@@ -187,6 +194,18 @@ function TimelineGroup({
             </div>
           );
         })}
+
+        {hiddenCount > 0 && (
+          <button
+            type="button"
+            onClick={() => setExpanded((v) => !v)}
+            className="mt-2 w-full rounded-2xl border border-dashed border-brand-purple/25 bg-brand-lavender/20 px-5 py-3 text-center text-xs font-semibold text-brand-purple-dark transition-colors hover:bg-brand-lavender/40"
+          >
+            {expanded
+              ? "Show fewer visits"
+              : `Show ${hiddenCount} earlier ${hiddenCount === 1 ? "visit" : "visits"}`}
+          </button>
+        )}
       </div>
     </section>
   );
