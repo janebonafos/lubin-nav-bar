@@ -250,7 +250,6 @@ function UploadPanel({
       >
         {file ? (
           <>
-            <Paperclip className="h-5 w-5 text-[#5B4B8A]" />
             <span className="text-[13px] font-semibold text-[#3D2E6B]">{file.name}</span>
             <span className="text-[12px] text-[#8A7FB0]">{file.size} · Tap to replace</span>
           </>
