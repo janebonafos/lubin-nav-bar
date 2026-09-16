@@ -73,7 +73,15 @@ export default function PassportHome({
       .filter(Boolean)
       .join(", ") ||
     "Nothing recorded";
-  const allergy = details["history.allergies"] || "Not added";
+  // Allergy wording must reflect what the patient actually said: an
+  // unanswered question is "Not answered", "I don't know" is "Unknown", and
+  // only an explicit report shows "None known".
+  const allergyAnswer = details["history.allergies"];
+  const allergy = !allergyAnswer
+    ? "Not answered"
+    : allergyAnswer === "I don't know"
+      ? "Unknown"
+      : allergyAnswer;
   const latestAttempt = [...attempts].sort((a, b) => b.takenAt - a.takenAt)[0];
   const latestAssessment = latestAttempt
     ? ASSESSMENTS.find((assessment) => assessment.id === latestAttempt.assessmentId)
