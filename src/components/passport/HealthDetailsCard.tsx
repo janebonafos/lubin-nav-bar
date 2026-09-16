@@ -31,6 +31,11 @@ import {
 import DemoQr from "@/components/passport/DemoQr";
 
 import { downloadPassportCard, printPassportCard } from "@/lib/passport/printCard";
+import {
+  buildSummarySections,
+  downloadHealthSummary,
+  printHealthSummary,
+} from "@/lib/passport/printSummary";
 import { loadProxySignup, proxyFirstName } from "@/lib/proxySignup";
 
 const GROUP_BLURB: Record<string, string> = {
