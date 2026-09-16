@@ -273,7 +273,7 @@ function PassportCard({
           <div className="relative flex h-full flex-col justify-between p-6 text-white sm:p-8">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="font-display text-xl font-bold leading-tight tracking-tight">Lubin</p>
+                <p className="font-display text-xl font-bold leading-tight tracking-tight">LUBIN.AI</p>
                 <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-purple-accent">
                   Health Network
                 </p>
