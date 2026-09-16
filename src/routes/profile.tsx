@@ -1235,7 +1235,7 @@ function ProfilePage() {
                     else if (destination === "prescriptions") setActiveSection("prescriptions");
                     else if (destination === "records") setActiveSection("records");
                     else if (destination === "patterns") setActiveSection("discovery");
-                    else if (destination === "details")
+                    else if (destination === "card" || destination === "details")
                       window.setTimeout(
                         () =>
                           document
