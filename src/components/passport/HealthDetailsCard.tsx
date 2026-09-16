@@ -42,6 +42,22 @@ const GROUP_BLURB: Record<string, string> = {
 };
 
 const SAFETY_NET_FIELDS = ["emergency.name", "emergency.relationship", "emergency.phone"];
+
+/** Answers already saved in a section, so a collapsed row shows what was added. */
+function groupAnswers(
+  group: { id: string; fields: { id: string; label: string }[] },
+  details: HealthDetails,
+): { label: string; value: string }[] {
+  const rows: { label: string; value: string }[] = [];
+  if (group.id === "safety-net" && details["emergency.none"]?.trim()) {
+    rows.push({ label: "Emergency contact", value: details["emergency.none"] });
+  }
+  for (const field of group.fields) {
+    const value = details[field.id]?.trim();
+    if (value) rows.push({ label: field.label, value });
+  }
+  return rows;
+}
 const SAFETY_NET_NONE = "No one right now";
 
 function safetyNetHasNone(details: HealthDetails): boolean {
