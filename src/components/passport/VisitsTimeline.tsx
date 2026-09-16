@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { ArrowRight } from "lucide-react";
+import PassportEmptyState from "./PassportEmptyState";
 
 import {
   PASSPORT_VISITS,

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { ShieldAlert, Ban } from "lucide-react";
 import rxIcon from "@/assets/rx-icon.png.asset.json";
+import PassportEmptyState from "@/components/passport/PassportEmptyState";
 import {
   listSignedPrescriptions,
   subscribePrescriptionDocuments,
