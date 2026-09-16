@@ -43,7 +43,7 @@ export function passportCardDocument(data: PassportCardData): string {
 <body>
   <div class="card">
     <div class="row">
-      <div class="brand">Lubin<small>Health Network</small></div>
+      <div class="brand">LUBIN.AI<small>Health Network</small></div>
       <div class="qr">${qr}<span>Demo QR</span></div>
     </div>
     <p class="eyebrow">Cardholder</p>
