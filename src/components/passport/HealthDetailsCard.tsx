@@ -1177,6 +1177,23 @@ export default function HealthDetailsCard({ showHeader = true }: { showHeader?: 
                       <p className="mt-0.5 truncate text-[12.5px] text-brand-purple-dark/50">
                         {GROUP_BLURB[group.id] ?? group.why}
                       </p>
+                      {!open && answers.length > 0 && (
+                        <dl className="mt-2.5 flex flex-col gap-1">
+                          {answers.map((row) => (
+                            <div
+                              key={row.label}
+                              className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5"
+                            >
+                              <dt className="text-[11px] uppercase tracking-[0.08em] text-brand-purple-dark/40">
+                                {row.label}
+                              </dt>
+                              <dd className="font-body text-[13px] font-medium leading-snug text-brand-purple-dark/80">
+                                {row.value}
+                              </dd>
+                            </div>
+                          ))}
+                        </dl>
+                      )}
                     </div>
                   </div>
 
