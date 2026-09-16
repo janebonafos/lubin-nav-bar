@@ -264,10 +264,8 @@ function PassportCard({
                   Health Network
                 </p>
               </div>
-              {/* QR inset panel */}
-              <div className="rounded-xl bg-white p-1.5 shadow-lg [transform:rotate(3deg)]">
-                <DemoQr seed={cardId} color="#3D2E6B" className="block h-16 w-16 rounded-lg" />
-              </div>
+              {/* QR — white modules directly on the card */}
+              <DemoQr seed={cardId} color="#ffffff" className="block h-20 w-20" />
             </div>
 
             <div className="mt-auto">
