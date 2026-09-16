@@ -255,7 +255,6 @@ function UploadPanel({
           </>
         ) : (
           <>
-            <ImageIcon className="h-5 w-5 text-[#7E6BAF]" />
             <span className="text-[13px] font-semibold text-[#3D2E6B]">
               Drop a file here or tap to choose
             </span>
