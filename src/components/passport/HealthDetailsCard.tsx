@@ -30,12 +30,13 @@ import {
 } from "@/lib/intake/reviewLog";
 import DemoQr from "@/components/passport/DemoQr";
 
-import { downloadPassportCard, printPassportCard } from "@/lib/passport/printCard";
+import { printPassportCard } from "@/lib/passport/printCard";
+import { buildSummarySections, printHealthSummary } from "@/lib/passport/printSummary";
 import {
-  buildSummarySections,
-  downloadHealthSummary,
-  printHealthSummary,
-} from "@/lib/passport/printSummary";
+  downloadHealthSummaryPdf,
+  downloadPassportCardPdf,
+} from "@/lib/passport/pdf";
+
 import { loadProxySignup, proxyFirstName } from "@/lib/proxySignup";
 
 const GROUP_BLURB: Record<string, string> = {
