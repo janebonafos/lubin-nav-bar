@@ -207,9 +207,11 @@ function DocumentViewer({ record, onClose }: { record: PassportRecord; onClose: 
 function RecordRow({
   record,
   onOpenVisits,
+  onViewFile,
 }: {
   record: PassportRecord;
   onOpenVisits?: (visitId: string) => void;
+  onViewFile?: () => void;
 }) {
   return (
     <li className="rounded-2xl border border-[#E3DBF5]/70 bg-white p-5">
