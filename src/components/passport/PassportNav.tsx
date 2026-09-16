@@ -39,7 +39,7 @@ export default function PassportNav({
       aria-label="Health Passport areas"
       className="-mx-5 mt-8 overflow-x-auto px-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:px-0"
     >
-      <div className="flex min-w-max border-b border-brand-purple/15 sm:min-w-0">
+      <div className="flex min-w-max rounded-2xl border border-brand-purple/10 bg-white p-1.5 shadow-[0_8px_30px_color-mix(in_oklab,var(--color-brand-lavender)_42%,transparent)] sm:min-w-0">
         {PASSPORT_AREAS.map(({ id, label, short }) => {
           const active = area === id;
           const badge = badges?.[id] ?? 0;
@@ -49,10 +49,10 @@ export default function PassportNav({
               type="button"
               onClick={() => onChange(id)}
               aria-current={active ? "page" : undefined}
-              className={`relative inline-flex min-h-12 flex-1 items-center justify-center gap-2 whitespace-nowrap border-b-2 px-4 py-3 text-[13px] font-semibold transition-colors ${
+              className={`relative inline-flex min-h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-transparent px-4 py-2.5 text-[13px] transition-colors ${
                 active
-                  ? "border-brand-purple text-brand-purple-dark"
-                  : "border-transparent text-brand-purple-dark/55 hover:border-brand-purple-accent/50 hover:text-brand-purple-dark"
+                  ? "font-display bg-brand-lavender/55 font-semibold text-brand-purple-dark shadow-sm"
+                  : "font-body font-medium text-brand-purple-dark/55 hover:bg-brand-lavender/25 hover:text-brand-purple-dark"
               }`}
             >
               <span className="sm:hidden">{short}</span>
@@ -89,7 +89,7 @@ export function PassportSubNav<T extends string>({
   onChange: (id: T) => void;
 }) {
   return (
-    <div className="mt-4 flex flex-wrap gap-6 border-b border-brand-purple/10">
+    <div className="mt-3 flex w-fit max-w-full flex-wrap gap-1 rounded-xl bg-brand-lavender/35 p-1">
       {options.map((option) => {
         const active = option.id === value;
         return (
@@ -98,10 +98,10 @@ export function PassportSubNav<T extends string>({
             type="button"
             onClick={() => onChange(option.id)}
             aria-pressed={active}
-            className={`inline-flex h-10 items-center border-b-2 px-0.5 text-[12.5px] font-semibold transition-colors ${
+            className={`inline-flex min-h-9 items-center rounded-lg border border-transparent px-5 py-1.5 text-[12.5px] transition-colors ${
               active
-                ? "border-brand-purple text-brand-purple-dark"
-                : "border-transparent text-brand-purple-dark/50 hover:text-brand-purple-dark"
+                ? "bg-white font-display font-semibold text-brand-purple-dark shadow-sm"
+                : "font-body font-medium text-brand-purple-dark/45 hover:bg-white/60 hover:text-brand-purple-dark"
             }`}
           >
             {option.label}
