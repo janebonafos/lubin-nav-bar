@@ -57,6 +57,32 @@ export function recordTypeLabel(type: RecordType): string {
 
 export const DEMO_RECORDS: PassportRecord[] = [
   {
+    id: "r-outside-rx-2026-09-16",
+    type: "other",
+    title: "Prescription from Sample Community Clinic",
+    date: "2026-09-16",
+    source: "Sample Community Clinic",
+    summary: "Demo document linked to a visit you added yourself.",
+    visitId: "ov-demo-2026-09-16",
+    visitLabel: "General checkup \u00b7 Sep 16, 2026 \u00b7 Outside Lubin",
+    origin: "uploaded",
+    fileName: "Prescription.pdf",
+    fileSizeLabel: "220 KB",
+  },
+  {
+    id: "r-outside-lab-2026-09-16",
+    type: "lab",
+    title: "Laboratory results from Sample Community Clinic",
+    date: "2026-09-16",
+    source: "Sample Community Clinic",
+    summary: "Demo document linked to a visit you added yourself.",
+    visitId: "ov-demo-2026-09-16",
+    visitLabel: "General checkup \u00b7 Sep 16, 2026 \u00b7 Outside Lubin",
+    origin: "uploaded",
+    fileName: "Laboratory-results.pdf",
+    fileSizeLabel: "348 KB",
+  },
+  {
     id: "r-thyroid-2026-08-29",
     type: "lab",
     title: "Thyroid panel (TSH, free T4)",
@@ -198,7 +224,7 @@ export function subscribeRecords(fn: () => void) {
 }
 
 export function allRecords(): PassportRecord[] {
-  return [...loadUploadedRecords(), ...DEMO_RECORDS].sort((a, b) =>
+  return withLinks([...loadUploadedRecords(), ...DEMO_RECORDS]).sort((a, b) =>
     b.date.localeCompare(a.date),
   );
 }
@@ -240,4 +266,55 @@ export function recordReviewLabel(record: PassportRecord): string | null {
 /** Patients edit their own entries; clinician-authored records stay unchanged. */
 export function canPatientEdit(record: PassportRecord): boolean {
   return record.origin === "uploaded" && !record.authoredByClinician;
+}
+
+/* ------------------------------------------------------------------ *
+ * Linking existing records to a visit (prototype, local only).
+ * A record is only ever linked — never copied — so it stays a single
+ * document that appears both in Records and inside the visit.
+ * ------------------------------------------------------------------ */
+
+type VisitLink = { visitId: string; visitLabel: string };
+const LINK_KEY = "lubin.passport.records.visitlinks.v1";
+
+function loadLinks(): Record<string, VisitLink | null> {
+  if (typeof window === "undefined") return {};
+  try {
+    const raw = window.localStorage.getItem(LINK_KEY);
+    return raw ? (JSON.parse(raw) as Record<string, VisitLink | null>) : {};
+  } catch {
+    return {};
+  }
+}
+
+function writeLinks(next: Record<string, VisitLink | null>) {
+  try {
+    window.localStorage.setItem(LINK_KEY, JSON.stringify(next));
+  } catch {
+    /* prototype only */
+  }
+  window.dispatchEvent(new Event(EVENT));
+}
+
+export function linkRecordToVisit(recordId: string, visitId: string, visitLabel: string) {
+  writeLinks({ ...loadLinks(), [recordId]: { visitId, visitLabel } });
+}
+
+export function unlinkRecordFromVisit(recordId: string) {
+  writeLinks({ ...loadLinks(), [recordId]: null });
+}
+
+function withLinks(records: PassportRecord[]): PassportRecord[] {
+  const links = loadLinks();
+  return records.map((r) => {
+    if (!(r.id in links)) return r;
+    const link = links[r.id];
+    if (!link) return { ...r, visitId: undefined, visitLabel: undefined };
+    return { ...r, visitId: link.visitId, visitLabel: link.visitLabel };
+  });
+}
+
+/** Every record in the passport, with patient-made visit links applied. */
+export function recordsForVisit(visitId: string): PassportRecord[] {
+  return allRecords().filter((r) => r.visitId === visitId);
 }

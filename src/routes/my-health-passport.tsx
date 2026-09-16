@@ -187,6 +187,8 @@ function PassportPage() {
     ClientUpcomingAppointment[]
   >([]);
   const area = TAB_AREA[tab];
+  /** Visit to select when a document's "Related visit" is tapped. */
+  const [focusVisitId, setFocusVisitId] = useState<string | undefined>(undefined);
   const [shareView, setShareView] = useState<"share" | "manage">("share");
   useEffect(() => {
     setUpcomingAppointments(getClientUpcomingAppointments());
@@ -413,6 +415,7 @@ function PassportPage() {
           {tab === "visits" && (
             <VisitsTimeline
               forceEmpty={forceEmpty}
+              focusVisitId={focusVisitId}
               onOpenPrescriptions={() => setTab("medications")}
             />
           )}
@@ -420,7 +423,14 @@ function PassportPage() {
             <ClientPrescriptionsSection forceEmpty={forceEmpty} />
           )}
           {tab === "records" && (
-            <RecordsSection forceEmpty={forceEmpty} onOpenVisits={() => setTab("visits")} />
+            <RecordsSection
+              forceEmpty={forceEmpty}
+              onOpenVisits={(visitId) => {
+                setFocusVisitId(visitId);
+                setTab("visits");
+                window.setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 0);
+              }}
+            />
           )}
           {tab === "overview" && (
             forceEmpty ? (

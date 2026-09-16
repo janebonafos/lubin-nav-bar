@@ -37,6 +37,11 @@ export type PassportVisit = {
   /** Set when the record came from the clinic rather than the patient. */
   recordedBy?: string;
   preparation?: string[];
+  /** "patient" = added by the patient for a visit that happened outside Lubin. */
+  origin?: "lubin" | "patient";
+  /** Patient's own note about an outside visit. */
+  note?: string;
+  addedAt?: number;
 };
 
 export const PASSPORT_VISITS: PassportVisit[] = [
@@ -131,4 +136,97 @@ export function visitCounts(visits: PassportVisit[] = PASSPORT_VISITS) {
     scheduled: visits.filter((v) => v.kind === "scheduled").length,
     completed: visits.filter((v) => v.kind === "completed").length,
   };
+}
+
+/* ------------------------------------------------------------------ *
+ * Patient-added visits from outside Lubin (prototype, local only).
+ * ------------------------------------------------------------------ */
+
+export const OUTSIDE_LABEL = "Added by you · Outside Lubin";
+
+/** Fictional demo outside visit shipped with the prototype. */
+export const DEMO_OUTSIDE_VISIT: PassportVisit = {
+  id: "ov-demo-2026-09-16",
+  kind: "completed",
+  origin: "patient",
+  date: "2026-09-16",
+  clinic: "Sample Community Clinic",
+  clinician: "Not recorded",
+  clinicianRole: "Outside Lubin",
+  reason: "General checkup",
+  note: "Bring the laboratory results to my follow-up.",
+};
+
+const VISITS_KEY = "lubin.passport.visits.outside.v1";
+const VISITS_EVENT = "lubin:passport-visits";
+
+export function loadOutsideVisits(): PassportVisit[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = window.localStorage.getItem(VISITS_KEY);
+    return raw ? (JSON.parse(raw) as PassportVisit[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function saveOutsideVisit(input: {
+  date: string;
+  clinic: string;
+  reason?: string;
+  note?: string;
+}): PassportVisit {
+  const entry: PassportVisit = {
+    id: `ov-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    kind: "completed",
+    origin: "patient",
+    date: input.date,
+    clinic: input.clinic.trim(),
+    clinician: "Not recorded",
+    clinicianRole: "Outside Lubin",
+    reason: input.reason?.trim() || "Visit outside Lubin",
+    note: input.note?.trim() || undefined,
+    addedAt: Date.now(),
+  };
+  try {
+    window.localStorage.setItem(VISITS_KEY, JSON.stringify([entry, ...loadOutsideVisits()]));
+  } catch {
+    /* prototype only */
+  }
+  window.dispatchEvent(new Event(VISITS_EVENT));
+  return entry;
+}
+
+export function removeOutsideVisit(id: string) {
+  try {
+    window.localStorage.setItem(
+      VISITS_KEY,
+      JSON.stringify(loadOutsideVisits().filter((v) => v.id !== id)),
+    );
+  } catch {
+    /* prototype only */
+  }
+  window.dispatchEvent(new Event(VISITS_EVENT));
+}
+
+export function subscribeVisits(fn: () => void) {
+  if (typeof window === "undefined") return () => {};
+  window.addEventListener(VISITS_EVENT, fn);
+  window.addEventListener("storage", fn);
+  return () => {
+    window.removeEventListener(VISITS_EVENT, fn);
+    window.removeEventListener("storage", fn);
+  };
+}
+
+/** Lubin visits plus every patient-added outside visit. */
+export function allVisits(): PassportVisit[] {
+  return [...loadOutsideVisits(), DEMO_OUTSIDE_VISIT, ...PASSPORT_VISITS];
+}
+
+/** Short label used in the "Related visit" field and on document links. */
+export function visitOptionLabel(visit: PassportVisit): string {
+  return `${visit.reason} · ${formatVisitDate(visit.date)}${
+    visit.origin === "patient" ? " · Outside Lubin" : ""
+  }`;
 }

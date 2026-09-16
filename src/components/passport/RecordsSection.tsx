@@ -18,7 +18,7 @@ import {
   type PassportRecord,
   type RecordType,
 } from "@/lib/passport/records";
-import { PASSPORT_VISITS } from "@/lib/passport/visits";
+import { allVisits, visitOptionLabel } from "@/lib/passport/visits";
 
 
 /** Records and results kept in the Health Passport. Prototype design only. */
@@ -290,23 +290,26 @@ function RecordRow({
   );
 }
 
-function UploadPanel({
+export function UploadPanel({
   onClose,
   onSaved,
+  presetVisitId,
 }: {
   onClose: () => void;
   onSaved: (record: PassportRecord) => void;
+  /** Preselects the "Related visit" field, e.g. when adding from a visit. */
+  presetVisitId?: string;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [type, setType] = useState<RecordType>("lab");
   const [title, setTitle] = useState("");
   const [date, setDate] = useState("");
   const [source, setSource] = useState("");
-  const [visitId, setVisitId] = useState("");
+  const [visitId, setVisitId] = useState(presetVisitId ?? "");
   const [file, setFile] = useState<{ name: string; size: string; dataUrl?: string; mime?: string } | null>(null);
   const [dragging, setDragging] = useState(false);
 
-  const completedVisits = PASSPORT_VISITS.filter((v) => v.kind === "completed");
+  const completedVisits = allVisits().filter((v) => v.kind === "completed");
   const ready = Boolean(title.trim() && date && source.trim());
 
   const pick = (f: File | undefined) => {
@@ -428,7 +431,7 @@ function UploadPanel({
             <option value="">Not related to a visit</option>
             {completedVisits.map((v) => (
               <option key={v.id} value={v.id}>
-                {v.reason} · {formatRecordDate(v.date)}
+                {visitOptionLabel(v)}
               </option>
             ))}
           </select>
@@ -447,7 +450,7 @@ function UploadPanel({
               date,
               source: source.trim(),
               visitId: visit?.id,
-              visitLabel: visit ? `${visit.reason} · ${formatRecordDate(visit.date)}` : undefined,
+              visitLabel: visit ? visitOptionLabel(visit) : undefined,
               fileName: file?.name,
               fileSizeLabel: file?.size,
               fileDataUrl: file?.dataUrl,

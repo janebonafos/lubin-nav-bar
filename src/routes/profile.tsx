@@ -151,6 +151,8 @@ function ProfilePage() {
   const [editing, setEditing] = useState<boolean>(false);
   const [savedFlash, setSavedFlash] = useState<boolean>(false);
   const [activeSection, setActiveSection] = useState<Section>("profile");
+  /** Visit to select when a document's "Related visit" is tapped. */
+  const [focusVisitId, setFocusVisitId] = useState<string | undefined>(undefined);
   const [connectionWarning, setConnectionWarning] = useState<string | null>(null);
   const [role, setRole] = useState<Role>("client");
   const [isHydrating, setIsHydrating] = useState<boolean>(true);
@@ -1253,11 +1255,20 @@ function ProfilePage() {
             )}
 
             {activeSection === "visits" && role === "client" && (
-              <VisitsTimeline onOpenPrescriptions={() => setActiveSection("prescriptions")} />
+              <VisitsTimeline
+                focusVisitId={focusVisitId}
+                onOpenPrescriptions={() => setActiveSection("prescriptions")}
+              />
             )}
 
             {activeSection === "records" && role === "client" && (
-              <RecordsSection onOpenVisits={() => setActiveSection("visits")} />
+              <RecordsSection
+                onOpenVisits={(visitId) => {
+                  setFocusVisitId(visitId);
+                  setActiveSection("visits");
+                  window.setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 0);
+                }}
+              />
             )}
 
             {activeSection === "wellbeing" && role === "client" && (
