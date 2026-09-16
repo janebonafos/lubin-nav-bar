@@ -235,7 +235,7 @@ function PassportCard({
       <button
         type="button"
         onClick={() => setFlipped((v) => !v)}
-        aria-label={flipped ? "Show card front" : "Show everything on this card"}
+        aria-label={flipped ? "Show card front" : "Show card back"}
         data-no-hover
         className="relative block aspect-[1.58/1] w-full cursor-pointer text-left transition-transform duration-700"
         style={{
