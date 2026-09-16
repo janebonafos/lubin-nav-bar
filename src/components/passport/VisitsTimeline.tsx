@@ -742,6 +742,10 @@ function VisitDocuments({ visitId, visitLabel }: { visitId: string; visitLabel: 
                 <p className="text-[11.5px] text-brand-purple-accent">
                   {formatRecordDate(record.date)} · {record.source} · Also in Records
                 </p>
+                <p className="text-[11.5px] text-brand-purple-dark/60">
+                  {recordReviewLabel(record) ?? "No clinician review recorded"}
+                </p>
+
               </div>
               <div className="flex items-center gap-4">
                 <button
