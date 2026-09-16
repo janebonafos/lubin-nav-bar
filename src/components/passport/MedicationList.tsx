@@ -4,11 +4,15 @@ import { toast } from "sonner";
 import {
   formatMedDate,
   groupMedications,
+  markMedicationNotTaking,
   medicationList,
   removeMedication,
+  restoreMedication,
+  resumeMedication,
   subscribeMedications,
   type MedicationEntry,
 } from "@/lib/passport/medications";
+
 import { subscribePrescriptionDocuments } from "@/lib/prescription/documents";
 import { ensureSamplePrescriptionRecord } from "@/lib/prescription/sampleRecord";
 
@@ -108,11 +112,27 @@ function MedicationRow({
 }) {
   const canOpen = Boolean(entry.prescriptionId) && Boolean(onOpenPrescription);
 
+  const handleNotTaking = () => {
+    markMedicationNotTaking(entry.id);
+    toast(`Recorded: you are no longer taking ${entry.name}`, {
+      description:
+        "Moved to your medication history as patient-reported. Your prescription record stays unchanged. Talk to your clinician about any change in medication.",
+      action: {
+        label: "Undo",
+        onClick: () => resumeMedication(entry.id),
+      },
+    });
+  };
+
   const handleRemove = () => {
     removeMedication(entry.id);
-    toast(`Removed ${entry.name} from your list`, {
+    toast(`Removed ${entry.name} as an incorrect entry`, {
       description:
         "This only hides it here — your prescription record is untouched.",
+      action: {
+        label: "Undo",
+        onClick: () => restoreMedication(entry.id),
+      },
     });
   };
 
@@ -137,9 +157,15 @@ function MedicationRow({
             {entry.startDate ? ` · started ${formatMedDate(entry.startDate)}` : ""}
           </p>
         ) : null}
+        {entry.patientReportedStop ? (
+          <p className="mt-1 text-[11px] font-semibold text-[#8A7FB0]">
+            You reported no longer taking this ·{" "}
+            {formatMedDate(entry.patientReportedStop)} · Patient-reported
+          </p>
+        ) : null}
       </div>
 
-      <div className="flex shrink-0 items-center gap-5">
+      <div className="flex shrink-0 flex-wrap items-center gap-x-5 gap-y-2">
         <span
           className={`rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${statusTone(entry.status)}`}
         >
@@ -154,18 +180,28 @@ function MedicationRow({
             View details
           </button>
         ) : null}
+        {entry.status === "current" ? (
+          <button
+            type="button"
+            onClick={handleNotTaking}
+            className="text-sm font-semibold text-[#7E6BAF] transition-colors hover:text-[#3D2E6B]"
+          >
+            Mark as no longer taking
+          </button>
+        ) : null}
         <button
           type="button"
           onClick={handleRemove}
-          aria-label={`Remove ${entry.name} from list`}
+          aria-label={`Remove ${entry.name} as an incorrect entry`}
           className="text-sm font-semibold text-[#B9B0CF] transition-colors hover:text-[#A14343]"
         >
-          Remove
+          Remove incorrect entry
         </button>
       </div>
     </li>
   );
 }
+
 
 function statusLabel(status: MedicationEntry["status"]) {
   return status === "current"
