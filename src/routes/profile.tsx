@@ -41,7 +41,6 @@ import EmbeddedChat from "@/components/EmbeddedChat";
 import { Overview, Progress } from "@/routes/my-health-passport";
 import HealthDetailsCard from "@/components/passport/HealthDetailsCard";
 import PassportHome from "@/components/passport/PassportHome";
-import PassportNav, { type PassportArea } from "@/components/passport/PassportNav";
 import ClinicRecipientPreview from "@/components/passport/ClinicRecipientPreview";
 import ManageSharing from "@/components/passport/ManageSharing";
 import VisitsTimeline from "@/components/passport/VisitsTimeline";
@@ -152,7 +151,6 @@ function ProfilePage() {
   const [editing, setEditing] = useState<boolean>(false);
   const [savedFlash, setSavedFlash] = useState<boolean>(false);
   const [activeSection, setActiveSection] = useState<Section>("profile");
-  const [passportArea, setPassportArea] = useState<PassportArea>("overview");
   const [connectionWarning, setConnectionWarning] = useState<string | null>(null);
   const [role, setRole] = useState<Role>("client");
   const [isHydrating, setIsHydrating] = useState<boolean>(true);
