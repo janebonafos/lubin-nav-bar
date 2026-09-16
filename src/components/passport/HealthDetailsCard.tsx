@@ -269,9 +269,7 @@ function PassportCard({
                   See details
                 </span>
                 <span className="flex flex-col items-center gap-1">
-                  <span className="rounded-2xl bg-white p-2 shadow-[0_8px_20px_-8px_rgba(20,12,48,0.55)] ring-1 ring-white/40">
-                    <DemoQr seed={cardId} color="#3D2E6B" className="block h-10 w-10" />
-                  </span>
+                  <DemoQr seed={cardId} color="#ffffff" className="block h-16 w-16" />
                   <span className="text-[7.5px] font-semibold uppercase tracking-[0.18em] text-white/45">
                     Demo QR
                   </span>
