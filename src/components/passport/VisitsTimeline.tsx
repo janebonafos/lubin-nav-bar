@@ -803,17 +803,26 @@ function VisitDocuments({ visitId, visitLabel }: { visitId: string; visitLabel: 
                       {" "}
                       · {formatRecordDate(record.date)}
                     </span>
+                    {record.visitId ? (
+                      <span className="mt-0.5 block text-[11.5px] font-semibold text-brand-purple-accent">
+                        Already linked to {record.visitLabel ?? "another visit"}
+                      </span>
+                    ) : null}
                   </span>
                   <button
                     type="button"
                     onClick={() => {
+                      if (record.visitId) {
+                        setMoving(record);
+                        return;
+                      }
                       linkRecordToVisit(record.id, visitId, visitLabel);
                       setPicking(false);
                       toast.success("Record linked to this visit");
                     }}
                     className="text-xs font-semibold text-brand-purple underline decoration-2 decoration-brand-lavender underline-offset-4 hover:decoration-brand-purple"
                   >
-                    Link
+                    {record.visitId ? "Move here" : "Link"}
                   </button>
                 </li>
               ))}
@@ -821,6 +830,7 @@ function VisitDocuments({ visitId, visitLabel }: { visitId: string; visitLabel: 
           ) : (
             <Empty>Every record is already linked to this visit.</Empty>
           )}
+
         </div>
       ) : null}
 
