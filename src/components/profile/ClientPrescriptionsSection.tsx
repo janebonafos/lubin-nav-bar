@@ -49,36 +49,32 @@ export default function ClientPrescriptionsSection() {
 
   return (
     <section className="rounded-2xl border border-[#E3DBF5]/60 bg-[#FBF9FF]/90 p-6 shadow-md shadow-[#3D2E6B]/5 backdrop-blur-xl sm:p-8">
-      <div>
-        <h3 className="text-[15px] font-bold text-[#3D2E6B]">My prescriptions</h3>
-        <p className="mt-1 text-[13px] text-[#6F6889]">
-          Two things live here: what you’re taking right now, and the official
-          prescription documents your prescribers have issued.
+      <div className="mb-8">
+        <h3 className="font-display text-2xl font-semibold text-[#3D2E6B]">My prescriptions</h3>
+        <p className="mt-1 text-[15px] text-[#7E6BAF]">
+          Manage your daily medications and access official issued records.
         </p>
       </div>
 
-      <div className="mt-6">
-        <MedicationList
-          onOpenPrescription={(id) => {
-            const doc = sorted.find((d) => d.id === id);
-            if (doc) window.open(prescriptionHref(doc), "_blank", "noopener,noreferrer");
-          }}
-        />
-      </div>
+      <MedicationList
+        onOpenPrescription={(id) => {
+          const doc = sorted.find((d) => d.id === id);
+          if (doc) window.open(prescriptionHref(doc), "_blank", "noopener,noreferrer");
+        }}
+      />
 
-      <div className="mt-8">
-        <h4 className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#7E6BAF]">
-          Prescription documents
+      <div className="mt-12 mb-6">
+        <h4 className="text-xl font-bold text-[#3D2E6B]">
+          Official prescription copies
         </h4>
-        <p className="mt-1 max-w-xl text-[12.5px] leading-relaxed text-[#6F6889]">
-          The official Rx copies issued to you — view or download one any time,
-          without finding the appointment first.
+        <p className="mt-1 text-sm text-[#6F6889]">
+          Formal records issued by your prescribers — view or download one any
+          time, without finding the appointment first.
         </p>
       </div>
-
 
       {sorted.length === 0 ? (
-        <div className="mt-6 rounded-2xl border border-dashed border-[#DCD4F0] bg-white/70 px-5 py-8 text-center">
+        <div className="rounded-2xl border border-dashed border-[#DCD4F0] bg-white/70 px-5 py-8 text-center">
           <img src={rxIcon.url} alt="Rx" className="mx-auto h-8 w-8" />
           <p className="mt-2 text-[13.5px] font-semibold text-[#3D2E6B]">
             No prescriptions yet
@@ -89,35 +85,59 @@ export default function ClientPrescriptionsSection() {
           </p>
         </div>
       ) : (
-        <ul className="mt-6 space-y-3">
-          {sorted.map((doc) => (
-            <li
-              key={doc.id}
-              className="rounded-2xl border border-[#E3DBF5]/70 bg-white p-5"
-            >
-              <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
-                <div className="min-w-0">
-                  <p className="font-mono text-[12px] font-semibold text-[#3D2E6B]">
-                    {doc.number}
-                  </p>
-                  <p className="mt-1 text-[14px] font-bold text-[#2C2B4B]">
-                    {doc.medications
-                      .map(
-                        (m) =>
-                          `${m.genericName || m.name}${m.strength ? ` ${m.strength}` : ""}`,
-                      )
-                      .join(" · ") || "No medication recorded"}
-                  </p>
-                  <p className="mt-1 text-[11.5px] text-[#8A7FB0]">
-                    Issued {formatDateTime(doc.signedAt)}
-                    {doc.identity?.fullName ? ` · ${doc.identity.fullName}` : ""}
-                    {doc.validUntil
-                      ? ` · ${doc.validityLabel || "Valid until"} ${formatDate(doc.validUntil)}`
-                      : ""}
-                  </p>
-                  <div className="mt-2 flex flex-wrap gap-2">
+        <ul className="grid grid-cols-1 gap-5 md:grid-cols-2">
+          {sorted.map((doc) => {
+            const medNames = doc.medications
+              .map((m) => m.genericName || m.name)
+              .filter(Boolean);
+            const includes =
+              medNames.length === 0
+                ? "No medication recorded"
+                : medNames.length === 1
+                  ? medNames[0]
+                  : `${medNames[0]}, ${medNames.length - 1} other${medNames.length - 1 === 1 ? "" : "s"}`;
+            return (
+              <li
+                key={doc.id}
+                className="relative rounded-2xl border-2 border-dashed border-[#A89BD0]/40 bg-[#EAE7F5]/30 p-6"
+              >
+                <span className="absolute right-6 top-6 rounded border border-[#A89BD0]/20 bg-white px-2 py-1 font-mono text-[10px] font-bold text-[#3D2E6B]">
+                  {doc.number}
+                </span>
+                <h5 className="mb-1 pr-24 text-lg font-bold text-[#3D2E6B]">
+                  Prescription document
+                </h5>
+                <p className="mb-6 text-xs font-semibold uppercase tracking-wider text-[#7E6BAF]">
+                  Issued {formatDate(doc.signedAt)}
+                </p>
+
+                <div className="mb-6 space-y-3">
+                  <div className="flex justify-between gap-3 text-sm">
+                    <span className="text-[#6F6889]">Prescriber</span>
+                    <span className="text-right font-medium text-[#3D2E6B]">
+                      {doc.identity?.fullName || "Not recorded"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between gap-3 text-sm">
+                    <span className="text-[#6F6889]">
+                      {doc.validityLabel || "Valid until"}
+                    </span>
+                    <span className="text-right font-medium text-[#3D2E6B]">
+                      {doc.validUntil ? formatDate(doc.validUntil) : "—"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between gap-3 text-sm">
+                    <span className="text-[#6F6889]">Includes</span>
+                    <span className="text-right font-medium text-[#3D2E6B]">
+                      {includes}
+                    </span>
+                  </div>
+                </div>
+
+                {(doc.voided || doc.controlled) && (
+                  <div className="mb-4 flex flex-wrap gap-2">
                     {doc.voided && (
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F3F0FA] px-2.5 py-1 text-[11px] font-semibold text-[#5B4B8A]">
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-white/80 px-2.5 py-1 text-[11px] font-semibold text-[#5B4B8A]">
                         <Ban className="h-3.5 w-3.5" /> Voided — not dispensable
                       </span>
                     )}
@@ -130,28 +150,29 @@ export default function ClientPrescriptionsSection() {
                       </span>
                     )}
                   </div>
-                </div>
-                <div className="flex shrink-0 flex-col items-stretch gap-2 self-start sm:flex-row sm:items-center">
+                )}
+
+                <div className="grid grid-cols-2 gap-3">
                   <a
                     href={prescriptionHref(doc)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex h-9 items-center justify-center rounded-xl border border-[#DCD4F0] bg-white px-3 text-[12.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#F6F4FC]"
+                    className="inline-flex items-center justify-center rounded-xl border border-[#A89BD0] bg-white px-4 py-2.5 text-sm font-bold text-[#3D2E6B] transition-colors hover:bg-[#EAE7F5]"
                   >
-                    View
+                    View record
                   </a>
                   <a
                     href={prescriptionHref(doc, { download: true })}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex h-9 items-center justify-center rounded-xl bg-[#3D2E6B] px-3 text-[12.5px] font-semibold text-white transition hover:bg-[#33265A]"
+                    className="inline-flex items-center justify-center rounded-xl bg-[#7E6BAF] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-[#3D2E6B]"
                   >
-                    Download
+                    Download PDF
                   </a>
                 </div>
-              </div>
-            </li>
-          ))}
+              </li>
+            );
+          })}
         </ul>
       )}
     </section>
