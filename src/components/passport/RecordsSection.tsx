@@ -1,17 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  CalendarCheck,
-  FileText,
-  FlaskConical,
-  Image as ImageIcon,
-  Paperclip,
-  ScanLine,
-  Send,
-  Syringe,
-  Trash2,
-  Upload,
-  X,
-} from "lucide-react";
+import { X } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -31,14 +19,6 @@ import {
 } from "@/lib/passport/records";
 import { PASSPORT_VISITS } from "@/lib/passport/visits";
 
-const ICONS: Record<RecordType, typeof FileText> = {
-  lab: FlaskConical,
-  imaging: ScanLine,
-  vaccination: Syringe,
-  referral: Send,
-  discharge: FileText,
-  other: Paperclip,
-};
 
 /** Records and results kept in the Health Passport. Prototype design only. */
 export default function RecordsSection({
@@ -81,9 +61,9 @@ export default function RecordsSection({
         <button
           type="button"
           onClick={() => setUploadOpen((v) => !v)}
-          className="inline-flex h-10 items-center gap-2 rounded-xl bg-[#3D2E6B] px-4 text-[13px] font-semibold text-white transition hover:bg-[#33265A]"
+          className="inline-flex h-10 items-center rounded-xl bg-[#3D2E6B] px-4 text-[13px] font-semibold text-white transition hover:bg-[#33265A]"
         >
-          <Upload className="h-4 w-4" /> Add a record
+          Add a record
         </button>
       </div>
 
@@ -135,13 +115,9 @@ function RecordRow({
   record: PassportRecord;
   onOpenVisits?: (visitId: string) => void;
 }) {
-  const Icon = ICONS[record.type];
   return (
     <li className="rounded-2xl border border-[#E3DBF5]/70 bg-white p-5">
       <div className="flex flex-wrap items-start gap-3">
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#F3F0FA] text-[#5B4B8A]">
-          <Icon className="h-4.5 w-4.5" />
-        </span>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <p className="text-[14px] font-bold text-[#2C2B4B]">{record.title}</p>
@@ -176,8 +152,8 @@ function RecordRow({
           ) : null}
           <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[12px] text-[#8A7FB0]">
             {record.fileName ? (
-              <span className="inline-flex items-center gap-1.5">
-                <Paperclip className="h-3.5 w-3.5" /> {record.fileName}
+              <span>
+                {record.fileName}
                 {record.fileSizeLabel ? ` · ${record.fileSizeLabel}` : ""}
               </span>
             ) : null}
@@ -185,9 +161,8 @@ function RecordRow({
               <button
                 type="button"
                 onClick={() => onOpenVisits?.(record.visitId!)}
-                className="inline-flex items-center gap-1.5 font-semibold text-[#3D2E6B] hover:text-[#7E6BAF]"
+                className="font-semibold text-[#3D2E6B] hover:text-[#7E6BAF]"
               >
-                <CalendarCheck className="h-3.5 w-3.5" />
                 {record.visitLabel ?? "Related visit"}
               </button>
             ) : (
@@ -202,9 +177,9 @@ function RecordRow({
               removeUploadedRecord(record.id);
               toast.success("Record removed from your passport");
             }}
-            className="inline-flex h-8 items-center gap-1.5 rounded-xl border border-[#DCD4F0] bg-white px-2.5 text-[12px] font-semibold text-[#5B4B8A] transition hover:bg-[#F6F4FC]"
+            className="inline-flex h-8 items-center rounded-xl border border-[#DCD4F0] bg-white px-2.5 text-[12px] font-semibold text-[#5B4B8A] transition hover:bg-[#F6F4FC]"
           >
-            <Trash2 className="h-3.5 w-3.5" /> Remove
+            Remove
           </button>
         ) : null}
       </div>
@@ -275,13 +250,11 @@ function UploadPanel({
       >
         {file ? (
           <>
-            <Paperclip className="h-5 w-5 text-[#5B4B8A]" />
             <span className="text-[13px] font-semibold text-[#3D2E6B]">{file.name}</span>
             <span className="text-[12px] text-[#8A7FB0]">{file.size} · Tap to replace</span>
           </>
         ) : (
           <>
-            <ImageIcon className="h-5 w-5 text-[#7E6BAF]" />
             <span className="text-[13px] font-semibold text-[#3D2E6B]">
               Drop a file here or tap to choose
             </span>
@@ -384,10 +357,7 @@ function UploadPanel({
 
 function EmptyState({ type, onAdd }: { type?: RecordType; onAdd: () => void }) {
   return (
-    <div className="mt-5 rounded-2xl border border-dashed border-[#DCD4F0] bg-white/70 px-5 py-10 text-center">
-      <span className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-[#F3F0FA] text-[#5B4B8A]">
-        <FileText className="h-5 w-5" />
-      </span>
+      <div className="mt-5 rounded-2xl border border-dashed border-[#DCD4F0] bg-white/70 px-5 py-10 text-center">
       <p className="mt-3 text-[13.5px] font-semibold text-[#3D2E6B]">
         {type ? `No ${recordTypeLabel(type).toLowerCase()} yet` : "No records yet"}
       </p>
@@ -398,9 +368,9 @@ function EmptyState({ type, onAdd }: { type?: RecordType; onAdd: () => void }) {
       <button
         type="button"
         onClick={onAdd}
-        className="mt-4 inline-flex h-10 items-center gap-2 rounded-xl bg-[#3D2E6B] px-4 text-[13px] font-semibold text-white transition hover:bg-[#33265A]"
+        className="mt-4 inline-flex h-10 items-center rounded-xl bg-[#3D2E6B] px-4 text-[13px] font-semibold text-white transition hover:bg-[#33265A]"
       >
-        <Upload className="h-4 w-4" /> Add a record
+        Add a record
       </button>
     </div>
   );
