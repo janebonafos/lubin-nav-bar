@@ -1229,67 +1229,48 @@ function ProfilePage() {
 
             {activeSection === "passport" && role === "client" && (
               <>
-                <PassportNav
-                  area={passportArea}
-                  onChange={(next) => {
-                    if (next === "medications") { setActiveSection("prescriptions"); return; }
-                    if (next === "sharing") { setActiveSection("share"); return; }
-                    setPassportArea(next);
-                    const anchor =
-                      next === "visits"
-                        ? "passport-visits"
-                        : next === "records"
-                        ? "passport-records"
-                        : next === "wellbeing"
-                        ? "passport-wellbeing"
-                        : null;
-                    if (!anchor) { window.scrollTo({ top: 0, behavior: "smooth" }); return; }
-                    window.setTimeout(
-                      () => document.getElementById(anchor)?.scrollIntoView({ behavior: "smooth", block: "start" }),
-                      0,
-                    );
-                  }}
-                />
                 <PassportHome
                   ownerName={displayName}
                   onNavigate={(destination) => {
                     if (destination === "share") setActiveSection("share");
-                    else if (destination === "visits")
-                      window.setTimeout(() => document.getElementById("passport-visits")?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
+                    else if (destination === "visits") setActiveSection("visits");
                     else if (destination === "prescriptions") setActiveSection("prescriptions");
-                    else if (destination === "records")
-                      window.setTimeout(() => document.getElementById("passport-records")?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
+                    else if (destination === "records") setActiveSection("records");
                     else if (destination === "patterns") setActiveSection("discovery");
-                    else if (destination === "details") window.setTimeout(() => document.getElementById("passport-health-card")?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
+                    else if (destination === "details")
+                      window.setTimeout(
+                        () =>
+                          document
+                            .getElementById("passport-health-card")
+                            ?.scrollIntoView({ behavior: "smooth", block: "start" }),
+                        0,
+                      );
                     else window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
                 />
-                <div id="passport-visits" className="mt-8 scroll-mt-28">
-                  <VisitsTimeline onOpenPrescriptions={() => setActiveSection("prescriptions")} />
-                </div>
-                <div id="passport-records" className="mt-8 scroll-mt-28">
-                  <RecordsSection
-                    onOpenVisits={() =>
-                      document
-                        .getElementById("passport-visits")
-                        ?.scrollIntoView({ behavior: "smooth", block: "start" })
-                    }
-                  />
-                </div>
                 <div id="passport-health-card" className="mt-8 scroll-mt-28">
                   <HealthDetailsCard />
                 </div>
-                <div id="passport-wellbeing" className="mt-8 scroll-mt-28">
-                  <Overview
-                    today={todayLabel}
-                    checkins={passportData.checkins as never}
-                    onLogMood={() => setCheckInActive(true)}
-                    checkInActive={checkInActive}
-                    onCloseCheckIn={() => setCheckInActive(false)}
-                    isGuest={false}
-                  />
-                </div>
               </>
+            )}
+
+            {activeSection === "visits" && role === "client" && (
+              <VisitsTimeline onOpenPrescriptions={() => setActiveSection("prescriptions")} />
+            )}
+
+            {activeSection === "records" && role === "client" && (
+              <RecordsSection onOpenVisits={() => setActiveSection("visits")} />
+            )}
+
+            {activeSection === "wellbeing" && role === "client" && (
+              <Overview
+                today={todayLabel}
+                checkins={passportData.checkins as never}
+                onLogMood={() => setCheckInActive(true)}
+                checkInActive={checkInActive}
+                onCloseCheckIn={() => setCheckInActive(false)}
+                isGuest={false}
+              />
             )}
 
             {activeSection === "provider" && role === "provider" && (
