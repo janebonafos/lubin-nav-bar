@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import PassportEmptyState from "./PassportEmptyState";
-import { UploadPanel } from "./RecordsSection";
+import { DocumentViewer, UploadPanel } from "./RecordsSection";
 
 import {
   DEMO_OUTSIDE_VISIT,
@@ -692,6 +692,7 @@ function VisitDocuments({ visitId, visitLabel }: { visitId: string; visitLabel: 
   const [records, setRecords] = useState<PassportRecord[]>([]);
   const [picking, setPicking] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [viewing, setViewing] = useState<PassportRecord | null>(null);
 
   useEffect(() => {
     const read = () => setRecords(allRecords());
