@@ -38,7 +38,10 @@ export default function ClientPrescriptionsSection({
   forceEmpty?: boolean;
 }) {
   const [docs, setDocs] = useState<SignedPrescriptionDocument[]>([]);
-
+  const [query, setQuery] = useState("");
+  const [status, setStatus] = useState<"all" | "valid" | "expired" | "voided">("all");
+  const [order, setOrder] = useState<"newest" | "oldest">("newest");
+  const [visible, setVisible] = useState(PAGE_SIZE);
 
   useEffect(() => {
     ensureSamplePrescriptionRecord();
@@ -51,6 +54,32 @@ export default function ClientPrescriptionsSection({
     () => [...docs].sort((a, b) => b.signedAt - a.signedAt),
     [docs],
   );
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    const now = Date.now();
+    const list = sorted.filter((doc) => {
+      const expired = !!doc.validUntil && doc.validUntil < now;
+      if (status === "voided" && !doc.voided) return false;
+      if (status === "expired" && (doc.voided || !expired)) return false;
+      if (status === "valid" && (doc.voided || expired)) return false;
+      if (!q) return true;
+      const haystack = [
+        doc.number,
+        doc.identity?.fullName,
+        ...doc.medications.map((m) => `${m.name ?? ""} ${m.genericName ?? ""}`),
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return haystack.includes(q);
+    });
+    return order === "newest" ? list : [...list].reverse();
+  }, [sorted, query, status, order]);
+
+  useEffect(() => {
+    setVisible(PAGE_SIZE);
+  }, [query, status, order]);
 
   if (forceEmpty) {
     return (
