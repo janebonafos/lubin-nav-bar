@@ -450,6 +450,8 @@ function UploadPanel({
               visitLabel: visit ? `${visit.reason} · ${formatRecordDate(visit.date)}` : undefined,
               fileName: file?.name,
               fileSizeLabel: file?.size,
+              fileDataUrl: file?.dataUrl,
+              fileMime: file?.mime,
             });
             onSaved(saved);
           }}
