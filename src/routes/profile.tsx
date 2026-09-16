@@ -151,6 +151,8 @@ function ProfilePage() {
   const [editing, setEditing] = useState<boolean>(false);
   const [savedFlash, setSavedFlash] = useState<boolean>(false);
   const [activeSection, setActiveSection] = useState<Section>("profile");
+  /** Visit to select when a document's "Related visit" is tapped. */
+  const [focusVisitId, setFocusVisitId] = useState<string | undefined>(undefined);
   const [connectionWarning, setConnectionWarning] = useState<string | null>(null);
   const [role, setRole] = useState<Role>("client");
   const [isHydrating, setIsHydrating] = useState<boolean>(true);
