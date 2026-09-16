@@ -1069,18 +1069,20 @@ export default function HealthDetailsCard({ showHeader = true }: { showHeader?: 
 
       <div className="flex flex-col gap-12">
         {/* Live card preview — compact and centered above the sections */}
-        <div className="mx-auto w-full max-w-lg">
-          <PassportCard
-            details={details}
-            filled={progress.filled}
-            total={progress.total}
-            ownerName={proxyName}
-            reviews={reviews}
-            cardId={cardId}
-            updatedAt={updatedAt}
-          />
+        <div className="w-full">
+          <div className="mx-auto w-full max-w-lg">
+            <PassportCard
+              details={details}
+              filled={progress.filled}
+              total={progress.total}
+              ownerName={proxyName}
+              reviews={reviews}
+              cardId={cardId}
+              updatedAt={updatedAt}
+            />
+          </div>
 
-          <div className="mt-5 rounded-2xl border border-brand-purple/10 bg-white p-5 shadow-sm">
+          <div className="mx-auto mt-5 w-full max-w-3xl rounded-2xl border border-brand-purple/10 bg-white p-5 shadow-sm">
             <div className="flex items-center justify-between gap-3">
               <span className="text-[13px] font-semibold text-brand-purple-dark">
                 What's on your card
@@ -1101,7 +1103,7 @@ export default function HealthDetailsCard({ showHeader = true }: { showHeader?: 
           </div>
 
 
-          <div className="mt-5 rounded-2xl border border-brand-purple/10 bg-white p-5 shadow-sm">
+          <div className="mx-auto mt-5 w-full max-w-3xl rounded-2xl border border-brand-purple/10 bg-white p-5 shadow-sm">
             <div className="flex items-center justify-between">
               <span className="text-[13px] font-semibold text-brand-purple-dark">Privacy</span>
               <span className="rounded-xl bg-brand-purple/10 px-2 py-0.5 text-[10px] font-bold uppercase text-brand-purple">
