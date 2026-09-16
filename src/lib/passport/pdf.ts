@@ -40,7 +40,7 @@ export async function downloadPassportCardPdf(data: PassportCardData) {
   const pageW = doc.internal.pageSize.getWidth();
 
   const cardW = 460;
-  const cardH = 270;
+  const cardH = 244;
   const x = (pageW - cardW) / 2;
   const y = 60;
 
