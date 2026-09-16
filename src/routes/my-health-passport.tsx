@@ -314,7 +314,7 @@ function PassportPage() {
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-gradient-to-b from-brand-lavender via-brand-lavender to-[#EFEBFA]" style={{ fontFamily: "Inter, sans-serif" }}>
+    <div className="font-body relative min-h-screen overflow-hidden bg-gradient-to-b from-brand-lavender via-brand-lavender to-[#EFEBFA]">
       <div aria-hidden className="pointer-events-none absolute -top-32 -right-40 h-[480px] w-[480px] rounded-full bg-brand-purple/15 blur-[120px]" />
       <div aria-hidden className="pointer-events-none absolute top-1/3 -left-40 h-[420px] w-[420px] rounded-full bg-brand-purple-accent/20 blur-[120px]" />
       <Navbar />
@@ -331,7 +331,7 @@ function PassportPage() {
                 Your Health Passport
               </p>
             </div>
-            <h1 className="mt-4 text-3xl md:text-[2.75rem] md:leading-[1.1] font-bold tracking-tight text-brand-purple-dark">
+            <h1 className="font-display mt-4 text-3xl font-semibold leading-[1.12] text-brand-purple-dark md:text-[2.75rem]">
               Your health information,<br className="hidden md:inline" /> <span className="bg-gradient-to-r from-brand-purple to-brand-purple-dark bg-clip-text text-transparent">ready for your next visit.</span>
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-relaxed text-brand-purple-dark/65 sm:text-[15px]">
@@ -580,19 +580,12 @@ function GuestBanner() {
       </span>
 
       <h2
-        className="mt-2 text-[17px] sm:text-[20px] font-bold leading-snug"
-        style={{ color: "#2C2B4B", fontFamily: "Inter, sans-serif", marginBottom: 12 }}
+        className="font-display mb-3 mt-2 text-[17px] font-semibold leading-snug text-brand-navy sm:text-[20px]"
       >
         Your health information, ready for your next visit
       </h2>
 
-      <p
-        className="text-[14px] sm:text-[15px] leading-relaxed sm:leading-[1.7]"
-        style={{
-          color: "#5A4E8A",
-          fontFamily: "Inter, sans-serif",
-        }}
-      >
+      <p className="font-body text-[14px] leading-relaxed text-brand-purple-dark/80 sm:text-[15px] sm:leading-[1.7]">
         Keep your details, visits, medications, and records together so they are easier to reuse at a clinic or hospital. Your check-ins and assessments remain an important part of the picture, and nothing is shared unless you choose it.
       </p>
 
