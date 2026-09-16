@@ -517,7 +517,53 @@ function OutsideVisitForm({
   const [clinic, setClinic] = useState("");
   const [reason, setReason] = useState("");
   const [note, setNote] = useState("");
+  const [files, setFiles] = useState<
+    { name: string; size: string; dataUrl?: string; mime?: string }[]
+  >([]);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [dragging, setDragging] = useState(false);
   const ready = Boolean(date && clinic.trim());
+
+  const pick = (picked: FileList | null) => {
+    if (!picked?.length) return;
+    Array.from(picked).forEach((f) => {
+      setFiles((prev) =>
+        prev.some((p) => p.name === f.name)
+          ? prev
+          : [...prev, { name: f.name, size: fileSizeLabel(f.size), mime: f.type || undefined }],
+      );
+      // Prototype: keep smaller files locally so they can be reopened.
+      if (f.size <= 3 * 1024 * 1024) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const dataUrl = typeof reader.result === "string" ? reader.result : undefined;
+          if (!dataUrl) return;
+          setFiles((prev) => prev.map((p) => (p.name === f.name ? { ...p, dataUrl } : p)));
+        };
+        reader.readAsDataURL(f);
+      }
+    });
+  };
+
+  const save = () => {
+    const visit = saveOutsideVisit({ date, clinic, reason, note });
+    const label = visitOptionLabel(visit);
+    files.forEach((f) => {
+      saveUploadedRecord({
+        type: "other",
+        title: f.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " "),
+        date: visit.date,
+        source: visit.clinic,
+        visitId: visit.id,
+        visitLabel: label,
+        fileName: f.name,
+        fileSizeLabel: f.size,
+        fileDataUrl: f.dataUrl,
+        fileMime: f.mime,
+      });
+    });
+    onSaved(visit);
+  };
 
   return (
     <div className="mt-4 rounded-2xl border border-brand-lavender bg-card p-5">
