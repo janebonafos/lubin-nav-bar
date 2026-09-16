@@ -358,10 +358,7 @@ function UploadPanel({
 
 function EmptyState({ type, onAdd }: { type?: RecordType; onAdd: () => void }) {
   return (
-    <div className="mt-5 rounded-2xl border border-dashed border-[#DCD4F0] bg-white/70 px-5 py-10 text-center">
-      <span className="mx-auto flex h-10 w-10 items-center justify-center rounded-xl bg-[#F3F0FA] text-[#5B4B8A]">
-        <FileText className="h-5 w-5" />
-      </span>
+      <div className="mt-5 rounded-2xl border border-dashed border-[#DCD4F0] bg-white/70 px-5 py-10 text-center">
       <p className="mt-3 text-[13.5px] font-semibold text-[#3D2E6B]">
         {type ? `No ${recordTypeLabel(type).toLowerCase()} yet` : "No records yet"}
       </p>
