@@ -337,6 +337,14 @@ function PassportCard({
                     {cardId}
                   </p>
                 </div>
+                <div className="space-y-1">
+                  <p className="text-[9px] uppercase tracking-wider text-brand-purple-accent">
+                    Joined Lubin
+                  </p>
+                  <p className="font-mono text-sm font-medium tracking-wider text-white">
+                    {joinedLubin}
+                  </p>
+                </div>
               </div>
               <div className="flex items-center gap-2 border-t border-white/10 pt-3">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
