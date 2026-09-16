@@ -30,12 +30,13 @@ import {
 } from "@/lib/intake/reviewLog";
 import DemoQr from "@/components/passport/DemoQr";
 
-import { downloadPassportCard, printPassportCard } from "@/lib/passport/printCard";
+import { printPassportCard } from "@/lib/passport/printCard";
+import { buildSummarySections, printHealthSummary } from "@/lib/passport/printSummary";
 import {
-  buildSummarySections,
-  downloadHealthSummary,
-  printHealthSummary,
-} from "@/lib/passport/printSummary";
+  downloadHealthSummaryPdf,
+  downloadPassportCardPdf,
+} from "@/lib/passport/pdf";
+
 import { loadProxySignup, proxyFirstName } from "@/lib/proxySignup";
 
 const GROUP_BLURB: Record<string, string> = {
@@ -411,11 +412,12 @@ function PassportCard({
             </button>
             <button
               type="button"
-              onClick={() => downloadPassportCard(cardData)}
+              onClick={() => void downloadPassportCardPdf(cardData)}
               className="inline-flex min-h-10 items-center justify-center gap-2 rounded-[10px] bg-brand-purple px-3 text-[12px] font-semibold text-primary-foreground hover:bg-brand-purple-accent"
             >
-              <Download className="h-3.5 w-3.5 shrink-0" /> Download
+              <Download className="h-3.5 w-3.5 shrink-0" /> Download card (PDF)
             </button>
+
           </div>
         </div>
 
@@ -440,11 +442,12 @@ function PassportCard({
             </button>
             <button
               type="button"
-              onClick={() => downloadHealthSummary(summaryData)}
+              onClick={() => void downloadHealthSummaryPdf(summaryData)}
               className="inline-flex min-h-10 items-center justify-center gap-2 rounded-[10px] bg-brand-purple px-3 text-[12px] font-semibold text-primary-foreground hover:bg-brand-purple-accent"
             >
-              <Download className="h-3.5 w-3.5 shrink-0" /> Download
+              <Download className="h-3.5 w-3.5 shrink-0" /> Download summary (PDF)
             </button>
+
           </div>
         </div>
       </div>
