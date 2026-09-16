@@ -4,11 +4,15 @@ import { toast } from "sonner";
 import {
   formatMedDate,
   groupMedications,
+  markMedicationNotTaking,
   medicationList,
   removeMedication,
+  restoreMedication,
+  resumeMedication,
   subscribeMedications,
   type MedicationEntry,
 } from "@/lib/passport/medications";
+
 import { subscribePrescriptionDocuments } from "@/lib/prescription/documents";
 import { ensureSamplePrescriptionRecord } from "@/lib/prescription/sampleRecord";
 
