@@ -187,6 +187,8 @@ function PassportPage() {
     ClientUpcomingAppointment[]
   >([]);
   const area = TAB_AREA[tab];
+  /** Visit to select when a document's "Related visit" is tapped. */
+  const [focusVisitId, setFocusVisitId] = useState<string | undefined>(undefined);
   const [shareView, setShareView] = useState<"share" | "manage">("share");
   useEffect(() => {
     setUpcomingAppointments(getClientUpcomingAppointments());
