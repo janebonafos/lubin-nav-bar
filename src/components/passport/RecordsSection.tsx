@@ -115,13 +115,9 @@ function RecordRow({
   record: PassportRecord;
   onOpenVisits?: (visitId: string) => void;
 }) {
-  const Icon = ICONS[record.type];
   return (
     <li className="rounded-2xl border border-[#E3DBF5]/70 bg-white p-5">
       <div className="flex flex-wrap items-start gap-3">
-        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#F3F0FA] text-[#5B4B8A]">
-          <Icon className="h-4.5 w-4.5" />
-        </span>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <p className="text-[14px] font-bold text-[#2C2B4B]">{record.title}</p>
