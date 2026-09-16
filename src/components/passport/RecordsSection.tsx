@@ -250,10 +250,15 @@ function RecordRow({
           ) : null}
           <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[12px] text-[#8A7FB0]">
             {record.fileName ? (
-              <span>
+              <button
+                type="button"
+                onClick={onViewFile}
+                className="inline-flex items-center gap-1.5 rounded-[12px] border border-[#DCD4F0] bg-white px-2.5 py-1 text-[12px] font-semibold text-[#5B4B8A] transition hover:bg-[#F6F4FC]"
+              >
                 {record.fileName}
                 {record.fileSizeLabel ? ` · ${record.fileSizeLabel}` : ""}
-              </span>
+                <span className="text-[#7E6BAF] underline underline-offset-2">View</span>
+              </button>
             ) : null}
             {record.visitId ? (
               <button
