@@ -41,7 +41,6 @@ import EmbeddedChat from "@/components/EmbeddedChat";
 import { Overview, Progress } from "@/routes/my-health-passport";
 import HealthDetailsCard from "@/components/passport/HealthDetailsCard";
 import PassportHome from "@/components/passport/PassportHome";
-import PassportNav, { type PassportArea } from "@/components/passport/PassportNav";
 import ClinicRecipientPreview from "@/components/passport/ClinicRecipientPreview";
 import ManageSharing from "@/components/passport/ManageSharing";
 import VisitsTimeline from "@/components/passport/VisitsTimeline";
@@ -73,6 +72,9 @@ const profileSearchSchema = z.object({
       "prescriptions",
       "clients",
       "passport",
+      "visits",
+      "records",
+      "wellbeing",
       "discovery",
       "share",
       "chat",
@@ -132,6 +134,9 @@ type Section =
   | "payments"
   | "verification"
   | "passport"
+  | "visits"
+  | "records"
+  | "wellbeing"
   | "discovery"
   | "chat"
   | "share";
@@ -146,7 +151,6 @@ function ProfilePage() {
   const [editing, setEditing] = useState<boolean>(false);
   const [savedFlash, setSavedFlash] = useState<boolean>(false);
   const [activeSection, setActiveSection] = useState<Section>("profile");
-  const [passportArea, setPassportArea] = useState<PassportArea>("overview");
   const [connectionWarning, setConnectionWarning] = useState<string | null>(null);
   const [role, setRole] = useState<Role>("client");
   const [isHydrating, setIsHydrating] = useState<boolean>(true);
@@ -480,8 +484,11 @@ function ProfilePage() {
       : [
           { key: "profile", label: "Profile Overview", icon: <User className="h-5 w-5" /> },
           { key: "appointments", label: "Appointments", icon: <CalendarClock className="h-5 w-5" /> },
-          { key: "prescriptions", label: "My Prescriptions", icon: <Pill className="h-5 w-5" /> },
           { key: "passport", label: "Health Passport", icon: <HeartPulse className="h-5 w-5" /> },
+          { key: "visits", label: "Visits", icon: <CalendarDays className="h-5 w-5" /> },
+          { key: "prescriptions", label: "Medications", icon: <Pill className="h-5 w-5" /> },
+          { key: "records", label: "Records", icon: <ClipboardList className="h-5 w-5" /> },
+          { key: "wellbeing", label: "Wellbeing", icon: <HeartPulse className="h-5 w-5" /> },
           { key: "discovery", label: "Self Discovery", icon: <Compass className="h-5 w-5" /> },
           { key: "share", label: "Share", icon: <Share2 className="h-5 w-5" /> },
           { key: "chat", label: "Chat", icon: <MessageCircle className="h-5 w-5" /> },
@@ -516,7 +523,7 @@ function ProfilePage() {
       subtitle: "Track earnings and manage where your payouts land",
     },
     prescriptions: {
-      title: role === "provider" ? "Prescriptions & Medications" : "My Prescriptions",
+      title: role === "provider" ? "Prescriptions & Medications" : "Medications",
       subtitle:
         role === "provider"
           ? "Patients you have issued prescriptions to"
@@ -536,7 +543,19 @@ function ProfilePage() {
     },
     passport: {
       title: "Health Passport",
-      subtitle: "Your health details, visits, medications, results, and wellbeing records",
+      subtitle: "Your health card and the details you can share with your care team",
+    },
+    visits: {
+      title: "Visits",
+      subtitle: "Your appointments, checkups, and what happened in each visit",
+    },
+    records: {
+      title: "Records",
+      subtitle: "Lab results, imaging, vaccinations, and documents you've uploaded",
+    },
+    wellbeing: {
+      title: "Wellbeing",
+      subtitle: "Your daily check-ins and how you've been feeling over time",
     },
     discovery: {
       title: "Self Discovery",
@@ -1208,67 +1227,48 @@ function ProfilePage() {
 
             {activeSection === "passport" && role === "client" && (
               <>
-                <PassportNav
-                  area={passportArea}
-                  onChange={(next) => {
-                    if (next === "medications") { setActiveSection("prescriptions"); return; }
-                    if (next === "sharing") { setActiveSection("share"); return; }
-                    setPassportArea(next);
-                    const anchor =
-                      next === "visits"
-                        ? "passport-visits"
-                        : next === "records"
-                        ? "passport-records"
-                        : next === "wellbeing"
-                        ? "passport-wellbeing"
-                        : null;
-                    if (!anchor) { window.scrollTo({ top: 0, behavior: "smooth" }); return; }
-                    window.setTimeout(
-                      () => document.getElementById(anchor)?.scrollIntoView({ behavior: "smooth", block: "start" }),
-                      0,
-                    );
-                  }}
-                />
                 <PassportHome
                   ownerName={displayName}
                   onNavigate={(destination) => {
                     if (destination === "share") setActiveSection("share");
-                    else if (destination === "visits")
-                      window.setTimeout(() => document.getElementById("passport-visits")?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
+                    else if (destination === "visits") setActiveSection("visits");
                     else if (destination === "prescriptions") setActiveSection("prescriptions");
-                    else if (destination === "records")
-                      window.setTimeout(() => document.getElementById("passport-records")?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
+                    else if (destination === "records") setActiveSection("records");
                     else if (destination === "patterns") setActiveSection("discovery");
-                    else if (destination === "details") window.setTimeout(() => document.getElementById("passport-health-card")?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
+                    else if (destination === "details")
+                      window.setTimeout(
+                        () =>
+                          document
+                            .getElementById("passport-health-card")
+                            ?.scrollIntoView({ behavior: "smooth", block: "start" }),
+                        0,
+                      );
                     else window.scrollTo({ top: 0, behavior: "smooth" });
                   }}
                 />
-                <div id="passport-visits" className="mt-8 scroll-mt-28">
-                  <VisitsTimeline onOpenPrescriptions={() => setActiveSection("prescriptions")} />
-                </div>
-                <div id="passport-records" className="mt-8 scroll-mt-28">
-                  <RecordsSection
-                    onOpenVisits={() =>
-                      document
-                        .getElementById("passport-visits")
-                        ?.scrollIntoView({ behavior: "smooth", block: "start" })
-                    }
-                  />
-                </div>
                 <div id="passport-health-card" className="mt-8 scroll-mt-28">
                   <HealthDetailsCard />
                 </div>
-                <div id="passport-wellbeing" className="mt-8 scroll-mt-28">
-                  <Overview
-                    today={todayLabel}
-                    checkins={passportData.checkins as never}
-                    onLogMood={() => setCheckInActive(true)}
-                    checkInActive={checkInActive}
-                    onCloseCheckIn={() => setCheckInActive(false)}
-                    isGuest={false}
-                  />
-                </div>
               </>
+            )}
+
+            {activeSection === "visits" && role === "client" && (
+              <VisitsTimeline onOpenPrescriptions={() => setActiveSection("prescriptions")} />
+            )}
+
+            {activeSection === "records" && role === "client" && (
+              <RecordsSection onOpenVisits={() => setActiveSection("visits")} />
+            )}
+
+            {activeSection === "wellbeing" && role === "client" && (
+              <Overview
+                today={todayLabel}
+                checkins={passportData.checkins as never}
+                onLogMood={() => setCheckInActive(true)}
+                checkInActive={checkInActive}
+                onCloseCheckIn={() => setCheckInActive(false)}
+                isGuest={false}
+              />
             )}
 
             {activeSection === "provider" && role === "provider" && (
