@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { FileText, Image as ImageIcon, Upload, X } from "lucide-react";
+import { X } from "lucide-react";
 import { toast } from "sonner";
 
 import {
