@@ -848,6 +848,42 @@ function VisitDocuments({ visitId, visitLabel }: { visitId: string; visitLabel: 
       ) : null}
 
       {viewing ? <DocumentViewer record={viewing} onClose={() => setViewing(null)} /> : null}
+
+      {moving ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-brand-purple-dark/40 p-4">
+          <div className="w-full max-w-md rounded-2xl border border-brand-lavender bg-card p-5 shadow-xl">
+            <h4 className="font-display text-[18px] leading-tight text-brand-purple-dark">
+              Move this document from {moving.visitLabel ?? "another visit"} to {visitLabel}?
+            </h4>
+            <p className="mt-2 text-[12.5px] text-brand-purple-dark/70">
+              {moving.fileName ?? moving.title} stays as one document in Records. It will only be
+              connected to {visitLabel}.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  linkRecordToVisit(moving.id, visitId, visitLabel);
+                  setMoving(null);
+                  setPicking(false);
+                  toast.success("Document moved to this visit");
+                }}
+                className="inline-flex h-10 items-center rounded-xl bg-brand-purple-dark px-4 text-[13px] font-semibold text-white transition hover:opacity-90"
+              >
+                Move document
+              </button>
+              <button
+                type="button"
+                onClick={() => setMoving(null)}
+                className="inline-flex h-10 items-center rounded-xl border border-brand-lavender bg-card px-4 text-[13px] font-semibold text-brand-purple-dark transition hover:bg-brand-lavender/40"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
     </DetailSection>
   );
 }
