@@ -31,9 +31,11 @@ type PassportDestination =
 
 export default function PassportHome({
   ownerName = "Maria Santos",
+  forceEmpty = false,
   onNavigate,
 }: {
   ownerName?: string;
+  forceEmpty?: boolean;
   onNavigate: (destination: PassportDestination) => void;
 }) {
   const [details, setDetails] = useState<HealthDetails>({});
