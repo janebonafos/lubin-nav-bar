@@ -4,7 +4,7 @@
 // shared until they book someone and say yes. When the account was created on
 // someone's behalf (guardian), copy adapts to name the person.
 import { useEffect, useMemo, useState, type CSSProperties } from "react";
-import { CalendarDays, Check, Download, Lock, Plus, Printer, X } from "lucide-react";
+import { CalendarDays, Check, Download, Lock, Plus, Printer, RotateCw, X } from "lucide-react";
 import {
   HEALTH_DETAIL_GROUPS,
   essentialProgress,
@@ -28,6 +28,7 @@ import {
   reviewLabel,
   type ItemReviewMap,
 } from "@/lib/intake/reviewLog";
+import DemoQr from "@/components/passport/DemoQr";
 
 import { downloadPassportCard, printPassportCard } from "@/lib/passport/printCard";
 import { loadProxySignup, proxyFirstName } from "@/lib/proxySignup";
@@ -262,6 +263,13 @@ function PassportCard({
                 <p className="text-[9px] font-medium uppercase tracking-[0.2em] text-white/55">
                   Health Network
                 </p>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <span className="hidden items-center gap-1.5 rounded-lg bg-white/10 px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.14em] text-white/70 ring-1 ring-white/15 sm:inline-flex">
+                  <RotateCw className="h-3 w-3" />
+                  See details
+                </span>
+                <DemoQr seed={cardId} color="#ffffff" className="block h-24 w-24" />
               </div>
             </div>
 
