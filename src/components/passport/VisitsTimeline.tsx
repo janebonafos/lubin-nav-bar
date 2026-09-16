@@ -708,6 +708,8 @@ function VisitDocuments({ visitId, visitLabel }: { visitId: string; visitLabel: 
   const [picking, setPicking] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [viewing, setViewing] = useState<PassportRecord | null>(null);
+  const [moving, setMoving] = useState<PassportRecord | null>(null);
+
 
   useEffect(() => {
     const read = () => setRecords(allRecords());
