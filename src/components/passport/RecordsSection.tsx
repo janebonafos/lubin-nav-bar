@@ -1,17 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  CalendarCheck,
-  FileText,
-  FlaskConical,
-  Image as ImageIcon,
-  Paperclip,
-  ScanLine,
-  Send,
-  Syringe,
-  Trash2,
-  Upload,
-  X,
-} from "lucide-react";
+import { FileText, Image as ImageIcon, Upload, X } from "lucide-react";
 import { toast } from "sonner";
 
 import {
