@@ -117,6 +117,9 @@ export type MedicationEntry = {
   /** Present when a prescription document can be opened for this entry. */
   prescriptionId?: string;
   prescriptionNumber?: string;
+  /** Date the patient reported they stopped taking it (patient-reported only). */
+  patientReportedStop?: string;
+
 };
 
 const DEMO_PRESCRIBED: MedicationEntry[] = [
