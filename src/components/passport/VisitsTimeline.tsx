@@ -20,6 +20,8 @@ import {
   allRecords,
   fileSizeLabel,
   formatRecordDate,
+  recordReviewLabel,
+
   linkRecordToVisit,
   saveUploadedRecord,
   subscribeRecords,
