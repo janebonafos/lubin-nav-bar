@@ -6,6 +6,50 @@
  */
 import { listSignedPrescriptions } from "@/lib/prescription/documents";
 
+const REMOVED_KEY = "lubin.passport.medications.removed";
+const listeners = new Set<() => void>();
+
+function loadRemovedIds(): Set<string> {
+  if (typeof window === "undefined") return new Set();
+  try {
+    const raw = window.localStorage.getItem(REMOVED_KEY);
+    return new Set(raw ? (JSON.parse(raw) as string[]) : []);
+  } catch {
+    return new Set();
+  }
+}
+
+function saveRemovedIds(ids: Set<string>) {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(REMOVED_KEY, JSON.stringify([...ids]));
+  listeners.forEach((cb) => cb());
+}
+
+/** Prototype-only: hide a medication from the list (does not touch any
+ *  underlying prescription document). */
+export function removeMedication(id: string) {
+  const ids = loadRemovedIds();
+  ids.add(id);
+  saveRemovedIds(ids);
+}
+
+/** Prototype-only: restore a previously hidden medication. */
+export function restoreMedication(id: string) {
+  const ids = loadRemovedIds();
+  ids.delete(id);
+  saveRemovedIds(ids);
+}
+
+export function isMedicationRemoved(id: string): boolean {
+  return loadRemovedIds().has(id);
+}
+
+/** Subscribe to medication changes (removals/restores). Returns an unsubscribe fn. */
+export function subscribeMedications(cb: () => void): () => void {
+  listeners.add(cb);
+  return () => listeners.delete(cb);
+}
+
 export type MedicationStatus = "current" | "completed" | "stopped";
 export type MedicationSource = "prescribed" | "patient-reported";
 
