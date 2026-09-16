@@ -423,35 +423,69 @@ function PassportPage() {
             <RecordsSection forceEmpty={forceEmpty} onOpenVisits={() => setTab("visits")} />
           )}
           {tab === "overview" && (
-            <Overview
-              today={today}
-              checkins={checkins}
-              onLogMood={() => setCheckInActive(true)}
-              checkInActive={checkInActive}
-              onCloseCheckIn={() => setCheckInActive(false)}
-              isGuest={readLS<boolean | null>(GUEST_KEY, true) !== false}
-              onAfterSave={() => setRegisterNudge(true)}
-            />
+            forceEmpty ? (
+              <PassportEmptyState
+                eyebrow="Wellbeing — today"
+                title="No check-ins yet"
+                description="Your daily check-in takes 15 seconds. Each one builds your Health Passport over time — mood, topics, and patterns start to appear here after just a few days."
+                action={{ label: "Check in now", onClick: () => setCheckInActive(true) }}
+              />
+            ) : (
+              <Overview
+                today={today}
+                checkins={checkins}
+                onLogMood={() => setCheckInActive(true)}
+                checkInActive={checkInActive}
+                onCloseCheckIn={() => setCheckInActive(false)}
+                isGuest={readLS<boolean | null>(GUEST_KEY, true) !== false}
+                onAfterSave={() => setRegisterNudge(true)}
+              />
+            )
           )}
           {tab === "progress" && (
-            <Progress checkins={checkins} assessments={assessments} streak={streak} />
+            forceEmpty ? (
+              <PassportEmptyState
+                eyebrow="Patterns and assessments"
+                title="No assessments yet"
+                description="Self-discovery checks help you understand your patterns. Take a short assessment to see your results, trends, and gentle insights from Lubin over time."
+                action={{ label: "Take an assessment", onClick: () => window.location.assign("/self-discovery") }}
+              />
+            ) : (
+              <Progress checkins={checkins} assessments={assessments} streak={streak} />
+            )
           )}
-          {tab === "share" && shareView === "manage" && <ManageSharing />}
-          {tab === "share" && shareView === "share" && (
-            <ShareTabView
-              checkins={checkins}
-              isGuest={readLS<boolean | null>(GUEST_KEY, true) !== false}
-              onRequestSignup={() => openAuth("signup")}
-              onStartCheckin={() => setTab("overview")}
-              upcomingAppointments={upcomingAppointments}
-              autoOpenAppointmentId={autoOpenAppointmentId}
-              onAutoOpenHandled={() => setAutoOpenAppointmentId(null)}
-            />
+          {tab === "share" && shareView === "manage" && (
+            forceEmpty ? (
+              <PassportEmptyState
+                eyebrow="Manage sharing"
+                title="No one has access yet"
+                description="When you share your Health Passport with a clinic, you'll see who has access, what you shared, when it expires, and can stop access any time — all from here."
+              />
+            ) : <ManageSharing />
           )}
           {tab === "share" && shareView === "share" && (
-            <div className="mt-6">
-              <ClinicRecipientPreview patientName={detailsName ?? "Maria Santos"} />
-            </div>
+            forceEmpty ? (
+              <PassportEmptyState
+                eyebrow="Share with a clinic"
+                title="Nothing shared yet"
+                description="Share your health details, medications, and records with a clinic ahead of your visit so they can review your information before you arrive. You choose what to include, every time."
+              />
+            ) : (
+              <>
+                <ShareTabView
+                  checkins={checkins}
+                  isGuest={readLS<boolean | null>(GUEST_KEY, true) !== false}
+                  onRequestSignup={() => openAuth("signup")}
+                  onStartCheckin={() => setTab("overview")}
+                  upcomingAppointments={upcomingAppointments}
+                  autoOpenAppointmentId={autoOpenAppointmentId}
+                  onAutoOpenHandled={() => setAutoOpenAppointmentId(null)}
+                />
+                <div className="mt-6">
+                  <ClinicRecipientPreview patientName={detailsName ?? "Maria Santos"} />
+                </div>
+              </>
+            )
           )}
           {tab === "details" && (
             <div className="mx-auto max-w-5xl">
