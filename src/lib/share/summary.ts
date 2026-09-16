@@ -262,7 +262,7 @@ export const INCLUDE_OPTIONS: {
     key: "health",
     label: "Health Passport details",
     description:
-      "Medications, allergies, conditions and care info you've added — used for safe prescribing",
+      "Medications, allergies, conditions and care info you've added — helps your clinician review your medications and health history",
   },
 ];
 
