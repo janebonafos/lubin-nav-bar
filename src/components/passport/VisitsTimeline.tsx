@@ -819,6 +819,8 @@ function VisitDocuments({ visitId, visitLabel }: { visitId: string; visitLabel: 
           }}
         />
       ) : null}
+
+      {viewing ? <DocumentViewer record={viewing} onClose={() => setViewing(null)} /> : null}
     </DetailSection>
   );
 }
