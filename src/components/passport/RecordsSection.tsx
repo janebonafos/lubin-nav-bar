@@ -32,6 +32,7 @@ export default function RecordsSection({
   const [records, setRecords] = useState<PassportRecord[]>([]);
   const [filter, setFilter] = useState<RecordType | "all">("all");
   const [uploadOpen, setUploadOpen] = useState(false);
+  const [viewing, setViewing] = useState<PassportRecord | null>(null);
 
   useEffect(() => {
     const read = () => setRecords(allRecords());
