@@ -1128,6 +1128,7 @@ export default function HealthDetailsCard({ showHeader = true }: { showHeader?: 
             const complete = isSafety ? safetyNetComplete(details) : filled === total && total > 0;
             const open = openGroup === group.id;
             const started = isSafety ? safetyNetStarted(details) : filled > 0;
+            const answers = groupAnswers(group, details);
 
             return (
               <div
