@@ -708,6 +708,8 @@ function VisitDocuments({ visitId, visitLabel }: { visitId: string; visitLabel: 
   const [picking, setPicking] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [viewing, setViewing] = useState<PassportRecord | null>(null);
+  const [moving, setMoving] = useState<PassportRecord | null>(null);
+
 
   useEffect(() => {
     const read = () => setRecords(allRecords());
@@ -803,17 +805,26 @@ function VisitDocuments({ visitId, visitLabel }: { visitId: string; visitLabel: 
                       {" "}
                       · {formatRecordDate(record.date)}
                     </span>
+                    {record.visitId ? (
+                      <span className="mt-0.5 block text-[11.5px] font-semibold text-brand-purple-accent">
+                        Already linked to {record.visitLabel ?? "another visit"}
+                      </span>
+                    ) : null}
                   </span>
                   <button
                     type="button"
                     onClick={() => {
+                      if (record.visitId) {
+                        setMoving(record);
+                        return;
+                      }
                       linkRecordToVisit(record.id, visitId, visitLabel);
                       setPicking(false);
                       toast.success("Record linked to this visit");
                     }}
                     className="text-xs font-semibold text-brand-purple underline decoration-2 decoration-brand-lavender underline-offset-4 hover:decoration-brand-purple"
                   >
-                    Link
+                    {record.visitId ? "Move here" : "Link"}
                   </button>
                 </li>
               ))}
@@ -821,6 +832,7 @@ function VisitDocuments({ visitId, visitLabel }: { visitId: string; visitLabel: 
           ) : (
             <Empty>Every record is already linked to this visit.</Empty>
           )}
+
         </div>
       ) : null}
 
@@ -836,6 +848,42 @@ function VisitDocuments({ visitId, visitLabel }: { visitId: string; visitLabel: 
       ) : null}
 
       {viewing ? <DocumentViewer record={viewing} onClose={() => setViewing(null)} /> : null}
+
+      {moving ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-brand-purple-dark/40 p-4">
+          <div className="w-full max-w-md rounded-2xl border border-brand-lavender bg-card p-5 shadow-xl">
+            <h4 className="font-display text-[18px] leading-tight text-brand-purple-dark">
+              Move this document from {moving.visitLabel ?? "another visit"} to {visitLabel}?
+            </h4>
+            <p className="mt-2 text-[12.5px] text-brand-purple-dark/70">
+              {moving.fileName ?? moving.title} stays as one document in Records. It will only be
+              connected to {visitLabel}.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  linkRecordToVisit(moving.id, visitId, visitLabel);
+                  setMoving(null);
+                  setPicking(false);
+                  toast.success("Document moved to this visit");
+                }}
+                className="inline-flex h-10 items-center rounded-xl bg-brand-purple-dark px-4 text-[13px] font-semibold text-white transition hover:opacity-90"
+              >
+                Move document
+              </button>
+              <button
+                type="button"
+                onClick={() => setMoving(null)}
+                className="inline-flex h-10 items-center rounded-xl border border-brand-lavender bg-card px-4 text-[13px] font-semibold text-brand-purple-dark transition hover:bg-brand-lavender/40"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
+
     </DetailSection>
   );
 }
