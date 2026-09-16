@@ -152,8 +152,8 @@ function RecordRow({
           ) : null}
           <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[12px] text-[#8A7FB0]">
             {record.fileName ? (
-              <span className="inline-flex items-center gap-1.5">
-                <Paperclip className="h-3.5 w-3.5" /> {record.fileName}
+              <span>
+                {record.fileName}
                 {record.fileSizeLabel ? ` · ${record.fileSizeLabel}` : ""}
               </span>
             ) : null}
