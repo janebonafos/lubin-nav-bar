@@ -373,25 +373,62 @@ function PassportCard({
         </div>
       </button>
 
-      <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-        <button
-          type="button"
-          onClick={() => printPassportCard(cardData)}
-          className="inline-flex items-center gap-1.5 rounded-[12px] border border-brand-purple/25 bg-white px-3.5 py-2 text-[12.5px] font-semibold text-brand-purple-dark transition hover:border-brand-purple/45 hover:bg-brand-lavender"
-        >
-          <Printer className="h-3.5 w-3.5" /> Print card
-        </button>
-        <button
-          type="button"
-          onClick={() => downloadPassportCard(cardData)}
-          className="inline-flex items-center gap-1.5 rounded-[12px] border border-brand-purple/25 bg-white px-3.5 py-2 text-[12.5px] font-semibold text-brand-purple-dark transition hover:border-brand-purple/45 hover:bg-brand-lavender"
-        >
-          <Download className="h-3.5 w-3.5" /> Download card
-        </button>
+      {/* Two things a clinic may ask for, kept side by side: the identity card,
+          and the health information the patient chose to keep. */}
+      <div className="mt-4 grid gap-2.5 sm:grid-cols-2">
+        <div className="rounded-[14px] border border-brand-purple/15 bg-white/70 p-3">
+          <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-brand-purple">
+            Identification
+          </p>
+          <p className="mt-1 text-[11.5px] leading-snug text-brand-purple-dark/60">
+            Name, date of birth, Passport ID and QR.
+          </p>
+          <div className="mt-2.5 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => printPassportCard(cardData)}
+              className="inline-flex items-center gap-1.5 rounded-[12px] border border-brand-purple/25 bg-white px-3 py-1.5 text-[12px] font-semibold text-brand-purple-dark transition hover:border-brand-purple/45 hover:bg-brand-lavender"
+            >
+              <Printer className="h-3.5 w-3.5" /> Print card
+            </button>
+            <button
+              type="button"
+              onClick={() => downloadPassportCard(cardData)}
+              className="inline-flex items-center gap-1.5 rounded-[12px] border border-brand-purple/25 bg-white px-3 py-1.5 text-[12px] font-semibold text-brand-purple-dark transition hover:border-brand-purple/45 hover:bg-brand-lavender"
+            >
+              <Download className="h-3.5 w-3.5" /> Download card
+            </button>
+          </div>
+        </div>
+        <div className="rounded-[14px] border border-brand-purple/15 bg-white/70 p-3">
+          <p className="text-[9px] font-bold uppercase tracking-[0.16em] text-brand-purple">
+            Health summary
+          </p>
+          <p className="mt-1 text-[11.5px] leading-snug text-brand-purple-dark/60">
+            Contacts, medications, allergies and relevant history.
+          </p>
+          <div className="mt-2.5 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => printHealthSummary(summaryData)}
+              className="inline-flex items-center gap-1.5 rounded-[12px] border border-brand-purple/25 bg-white px-3 py-1.5 text-[12px] font-semibold text-brand-purple-dark transition hover:border-brand-purple/45 hover:bg-brand-lavender"
+            >
+              <Printer className="h-3.5 w-3.5" /> Print summary
+            </button>
+            <button
+              type="button"
+              onClick={() => downloadHealthSummary(summaryData)}
+              className="inline-flex items-center gap-1.5 rounded-[12px] border border-brand-purple/25 bg-white px-3 py-1.5 text-[12px] font-semibold text-brand-purple-dark transition hover:border-brand-purple/45 hover:bg-brand-lavender"
+            >
+              <Download className="h-3.5 w-3.5" /> Download summary
+            </button>
+          </div>
+        </div>
       </div>
       <p className="mt-2 text-center text-[11.5px] leading-relaxed text-brand-purple-dark/50">
-        Patient-provided card · {filled} of {total} details added. The QR block is a demo
-        placeholder in this prototype.
+        Patient-provided · {filled} of {total} details added. If a clinic can't scan, the summary is
+        a reference you can hand over — some clinics will still ask you to fill in their own form.
+        The QR block is a demo placeholder in this prototype.
       </p>
     </div>
   );
