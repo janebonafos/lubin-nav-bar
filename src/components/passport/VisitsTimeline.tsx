@@ -296,16 +296,17 @@ function VisitDetail({
   onOpenPrescriptions?: () => void;
 }) {
   const scheduled = visit.kind === "scheduled";
+  const patientAdded = visit.origin === "patient";
   return (
     <article className="overflow-hidden rounded-[2rem] border border-brand-lavender bg-card shadow-[0_20px_60px_-15px_color-mix(in_oklab,var(--color-brand-purple)_18%,transparent)]">
       {/* Detail Header */}
       <div className="border-b border-brand-lavender bg-brand-lavender/30 p-8 sm:p-10">
         <div className="mb-4 flex items-center gap-2">
           <span className="rounded bg-brand-purple px-2 py-1 text-[10px] font-bold uppercase tracking-widest text-white">
-            {scheduled ? "Scheduled" : "Completed visit"}
+            {patientAdded ? "Outside Lubin" : scheduled ? "Scheduled" : "Completed visit"}
           </span>
           <span className="text-xs italic text-brand-purple-accent">
-            {visit.recordedBy ?? "Nothing recorded yet"}
+            {patientAdded ? OUTSIDE_LABEL : (visit.recordedBy ?? "Nothing recorded yet")}
           </span>
         </div>
         <h3 className="mb-6 font-display text-3xl font-semibold leading-tight text-brand-purple-dark">
@@ -321,14 +322,16 @@ function VisitDetail({
               {visit.time ? ` · ${visit.time}` : ""}
             </p>
           </div>
-          <div className="space-y-1">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-brand-purple-accent">
-              Provider
-            </span>
-            <p className="font-medium text-brand-purple-dark">
-              {visit.clinician} · {visit.clinicianRole}
-            </p>
-          </div>
+          {patientAdded ? null : (
+            <div className="space-y-1">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-brand-purple-accent">
+                Provider
+              </span>
+              <p className="font-medium text-brand-purple-dark">
+                {visit.clinician} · {visit.clinicianRole}
+              </p>
+            </div>
+          )}
           <div className="space-y-1 sm:col-span-2">
             <span className="text-[10px] font-bold uppercase tracking-wider text-brand-purple-accent">
               Facility
@@ -340,7 +343,22 @@ function VisitDetail({
 
       {/* Detail Body */}
       <div className="space-y-10 p-8 sm:p-10">
-        {scheduled ? (
+        {patientAdded ? (
+          <>
+            <DetailSection title="Your note">
+              {visit.note ? (
+                <p className="text-[15px] leading-relaxed text-brand-purple-dark/90">{visit.note}</p>
+              ) : (
+                <Empty>You did not add a note for this visit.</Empty>
+              )}
+            </DetailSection>
+            <VisitDocuments visitId={visit.id} visitLabel={visitOptionLabel(visit)} />
+            <p className="rounded-2xl bg-brand-lavender/40 px-5 py-4 text-[13px] leading-relaxed text-brand-purple-dark/65">
+              You added this visit and any documents attached to it. Nothing here has been reviewed by
+              a clinician.
+            </p>
+          </>
+        ) : scheduled ? (
           <>
             <DetailSection title="Before this appointment">
               {visit.preparation?.length ? (
