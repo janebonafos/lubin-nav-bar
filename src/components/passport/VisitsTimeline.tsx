@@ -713,23 +713,36 @@ function VisitDocuments({ visitId, visitLabel }: { visitId: string; visitLabel: 
               className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-brand-lavender bg-card p-4"
             >
               <div className="min-w-0">
-                <p className="text-sm font-semibold text-brand-purple-dark">
+                <button
+                  type="button"
+                  onClick={() => setViewing(record)}
+                  className="text-left text-sm font-semibold text-brand-purple-dark underline-offset-4 transition hover:text-brand-purple hover:underline"
+                >
                   {record.fileName ?? record.title}
-                </p>
+                </button>
                 <p className="text-[11.5px] text-brand-purple-accent">
                   {formatRecordDate(record.date)} · {record.source} · Also in Records
                 </p>
               </div>
-              <button
-                type="button"
-                onClick={() => {
-                  unlinkRecordFromVisit(record.id);
-                  toast.success("Document unlinked from this visit. It stays in Records.");
-                }}
-                className="text-xs font-semibold text-brand-purple underline decoration-2 decoration-brand-lavender underline-offset-4 hover:decoration-brand-purple"
-              >
-                Unlink
-              </button>
+              <div className="flex items-center gap-4">
+                <button
+                  type="button"
+                  onClick={() => setViewing(record)}
+                  className="text-xs font-semibold text-brand-purple underline decoration-2 decoration-brand-lavender underline-offset-4 hover:decoration-brand-purple"
+                >
+                  View document
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    unlinkRecordFromVisit(record.id);
+                    toast.success("Document unlinked from this visit. It stays in Records.");
+                  }}
+                  className="text-xs font-semibold text-brand-purple underline decoration-2 decoration-brand-lavender underline-offset-4 hover:decoration-brand-purple"
+                >
+                  Unlink
+                </button>
+              </div>
             </li>
           ))}
         </ul>
