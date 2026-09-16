@@ -411,11 +411,12 @@ function PassportCard({
             </button>
             <button
               type="button"
-              onClick={() => downloadPassportCard(cardData)}
+              onClick={() => void downloadPassportCardPdf(cardData)}
               className="inline-flex min-h-10 items-center justify-center gap-2 rounded-[10px] bg-brand-purple px-3 text-[12px] font-semibold text-primary-foreground hover:bg-brand-purple-accent"
             >
-              <Download className="h-3.5 w-3.5 shrink-0" /> Download
+              <Download className="h-3.5 w-3.5 shrink-0" /> Download card (PDF)
             </button>
+
           </div>
         </div>
 
