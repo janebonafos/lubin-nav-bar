@@ -493,7 +493,7 @@ function PassportPage() {
               {/* Who this passport belongs to — set at registration */}
               <div className="mb-6 flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-2xl border border-brand-purple/15 bg-brand-purple/[0.06] px-4 py-3">
                 <span className="inline-flex items-center gap-1.5 rounded-lg bg-white px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-brand-purple">
-                  {detailsName ? "Managing for someone" : "This is your passport"}
+                  {detailsName ? "Managing for someone" : "This is your Health Passport"}
                 </span>
                 <p className="text-sm text-brand-purple-dark/70">
                   {detailsName
@@ -783,7 +783,7 @@ export function Overview({
               How are you feeling today?
             </p>
             <p className="mt-1 text-sm text-brand-purple-dark/65">
-              Takes 15 seconds. Builds your passport over time.
+              Takes 15 seconds. Builds your Health Passport over time.
             </p>
           </div>
           <button

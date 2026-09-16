@@ -92,7 +92,7 @@ export default function RecordsSection({
           onClose={() => setUploadOpen(false)}
           onSaved={(record) => {
             setUploadOpen(false);
-            toast.success(`${recordTypeLabel(record.type)} added to your passport`);
+            toast.success(`${recordTypeLabel(record.type)} added to your Health Passport`);
           }}
         />
       )}
@@ -278,7 +278,7 @@ function RecordRow({
             type="button"
             onClick={() => {
               removeUploadedRecord(record.id);
-              toast.success("Record removed from your passport");
+              toast.success("Record removed from your Health Passport");
             }}
             className="inline-flex h-8 items-center rounded-xl border border-[#DCD4F0] bg-white px-2.5 text-[12px] font-semibold text-[#5B4B8A] transition hover:bg-[#F6F4FC]"
           >
