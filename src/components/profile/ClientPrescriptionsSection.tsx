@@ -11,6 +11,15 @@ import { ensureSamplePrescriptionRecord } from "@/lib/prescription/sampleRecord"
 import { prescriptionViewHref } from "@/lib/prescription/viewHandoff";
 import MedicationList from "@/components/passport/MedicationList";
 
+const PAGE_SIZE = 4;
+
+const STATUS_FILTERS = [
+  { key: "all", label: "All" },
+  { key: "valid", label: "Still valid" },
+  { key: "expired", label: "Expired" },
+  { key: "voided", label: "Voided" },
+] as const;
+
 /** Opens the document behind an opaque id — no patient, medication or
  *  prescription data ever appears in the URL. */
 function prescriptionHref(
