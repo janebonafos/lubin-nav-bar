@@ -28,7 +28,7 @@ import {
   reviewLabel,
   type ItemReviewMap,
 } from "@/lib/intake/reviewLog";
-import DemoQr from "@/components/passport/DemoQr";
+
 import { downloadPassportCard, printPassportCard } from "@/lib/passport/printCard";
 import { loadProxySignup, proxyFirstName } from "@/lib/proxySignup";
 
