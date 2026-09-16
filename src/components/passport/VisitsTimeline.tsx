@@ -503,6 +503,217 @@ function VisitDetail({
   );
 }
 
+/** Small form for a visit that happened outside Lubin. Prototype only. */
+function OutsideVisitForm({
+  onCancel,
+  onSaved,
+}: {
+  onCancel: () => void;
+  onSaved: (visit: PassportVisit) => void;
+}) {
+  const [date, setDate] = useState("");
+  const [clinic, setClinic] = useState("");
+  const [reason, setReason] = useState("");
+  const [note, setNote] = useState("");
+  const ready = Boolean(date && clinic.trim());
+
+  return (
+    <div className="mt-4 rounded-2xl border border-brand-lavender bg-card p-5">
+      <p className="text-[13.5px] font-bold text-brand-purple-dark">Add a visit outside Lubin</p>
+      <p className="mt-0.5 text-[12.5px] text-brand-purple-dark/60">
+        No clinic account or verification needed. Documents are optional — you can attach them later.
+      </p>
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        <FormField label="Visit date (required)">
+          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className={fieldClass} />
+        </FormField>
+        <FormField label="Clinic or hospital name (required)">
+          <input
+            value={clinic}
+            onChange={(e) => setClinic(e.target.value)}
+            placeholder="e.g. Sample Community Clinic"
+            className={fieldClass}
+          />
+        </FormField>
+        <FormField label="Reason for visit (optional)">
+          <input
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            placeholder="e.g. General checkup"
+            className={fieldClass}
+          />
+        </FormField>
+        <FormField label="Personal note (optional)">
+          <input
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            placeholder="Anything you want to remember"
+            className={fieldClass}
+          />
+        </FormField>
+      </div>
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          disabled={!ready}
+          onClick={() => onSaved(saveOutsideVisit({ date, clinic, reason, note }))}
+          className="inline-flex h-10 items-center rounded-xl bg-brand-purple-dark px-4 text-[13px] font-semibold text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:bg-brand-lavender disabled:text-brand-purple-dark/50"
+        >
+          Save visit
+        </button>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="inline-flex h-10 items-center rounded-xl border border-brand-lavender bg-card px-4 text-[13px] font-semibold text-brand-purple-dark transition hover:bg-brand-lavender/40"
+        >
+          Cancel
+        </button>
+        {!ready ? (
+          <span className="text-[12px] text-brand-purple-dark/55">
+            Add the visit date and where it happened.
+          </span>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
+/** Documents linked to a visit. The same document stays in Records — never copied. */
+function VisitDocuments({ visitId, visitLabel }: { visitId: string; visitLabel: string }) {
+  const [records, setRecords] = useState<PassportRecord[]>([]);
+  const [picking, setPicking] = useState(false);
+  const [uploading, setUploading] = useState(false);
+
+  useEffect(() => {
+    const read = () => setRecords(allRecords());
+    read();
+    return subscribeRecords(read);
+  }, []);
+
+  const linked = records.filter((r) => r.visitId === visitId);
+  const available = records.filter((r) => r.visitId !== visitId);
+
+  return (
+    <DetailSection title="Documents">
+      {linked.length ? (
+        <ul className="space-y-2">
+          {linked.map((record) => (
+            <li
+              key={record.id}
+              className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-brand-lavender bg-card p-4"
+            >
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-brand-purple-dark">
+                  {record.fileName ?? record.title}
+                </p>
+                <p className="text-[11.5px] text-brand-purple-accent">
+                  {formatRecordDate(record.date)} · {record.source} · Also in Records
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  unlinkRecordFromVisit(record.id);
+                  toast.success("Document unlinked from this visit. It stays in Records.");
+                }}
+                className="text-xs font-semibold text-brand-purple underline decoration-2 decoration-brand-lavender underline-offset-4 hover:decoration-brand-purple"
+              >
+                Unlink
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <Empty>No documents attached yet. You can add them any time.</Empty>
+      )}
+
+      <div className="flex flex-wrap gap-2 pt-1">
+        <button
+          type="button"
+          onClick={() => {
+            setPicking((v) => !v);
+            setUploading(false);
+          }}
+          className="inline-flex h-9 items-center rounded-xl border border-brand-lavender bg-card px-3.5 text-[12.5px] font-semibold text-brand-purple-dark transition hover:bg-brand-lavender/40"
+        >
+          Add existing record
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            setUploading((v) => !v);
+            setPicking(false);
+          }}
+          className="inline-flex h-9 items-center rounded-xl bg-brand-purple-dark px-3.5 text-[12.5px] font-semibold text-white transition hover:opacity-90"
+        >
+          Upload document
+        </button>
+      </div>
+
+      {picking ? (
+        <div className="rounded-2xl border border-brand-lavender bg-card p-4">
+          <p className="text-[12.5px] font-semibold text-brand-purple-dark">
+            Choose a record already in your Health Passport
+          </p>
+          {available.length ? (
+            <ul className="mt-3 space-y-2">
+              {available.map((record) => (
+                <li key={record.id} className="flex flex-wrap items-center justify-between gap-3">
+                  <span className="text-[12.5px] text-brand-purple-dark/85">
+                    {record.title}
+                    <span className="text-brand-purple-accent">
+                      {" "}
+                      · {formatRecordDate(record.date)}
+                    </span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      linkRecordToVisit(record.id, visitId, visitLabel);
+                      setPicking(false);
+                      toast.success("Record linked to this visit");
+                    }}
+                    className="text-xs font-semibold text-brand-purple underline decoration-2 decoration-brand-lavender underline-offset-4 hover:decoration-brand-purple"
+                  >
+                    Link
+                  </button>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <Empty>Every record is already linked to this visit.</Empty>
+          )}
+        </div>
+      ) : null}
+
+      {uploading ? (
+        <UploadPanel
+          presetVisitId={visitId}
+          onClose={() => setUploading(false)}
+          onSaved={() => {
+            setUploading(false);
+            toast.success("Document added to this visit and to Records");
+          }}
+        />
+      ) : null}
+    </DetailSection>
+  );
+}
+
+const fieldClass =
+  "h-10 w-full rounded-xl border border-brand-lavender bg-card px-3 text-[13px] text-brand-purple-dark outline-none transition focus:border-brand-purple";
+
+function FormField({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <label className="block">
+      <span className="text-[11px] font-bold uppercase tracking-[0.12em] text-brand-purple-accent">
+        {label}
+      </span>
+      <span className="mt-1 block">{children}</span>
+    </label>
+  );
+}
+
 function DetailSection({
   title,
   children,
