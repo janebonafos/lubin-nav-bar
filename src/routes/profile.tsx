@@ -1266,7 +1266,6 @@ function ProfilePage() {
                 onOpenVisits={(visitId) => {
                   setFocusVisitId(visitId);
                   setActiveSection("visits");
-                  window.setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 0);
                 }}
               />
             )}
