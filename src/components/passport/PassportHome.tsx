@@ -102,7 +102,7 @@ export default function PassportHome({
       {/* Main column: hero + summary cards */}
       <div className="flex flex-col gap-8 lg:col-span-8">
         {/* Hero */}
-        <div className="relative overflow-hidden rounded-[2rem] bg-brand-lavender p-8 md:p-10">
+        <div className="relative overflow-hidden rounded-[2rem] bg-white p-8 shadow-[0_10px_40px_-12px_color-mix(in_oklab,var(--color-brand-purple)_22%,transparent)] ring-1 ring-brand-purple/10 md:p-10">
           <div className="relative z-10 max-w-md">
             <h2 className="font-display mb-4 text-3xl leading-tight text-brand-purple-dark md:text-4xl">
               Your health information, ready for your next visit.
@@ -122,14 +122,14 @@ export default function PassportHome({
               <button
                 type="button"
                 onClick={() => onNavigate("share")}
-                className="rounded-full border border-brand-purple/20 bg-white/80 px-6 py-3 text-sm font-semibold text-brand-purple-dark backdrop-blur-sm transition-all hover:bg-white"
+                className="rounded-full border border-brand-purple/20 bg-brand-lavender/60 px-6 py-3 text-sm font-semibold text-brand-purple-dark backdrop-blur-sm transition-all hover:bg-brand-lavender"
               >
                 Use at a clinic
               </button>
               <button
                 type="button"
                 onClick={() => onNavigate("details")}
-                className="rounded-full border border-brand-purple/20 bg-white/80 px-6 py-3 text-sm font-semibold text-brand-purple-dark backdrop-blur-sm transition-all hover:bg-white"
+                className="rounded-full border border-brand-purple/20 bg-brand-lavender/60 px-6 py-3 text-sm font-semibold text-brand-purple-dark backdrop-blur-sm transition-all hover:bg-brand-lavender"
               >
                 Review my details
               </button>
