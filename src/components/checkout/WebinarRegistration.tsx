@@ -12,8 +12,6 @@ import {
   Users,
   Video,
 } from "lucide-react";
-// CheckCircle2 is used by the registered ("Attendance confirmed") badge.
-// CreditCard is used when the webinar is paid. Both are intentionally retained.
 import type { Webinar } from "@/lib/webinars";
 
 /**
