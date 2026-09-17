@@ -265,12 +265,22 @@ function CheckoutPage() {
           <p className="mt-2 text-slate-500">
             We couldn't load this session. It may have been removed.
           </p>
-          <Link
-            to="/find-provider"
-            className="mt-6 inline-flex rounded-xl bg-brand-purple px-5 py-2.5 text-[13px] font-semibold text-white"
-          >
-            Back to providers
-          </Link>
+          <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+            <Link
+              to="/find-provider"
+              className="inline-flex rounded-xl bg-brand-purple px-5 py-2.5 text-[13px] font-semibold text-white"
+            >
+              Back to providers
+            </Link>
+            <Link
+              to="/checkout"
+              search={{ type: "webinar", webinarId: "be-the-bridge" }}
+              className="inline-flex rounded-xl border border-[#E9E6FA] bg-white px-5 py-2.5 text-[13px] font-semibold text-brand-purple"
+            >
+              Register for the webinar
+            </Link>
+          </div>
+
         </main>
       </div>
     );
