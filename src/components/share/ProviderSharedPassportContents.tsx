@@ -263,6 +263,40 @@ export default function ProviderSharedPassportContents({ grant }: { grant: Provi
         </div>
       )}
 
+      {!includesHealth && data.records.length > 0 && (
+        <PassportSection
+          title="Documents"
+          count={data.records.length}
+          action={
+            data.records.length > 3 ? (
+              <button
+                type="button"
+                onClick={() => setShowAllRecords((value) => !value)}
+                className="rounded-[8px] border border-brand-lavender bg-card px-2.5 py-1 text-[11px] font-semibold text-brand-purple-dark hover:bg-secondary"
+              >
+                {showAllRecords ? "Show fewer" : `View all ${data.records.length}`}
+              </button>
+            ) : null
+          }
+        >
+          <DocumentList
+            records={visibleRecords}
+            selectedRecord={selectedRecord}
+            onSelectRecord={setSelectedRecord}
+          />
+          {selectedRecord && (
+            <RecordDetail
+              record={selectedRecord}
+              relatedVisit={selectedRecordVisit}
+              onOpenVisit={(visit) => {
+                setSelectedVisit(visit);
+                setShowAllVisits(true);
+              }}
+            />
+          )}
+        </PassportSection>
+      )}
+
       {(includeCheckins || includeAssessments) && (
         <PassportSection title="Wellbeing information">
           <div className="grid gap-3 sm:grid-cols-2">
@@ -279,9 +313,65 @@ export default function ProviderSharedPassportContents({ grant }: { grant: Provi
               />
             )}
           </div>
+          {includeCheckins && grant.snapshot.insight && (
+            <p className="mt-3 rounded-[10px] border border-brand-lavender/70 bg-secondary/45 px-3 py-2.5 text-[12.5px] leading-relaxed text-brand-navy/75">
+              {grant.snapshot.insight}
+            </p>
+          )}
+          {includeAssessments && grant.snapshot.attemptsInRange.length > 0 && (
+            <ul className="mt-3 grid gap-2 sm:grid-cols-2">
+              {grant.snapshot.attemptsInRange.slice(0, 4).map((attempt) => (
+                <li key={attempt.id} className="rounded-[10px] border border-brand-lavender/70 bg-secondary/45 px-3 py-2.5">
+                  <p className="text-[12px] font-semibold text-brand-purple-dark">{attempt.assessmentName}</p>
+                  <p className="mt-0.5 text-[11.5px] text-brand-navy/65">
+                    Score {attempt.score} · {formatRecordDate(new Date(attempt.takenAt).toISOString().slice(0, 10))}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          )}
         </PassportSection>
       )}
     </div>
+  );
+}
+
+function DocumentList({
+  records,
+  selectedRecord,
+  onSelectRecord,
+}: {
+  records: PassportRecord[];
+  selectedRecord: PassportRecord | null;
+  onSelectRecord: (record: PassportRecord | null) => void;
+}) {
+  return records.length ? (
+    <ul className="space-y-3">
+      {records.map((record) => (
+        <li key={record.id} className="rounded-[10px] border border-brand-lavender/70 bg-secondary/45 px-3 py-2.5">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-[12.5px] font-semibold text-brand-purple-dark">
+                {record.fileName ?? record.title}
+              </p>
+              <p className="mt-0.5 text-[11.5px] text-brand-navy/65">{providerRecordSourceLabel(record)}</p>
+              <p className="mt-0.5 text-[11.5px] text-brand-purple">
+                {recordReviewLabel(record) ?? "No clinician review recorded"}
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => onSelectRecord(selectedRecord?.id === record.id ? null : record)}
+              className="shrink-0 rounded-[8px] bg-brand-purple-dark px-2.5 py-1 text-[11px] font-semibold text-primary-foreground hover:bg-brand-purple"
+            >
+              {selectedRecord?.id === record.id ? "Close" : "View document"}
+            </button>
+          </div>
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <EmptyLine>No documents were included.</EmptyLine>
   );
 }
 

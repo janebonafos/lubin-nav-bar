@@ -18,7 +18,7 @@ import SharedPassportDialog from "@/components/share/SharedPassportDialog";
 import SoapNotesPanel from "@/components/clinical/SoapNotesPanel";
 
 import { subscribeProviderShares } from "@/lib/share/providerShareStore";
-import { formatAckTime, shareState } from "@/lib/share/appointmentSharing";
+import { formatAckTime, seedDemoAppointmentSharing, shareState } from "@/lib/share/appointmentSharing";
 import {
   isPrescriber,
   isVerifiedPrescriber,
@@ -334,6 +334,7 @@ function DetailsPage() {
   const [sharedPassportDialogOpen, setSharedPassportDialogOpen] = useState(false);
   const [completedSummaryOpen, setCompletedSummaryOpen] = useState(false);
   const [rxTick, setRxTick] = useState(0);
+  useEffect(() => seedDemoAppointmentSharing(), []);
   // Step acknowledgements — a provider may have nothing to add, but must say so
   // explicitly instead of silently skipping past the step.
   const [acks, setAcks] = useState<{ notes?: boolean; summary?: boolean }>({});
