@@ -11,6 +11,7 @@ import {
   type ShareState,
 } from "@/lib/share/appointmentSharing";
 import SharedPassportDialog from "@/components/share/SharedPassportDialog";
+import { INCLUDE_OPTIONS } from "@/lib/share/summary";
 
 /**
  * Provider-side view of the Health Passport a patient shared for this
@@ -35,13 +36,21 @@ export default function ProviderPassportShareCard({
     return subscribeProviderShares(refresh);
   }, [appointmentId]);
 
+  const includedLabels =
+    state.kind === "not_shared"
+      ? []
+      : state.grant.includedKeys.map(
+          (key) => INCLUDE_OPTIONS.find((option) => option.key === key)?.label ?? key,
+        );
+
   return (
     <div className="rounded-[12px] border border-[#EAE7F5] bg-white p-5">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0 flex-1">
           <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
-            Health Passport from {clientName}
+            Before the visit · Shared by {clientName}
           </p>
+          <h3 className="mt-1 font-display text-[18px] text-[#3D2E6B]">Health Passport</h3>
 
           {state.kind === "not_shared" && (
             <>
@@ -98,6 +107,19 @@ export default function ProviderPassportShareCard({
               </p>
             </>
           )}
+
+          {includedLabels.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-1.5" aria-label="Included Health Passport information">
+              {includedLabels.map((label) => (
+                <span
+                  key={label}
+                  className="rounded-[8px] border border-[#E3DBF5] bg-[#F8F5FC] px-2.5 py-1 text-[11px] font-semibold text-[#5B4B8A]"
+                >
+                  {label}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="flex flex-none flex-wrap items-center gap-2">
@@ -107,7 +129,7 @@ export default function ProviderPassportShareCard({
               onClick={() => setViewing(true)}
               className="inline-flex items-center rounded-[8px] border border-[#E1DAF1] bg-white px-3.5 py-2 text-sm font-medium text-[#3D2E6B] transition hover:bg-[#FBFAFE]"
             >
-              View shared passport
+              View shared Health Passport
             </button>
           )}
           {state.kind === "awaiting_ack" && (

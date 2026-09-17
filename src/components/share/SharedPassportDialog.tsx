@@ -8,6 +8,7 @@ import {
   formatShareDate,
   type ShareAcknowledgment,
 } from "@/lib/share/appointmentSharing";
+import ProviderSharedPassportContents from "@/components/share/ProviderSharedPassportContents";
 
 /**
  * Controlled view of what the patient shared for this appointment.
@@ -32,7 +33,7 @@ export default function SharedPassportDialog({
 
   return createPortal(
     <div className="fixed inset-0 z-[200] flex items-start justify-center overflow-y-auto bg-[#241C42]/55 p-4 backdrop-blur-sm sm:items-center">
-      <div className="w-full max-w-2xl rounded-2xl bg-white shadow-2xl">
+      <div className="w-full max-w-4xl rounded-2xl bg-white shadow-2xl">
         <div className="flex items-start justify-between gap-4 border-b border-[#EFEAFA] px-6 py-5">
           <div>
             <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#A89BD0]">
@@ -42,6 +43,7 @@ export default function SharedPassportDialog({
               {patientName} · {grant.appointmentLabel}
             </h3>
           </div>
+
           <button
             type="button"
             onClick={onClose}
@@ -76,6 +78,18 @@ export default function SharedPassportDialog({
               label={active ? "Access expires" : "Access ended"}
               value={formatShareDate(grant.revokedAt ?? grant.expiresAt)}
             />
+          </div>
+
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#A89BD0]">
+              Shared information
+            </p>
+            <p className="mt-1 text-[12.5px] leading-relaxed text-[#6F6889]">
+              This is the information {patientName} included for this appointment. The provider brief is a summary and does not replace these entries.
+            </p>
+            <div className="mt-3">
+              <ProviderSharedPassportContents grant={grant} />
+            </div>
           </div>
 
           <div>
