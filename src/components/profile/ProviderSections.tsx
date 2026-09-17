@@ -2883,7 +2883,7 @@ export function ApptNotesBlock({
                 prescriptionStatus={prescriptionContext}
                 appointmentCompleted={isCompleted}
               />
-              <div className="flex items-start justify-between gap-3">
+              <div className="mt-4 flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <p className="text-[11px] font-bold uppercase tracking-wider text-[#7E6BAF]">
                     Review and confirm

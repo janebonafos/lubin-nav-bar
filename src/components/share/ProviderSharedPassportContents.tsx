@@ -60,6 +60,7 @@ export default function ProviderSharedPassportContents({ grant }: { grant: Provi
     const allowed = grant.healthFieldIds ? new Set(grant.healthFieldIds) : null;
     return ALL_HEALTH_DETAIL_FIELDS.flatMap((field) => {
       if (allowed && !allowed.has(field.id)) return [];
+      if (["history.allergies", "medication.list"].includes(field.id)) return [];
       const value = data.health[field.id]?.trim();
       return value ? [{ label: field.label, value: displayHealthValue(value) }] : [];
     });
@@ -89,9 +90,9 @@ export default function ProviderSharedPassportContents({ grant }: { grant: Provi
             )}
           </PassportSection>
 
-          <PassportSection title="Allergies" count={healthRows.some((row) => row.label === "Allergies or reactions") ? 1 : 0}>
+          <PassportSection title="Allergies" count={data.health["history.allergies"]?.trim() ? 1 : 0}>
             <p className="text-[12.5px] leading-relaxed text-brand-navy/75">
-              {healthRows.find((row) => row.label === "Allergies or reactions")?.value ?? "Not answered"}
+              {data.health["history.allergies"]?.trim() ?? "Not answered"}
             </p>
           </PassportSection>
 
