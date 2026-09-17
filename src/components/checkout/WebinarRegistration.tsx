@@ -246,9 +246,8 @@ export default function WebinarRegistration({ webinar }: { webinar: Webinar }) {
           type="button"
           onClick={submit}
           disabled={!account || !consent || processing}
-          className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-brand-purple to-brand-purple-dark px-5 py-3.5 text-[14px] font-semibold text-white shadow-[0_10px_24px_-10px_rgba(124,113,176,0.7)] transition-all hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
+          className="mt-6 inline-flex w-full items-center justify-center rounded-xl bg-gradient-to-br from-brand-purple to-brand-purple-dark px-5 py-3.5 text-[14px] font-semibold text-white shadow-[0_10px_24px_-10px_rgba(124,113,176,0.7)] transition-all hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
         >
-          {isFree ? <CheckCircle2 className="h-4 w-4" /> : <CreditCard className="h-4 w-4" />}
           {processing
             ? "Confirming your seat…"
             : isFree
