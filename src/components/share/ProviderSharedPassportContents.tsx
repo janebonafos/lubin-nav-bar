@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 
 import {
   ALL_HEALTH_DETAIL_FIELDS,
@@ -185,7 +185,7 @@ function PassportSection({
 }: {
   title: string;
   count?: number;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <section className="rounded-[12px] border border-brand-lavender bg-card px-4 py-4">
@@ -198,7 +198,7 @@ function PassportSection({
   );
 }
 
-function EmptyLine({ children }: { children: React.ReactNode }) {
+function EmptyLine({ children }: { children: ReactNode }) {
   return <p className="text-[12.5px] text-brand-navy/55">{children}</p>;
 }
 

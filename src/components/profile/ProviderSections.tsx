@@ -4,6 +4,7 @@ import { PrescribingVerificationCard } from "@/components/profile/PrescribingVer
 import AppointmentMessageButton from "@/components/messages/AppointmentMessageButton";
 import AppointmentMessageThread from "@/components/messages/AppointmentMessageThread";
 import ProviderPassportShareCard from "@/components/share/ProviderPassportShareCard";
+import PassportDeliverySummary from "@/components/appointment/PassportDeliverySummary";
 import { seedDemoAppointmentSharing } from "@/lib/share/appointmentSharing";
 import { seedDemoTrailNotices } from "@/lib/messages/appointmentMessages";
 import ProviderIntakeAnswers from "@/components/intake/ProviderIntakeAnswers";
@@ -2873,10 +2874,19 @@ export function ApptNotesBlock({
 
             {/* ================= Preview & share ================= */}
             <div className="mt-2 rounded-[14px] border border-[#E5DCF5] bg-[#FBF9FF] p-4">
+              <PassportDeliverySummary
+                clientLabel={clientLabel}
+                publishedAt={appt.publishedFollowUp?.at}
+                hasVisitSummary={Boolean(fuSummary.trim())}
+                attachmentCount={(appt.attachments ?? []).length}
+                resourceCount={(followUp.resources ?? []).length}
+                prescriptionStatus={prescriptionContext}
+                appointmentCompleted={isCompleted}
+              />
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <p className="text-[11px] font-bold uppercase tracking-wider text-[#7E6BAF]">
-                    Final step
+                    Review and confirm
                   </p>
                   <p className="mt-0.5 text-sm font-semibold text-[#3D2E6B]">
                     {prescriptionContext === "none"
@@ -2897,9 +2907,9 @@ export function ApptNotesBlock({
                     )}
                   </p>
                 </div>
-                {isPublished && appt.publishedFollowUp && (
-                  <span className="shrink-0 whitespace-nowrap rounded-full bg-[#EFE8FB] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#3D2E6B]">
-                    Done · {new Date(appt.publishedFollowUp.at).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })} · {new Date(appt.publishedFollowUp.at).toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" })}{appt.publishedFollowUp.by ? ` · by ${appt.publishedFollowUp.by}` : ""}
+                {isPublished && appt.publishedFollowUp?.by && (
+                  <span className="shrink-0 whitespace-nowrap rounded-[8px] bg-[#EFE8FB] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-[#3D2E6B]">
+                    By {appt.publishedFollowUp.by}
                   </span>
                 )}
               </div>

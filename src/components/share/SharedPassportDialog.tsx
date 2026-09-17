@@ -8,6 +8,7 @@ import {
   formatShareDate,
   type ShareAcknowledgment,
 } from "@/lib/share/appointmentSharing";
+import ProviderSharedPassportContents from "@/components/share/ProviderSharedPassportContents";
 
 /**
  * Controlled view of what the patient shared for this appointment.
@@ -41,6 +42,18 @@ export default function SharedPassportDialog({
             <h3 className="mt-1 text-[17px] font-bold text-[#2C2B4B]">
               {patientName} · {grant.appointmentLabel}
             </h3>
+          </div>
+
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#A89BD0]">
+              Shared information
+            </p>
+            <p className="mt-1 text-[12.5px] leading-relaxed text-[#6F6889]">
+              This is the information {patientName} included for this appointment. The provider brief is a summary and does not replace these entries.
+            </p>
+            <div className="mt-3">
+              <ProviderSharedPassportContents grant={grant} />
+            </div>
           </div>
           <button
             type="button"

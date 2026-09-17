@@ -12,6 +12,7 @@ import { publishAppointmentEvent } from "@/lib/appointments-bus";
 import { AiProviderBrief } from "@/components/appointment/AiProviderBrief";
 import { AiPrescription } from "@/components/appointment/AiPrescription";
 import { DevPatientDataToggle } from "@/components/appointment/DevPatientDataToggle";
+import PassportDeliverySummary from "@/components/appointment/PassportDeliverySummary";
 import SoapNotesPanel from "@/components/clinical/SoapNotesPanel";
 
 import { getAnyProviderGrant, subscribeProviderShares } from "@/lib/share/providerShareStore";
@@ -935,7 +936,7 @@ function DetailsPage() {
               </section>
             )}
 
-            <section className="overflow-hidden rounded-[20px] border border-[#EAE2F6] bg-white">
+            <section className="overflow-hidden rounded-[20px] border border-[#EAE2F6] bg-white font-body">
               <button
                 type="button"
                 onClick={() => setSharedRefOpen((v) => !v)}
@@ -943,11 +944,11 @@ function DetailsPage() {
               >
                 <span className="min-w-0 flex-1">
                   <span className="block text-[15px] font-semibold text-[#2C2B4B]">
-                    Health information {clientLabel} shared
+                    Before the visit · Health Passport shared by {clientLabel}
                   </span>
                   <span className="mt-1 block text-[13px] leading-snug text-[#7E6BAF]">
-                    Recent check-ins, assessments and Health Passport information shared for this
-                    appointment.
+                    Review the exact health details, allergies, medications, visits, documents,
+                    check-ins and assessments included for this appointment.
                   </span>
                   <span className="mt-1.5 block text-[12px] font-medium text-[#5A4A8A]">
                     {sharedSummaryLine ?? "Nothing shared for this appointment"}
@@ -1111,8 +1112,8 @@ function DetailsPage() {
                 id="care-plan"
                 number={2}
                 eyebrow="After the session"
-                title={`Shared summary for ${clientLabel}`}
-                description={`Add a session recap, next steps, or resources. ${clientLabel} sees this in their Health Passport once you send it.`}
+                title="Visit summary for Health Passport"
+                description={`Add a session recap, next steps, resources and documents. Before sharing, these will appear in ${clientLabel}'s Health Passport.`}
                 openOverride={openStep === "care-plan"}
                 onToggle={() => toggleStep("care-plan")}
                 done={isPublished || !!acks.summary}
@@ -1126,7 +1127,7 @@ function DetailsPage() {
                     : "Finish step 1 first"
                 }
                 pillLabel={
-                  acks.summary && !isPublished ? "Complete · Nothing shared" : followUpStatus
+                  acks.summary && !isPublished ? "No visit summary shared" : followUpStatus
                 }
                 requirementLabel={rxShown ? "Decision required before prescribing" : undefined}
               >
@@ -1162,8 +1163,9 @@ function DetailsPage() {
                         Not sharing a summary this time?
                       </p>
                       <p className="mt-1 text-[13px] leading-snug text-[#5A4A8A]">
-                        {clientLabel} will see nothing new in their Health Passport for this
-                        appointment. Confirm you have read this before moving on.
+                        No visit summary will be shared to {clientLabel}'s Health Passport. A
+                        prescription may still have been issued separately. Confirm you have read
+                        this before moving on.
                       </p>
                       <label className="mt-2.5 flex cursor-pointer items-start gap-2.5 text-[12.5px] leading-snug text-[#3D2E6B]">
                         <input
@@ -1265,6 +1267,19 @@ function DetailsPage() {
                     <p className="mt-1 text-[13px] leading-snug text-[#7E6BAF]">
                       Your appointments list has been updated with the new status and details.
                     </p>
+                    <div className="mt-4">
+                      <PassportDeliverySummary
+                        clientLabel={clientLabel}
+                        publishedAt={appt.publishedFollowUp?.at}
+                        hasVisitSummary={Boolean(appt.followUp?.summary?.trim())}
+                        attachmentCount={appt.attachments?.length ?? 0}
+                        resourceCount={appt.followUp?.resources?.length ?? 0}
+                        prescriptionStatus={
+                          rxLifecycle.issued ? "issued" : rxShown && !rxLifecycle.skipped ? "pending" : "none"
+                        }
+                        appointmentCompleted
+                      />
+                    </div>
                     {recordedOutcome !== "provider_no_show" && (
                       <div className="mt-3.5">
                         <ApptPayoutStatus
@@ -1287,6 +1302,18 @@ function DetailsPage() {
                       {rxAllowed ? " and the prescription step" : ""}. Record what happened with
                       this appointment to close it.
                     </p>
+                    <div className="mt-4">
+                      <PassportDeliverySummary
+                        clientLabel={clientLabel}
+                        publishedAt={appt.publishedFollowUp?.at}
+                        hasVisitSummary={Boolean(appt.followUp?.summary?.trim())}
+                        attachmentCount={appt.attachments?.length ?? 0}
+                        resourceCount={appt.followUp?.resources?.length ?? 0}
+                        prescriptionStatus={
+                          rxLifecycle.issued ? "issued" : rxShown && !rxLifecycle.skipped ? "pending" : "none"
+                        }
+                      />
+                    </div>
                     <div className="mt-4 space-y-2">
                       {outcomes.map((o) => (
                         <label
