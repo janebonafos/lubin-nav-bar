@@ -4,7 +4,7 @@ import {
   CalendarDays,
   CheckCircle2,
   Clock,
-  CreditCard,
+  
   Globe2,
   Lock,
   Mail,
