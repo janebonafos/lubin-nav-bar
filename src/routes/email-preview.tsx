@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
 import { TEMPLATES } from "@/lib/email-templates/registry";
 
@@ -20,6 +20,7 @@ export const Route = createFileRoute("/email-preview")({
 
 function EmailPreviewPage() {
   const { template } = Route.useSearch();
+  const navigate = useNavigate();
   const templateNames = Object.keys(TEMPLATES);
 
   return (
@@ -32,9 +33,11 @@ function EmailPreviewPage() {
           <select
             value={template}
             onChange={(e) => {
-              const params = new URLSearchParams(window.location.search);
-              params.set("template", e.target.value);
-              window.location.search = params.toString();
+              void navigate({
+                to: "/email-preview",
+                search: { template: e.target.value },
+                replace: true,
+              });
             }}
             className="rounded-lg border border-[#EAE7F5] bg-white px-3 py-1.5 text-sm text-[#2A2550] focus:outline-none focus:ring-2 focus:ring-[#7E6BAF]"
           >
@@ -47,6 +50,7 @@ function EmailPreviewPage() {
         </div>
       </div>
       <iframe
+        key={template}
         src={`/api/public/email-preview?template=${encodeURIComponent(template)}`}
         title="Email preview"
         className="w-full flex-1 border-0"
