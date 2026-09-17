@@ -27,13 +27,19 @@ import {
   type PendingShare,
 } from "@/lib/share/pendingShare";
 import { useEffect } from "react";
+import WebinarRegistration from "@/components/checkout/WebinarRegistration";
+import { getWebinarById } from "@/lib/webinars";
 
 const searchSchema = z.object({
-  providerId: z.string(),
-  serviceId: z.string(),
-  date: z.string(), // YYYY-MM-DD
-  time: z.string(),
-  format: z.enum(["online", "in-person"]),
+  // Provider booking flow
+  providerId: z.string().optional(),
+  serviceId: z.string().optional(),
+  date: z.string().optional(), // YYYY-MM-DD
+  time: z.string().optional(),
+  format: z.enum(["online", "in-person"]).optional(),
+  // Webinar registration flow
+  type: z.enum(["session", "webinar"]).optional(),
+  webinarId: z.string().optional(),
 });
 
 export const Route = createFileRoute("/checkout")({
@@ -114,13 +120,19 @@ function LinkedInGlyph({ className }: { className?: string }) {
 
 function CheckoutPage() {
   const search = Route.useSearch();
+  const providerId = search.providerId ?? "";
+  const serviceId = search.serviceId ?? "";
+  const bookingDate = search.date ?? "";
+  const bookingTime = search.time ?? "";
+  const format = search.format ?? "online";
+
   const navigate = useNavigate();
 
-  const provider = getProviderById(search.providerId);
+  const provider = getProviderById(providerId);
   const service = useMemo(() => {
     if (!provider) return undefined;
-    return getServicesForProvider(provider).find((s) => s.id === search.serviceId);
-  }, [provider, search.serviceId]);
+    return getServicesForProvider(provider).find((s) => s.id === serviceId);
+  }, [provider, serviceId]);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -144,8 +156,8 @@ function CheckoutPage() {
   >([]);
 
   const bookingKey = useMemo(
-    () => bookingKeyFor(search.providerId, search.date, search.time),
-    [search.providerId, search.date, search.time],
+    () => bookingKeyFor(providerId, bookingDate, bookingTime),
+    [providerId, bookingDate, bookingTime],
   );
 
   useEffect(() => {
@@ -215,7 +227,36 @@ function CheckoutPage() {
     return real.hasAnyData ? real : mockSummary();
   }, [localCheckins, shareRange]);
 
+  // Webinar registration flow — reuses the checkout shell.
+  if (search.type === "webinar") {
+    const webinar = search.webinarId ? getWebinarById(search.webinarId) : undefined;
+    return (
+      <div className="min-h-screen bg-[#F9F8FF]" style={{ fontFamily: "Inter, sans-serif" }}>
+        <Navbar />
+        <main className="mx-auto w-full max-w-5xl px-4 pb-20 pt-24 sm:pt-28">
+          <Link
+            to="/resources"
+            className="inline-flex items-center gap-1.5 text-[13px] font-medium text-slate-500 transition-colors hover:text-brand-purple"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" /> Back to events
+          </Link>
+          {webinar ? (
+            <WebinarRegistration webinar={webinar} />
+          ) : (
+            <div className="mt-10 text-center">
+              <h1 className="text-2xl font-bold text-slate-900">Webinar not found</h1>
+              <p className="mt-2 text-slate-500">
+                This event may have ended or the link is incomplete.
+              </p>
+            </div>
+          )}
+        </main>
+      </div>
+    );
+  }
+
   if (!provider || !service) {
+
     return (
       <div className="min-h-screen bg-[#F9F8FF]">
         <Navbar />
@@ -235,7 +276,7 @@ function CheckoutPage() {
     );
   }
 
-  const dateObj = new Date(search.date + "T00:00:00");
+  const dateObj = new Date(bookingDate + "T00:00:00");
   const dateLabel = dateObj.toLocaleDateString(undefined, {
     weekday: "long",
     month: "long",
@@ -247,7 +288,7 @@ function CheckoutPage() {
     month: "short",
     day: "numeric",
   });
-  const appointmentLabel = `${shortDateLabel} · ${search.time}`;
+  const appointmentLabel = `${shortDateLabel} · ${bookingTime}`;
   const appointmentDate = dateObj.toLocaleDateString(undefined, {
     month: "long",
     day: "numeric",
@@ -301,11 +342,11 @@ function CheckoutPage() {
         navigate({
           to: "/payment-failed",
           search: {
-            providerId: search.providerId,
-            serviceId: search.serviceId,
-            date: search.date,
-            time: search.time,
-            format: search.format,
+            providerId: providerId,
+            serviceId: serviceId,
+            date: bookingDate,
+            time: bookingTime,
+            format: format,
             email,
             name,
             ref,
@@ -318,11 +359,11 @@ function CheckoutPage() {
         navigate({
           to: "/payment-success",
           search: {
-            providerId: search.providerId,
-            serviceId: search.serviceId,
-            date: search.date,
-            time: search.time,
-            format: search.format,
+            providerId: providerId,
+            serviceId: serviceId,
+            date: bookingDate,
+            time: bookingTime,
+            format: format,
             email,
             name,
             ref,
@@ -562,7 +603,7 @@ function CheckoutPage() {
                     AI Provider Brief
                   </span>{" "}
                   so your provider can prepare for your{" "}
-                  {search.format === "online" ? "online session" : "visit"}.
+                  {format === "online" ? "online session" : "visit"}.
                 </p>
               )}
 
@@ -695,20 +736,20 @@ function CheckoutPage() {
               </li>
               <li className="flex items-center gap-2">
                 <Clock className="h-3.5 w-3.5 text-brand-purple" />
-                {search.time} · {service.duration}
+                {bookingTime} · {service.duration}
               </li>
               <li className="flex items-center gap-2">
                 <Globe2 className="h-3.5 w-3.5 text-brand-purple" />
                 Philippine Time (PHT, GMT+8)
               </li>
               <li className="flex items-start gap-2">
-                {search.format === "online" ? (
+                {format === "online" ? (
                   <Video className="mt-0.5 h-3.5 w-3.5 flex-none text-brand-purple" />
                 ) : (
                   <MapPin className="mt-0.5 h-3.5 w-3.5 flex-none text-brand-purple" />
                 )}
                 <span>
-                  {search.format === "online" ? (
+                  {format === "online" ? (
                     <>
                       <span className="font-semibold text-slate-700">Online (video).</span>{" "}
                       Secure link emailed after payment.
