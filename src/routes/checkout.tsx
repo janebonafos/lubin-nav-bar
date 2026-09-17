@@ -221,7 +221,36 @@ function CheckoutPage() {
     return real.hasAnyData ? real : mockSummary();
   }, [localCheckins, shareRange]);
 
+  // Webinar registration flow — reuses the checkout shell.
+  if (search.type === "webinar") {
+    const webinar = search.webinarId ? getWebinarById(search.webinarId) : undefined;
+    return (
+      <div className="min-h-screen bg-[#F9F8FF]" style={{ fontFamily: "Inter, sans-serif" }}>
+        <Navbar />
+        <main className="mx-auto w-full max-w-5xl px-4 pb-20 pt-24 sm:pt-28">
+          <Link
+            to="/resources"
+            className="inline-flex items-center gap-1.5 text-[13px] font-medium text-slate-500 transition-colors hover:text-brand-purple"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" /> Back to events
+          </Link>
+          {webinar ? (
+            <WebinarRegistration webinar={webinar} />
+          ) : (
+            <div className="mt-10 text-center">
+              <h1 className="text-2xl font-bold text-slate-900">Webinar not found</h1>
+              <p className="mt-2 text-slate-500">
+                This event may have ended or the link is incomplete.
+              </p>
+            </div>
+          )}
+        </main>
+      </div>
+    );
+  }
+
   if (!provider || !service) {
+
     return (
       <div className="min-h-screen bg-[#F9F8FF]">
         <Navbar />
