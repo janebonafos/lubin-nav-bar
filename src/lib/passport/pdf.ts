@@ -11,12 +11,44 @@ const PURPLE = [61, 46, 107] as const;
 const LAVENDER = [126, 107, 175] as const;
 const INK = [44, 43, 75] as const;
 
-async function newDoc(orientation: "p" | "l" = "p") {
-  const { jsPDF } = await import("jspdf");
-  return new jsPDF({ orientation, unit: "pt", format: "a4" });
-}
+// jsPDF is loaded from a CDN at click time. Bundling it (even behind a dynamic
+// import) pulls its embedded fonts into the server build and exhausts the build
+// heap, so it is deliberately kept out of the bundle graph.
+const JSPDF_URL = "https://esm.sh/jspdf@4.2.1";
 
-type Doc = Awaited<ReturnType<typeof newDoc>>;
+type Doc = {
+  internal: { pageSize: { getWidth(): number; getHeight(): number } };
+  setFillColor(r: number, g: number, b: number): void;
+  setTextColor(r: number, g: number, b: number): void;
+  setDrawColor(r: number, g: number, b: number): void;
+  setLineWidth(w: number): void;
+  setFont(name: string, style: string): void;
+  setFontSize(size: number): void;
+  text(text: string | string[], x: number, y: number, options?: Record<string, unknown>): void;
+  rect(x: number, y: number, w: number, h: number, style?: string): void;
+  roundedRect(
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    rx: number,
+    ry: number,
+    style?: string,
+  ): void;
+  line(x1: number, y1: number, x2: number, y2: number): void;
+  splitTextToSize(text: string, width: number): string[];
+  addPage(): void;
+  setPage(page: number): void;
+  getNumberOfPages(): number;
+  save(filename: string): void;
+};
+
+async function newDoc(orientation: "p" | "l" = "p"): Promise<Doc> {
+  const mod = (await import(/* @vite-ignore */ JSPDF_URL)) as {
+    jsPDF: new (o: Record<string, unknown>) => Doc;
+  };
+  return new mod.jsPDF({ orientation, unit: "pt", format: "a4" });
+}
 
 function saveAs(doc: Doc, filename: string) {
   doc.save(filename);
