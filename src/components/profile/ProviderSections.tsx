@@ -2309,7 +2309,9 @@ export function ApptNotesBlock({
                 Session summary {clientLabel !== "your client" ? `for ${clientLabel}` : ""}
               </p>
               <p className="text-[11px] text-[#7E6BAF]">
-                Nothing here is shared until you mark it as done below.
+                {isPublished
+                  ? `Shared to ${clientLabel}'s Health Passport${appt.publishedFollowUp?.at ? ` on ${new Date(appt.publishedFollowUp.at).toLocaleString(undefined, { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" })}` : ""}.`
+                  : `Not shared to ${clientLabel}'s Health Passport yet.`}
               </p>
             </div>
             <div className="flex shrink-0 items-center gap-2">
@@ -2320,7 +2322,7 @@ export function ApptNotesBlock({
                     : "bg-white/80 text-[#3D2E6B]"
                 }`}
               >
-                {isPublished ? "Done" : "Draft · Not shared"}
+                {isPublished ? "Shared" : "Not shared"}
               </span>
               <ChevronDown
                 className={`h-4 w-4 shrink-0 text-[#7E6BAF] transition-transform ${followUpOpen ? "rotate-180" : ""}`}

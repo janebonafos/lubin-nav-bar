@@ -13,9 +13,12 @@ import { AiProviderBrief } from "@/components/appointment/AiProviderBrief";
 import { AiPrescription } from "@/components/appointment/AiPrescription";
 import { DevPatientDataToggle } from "@/components/appointment/DevPatientDataToggle";
 import PassportDeliverySummary from "@/components/appointment/PassportDeliverySummary";
+import ProviderSharedPassportContents from "@/components/share/ProviderSharedPassportContents";
+import SharedPassportDialog from "@/components/share/SharedPassportDialog";
 import SoapNotesPanel from "@/components/clinical/SoapNotesPanel";
 
-import { getAnyProviderGrant, subscribeProviderShares } from "@/lib/share/providerShareStore";
+import { subscribeProviderShares } from "@/lib/share/providerShareStore";
+import { formatAckTime, shareState } from "@/lib/share/appointmentSharing";
 import {
   isPrescriber,
   isVerifiedPrescriber,
@@ -328,6 +331,8 @@ function DetailsPage() {
 
   const [followUpSaved, setFollowUpSaved] = useState(false);
   const [sharedRefOpen, setSharedRefOpen] = useState(false);
+  const [sharedPassportDialogOpen, setSharedPassportDialogOpen] = useState(false);
+  const [completedSummaryOpen, setCompletedSummaryOpen] = useState(false);
   const [rxTick, setRxTick] = useState(0);
   // Step acknowledgements — a provider may have nothing to add, but must say so
   // explicitly instead of silently skipping past the step.
@@ -548,23 +553,35 @@ function DetailsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [appt?.id, rxTick]);
 
+  const sharedPassportState = useMemo(() => (appt?.id ? shareState(appt.id) : { kind: "not_shared" as const }), [appt?.id, shareTick]);
+  const sharedPassportGrant =
+    sharedPassportState.kind === "awaiting_ack" ||
+    sharedPassportState.kind === "acknowledged" ||
+    sharedPassportState.kind === "ended"
+      ? sharedPassportState.grant
+      : null;
+  const sharedPassportAck = sharedPassportState.kind === "acknowledged" ? sharedPassportState.ack : null;
   const sharedSummaryLine = useMemo(() => {
-    if (!appt?.id) return null;
-    const grant = getAnyProviderGrant(appt.id);
-    if (!grant || grant.revoked) return null;
-    const attempts = grant.snapshot?.attemptsInRange ?? [];
+    if (!sharedPassportGrant || sharedPassportGrant.revoked) return null;
+    const attempts = sharedPassportGrant.snapshot?.attemptsInRange ?? [];
+    const checkins = sharedPassportGrant.snapshot?.checkinsInRange ?? [];
     const safety = attempts.some(
       (a) => a.assessmentId?.toLowerCase().includes("phq") && (a.answers?.[8] ?? 0) > 0,
     );
     return [
-      grant.snapshot?.rangeLabel ?? grant.dateRangeLabel ?? "Recent activity",
+      sharedPassportState.kind === "acknowledged" && sharedPassportAck
+        ? `Acknowledged ${formatAckTime(sharedPassportAck.at)}`
+        : sharedPassportState.kind === "awaiting_ack"
+          ? "Shared · awaiting acknowledgment"
+          : null,
+      sharedPassportGrant.snapshot?.rangeLabel ?? sharedPassportGrant.dateRangeLabel ?? "Recent activity",
+      `${checkins.length} check-in${checkins.length === 1 ? "" : "s"}`,
       `${attempts.length} assessment${attempts.length === 1 ? "" : "s"}`,
       safety ? "Safety response requires review" : null,
     ]
       .filter(Boolean)
       .join(" · ");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [appt?.id, shareTick]);
+  }, [sharedPassportAck, sharedPassportGrant, sharedPassportState.kind]);
 
   // Only one task stays open at a time; the page opens on the task list.
   const [openStep, setOpenStep] = useState<string | null>(null);
@@ -951,26 +968,60 @@ function DetailsPage() {
                     check-ins and assessments included for this appointment.
                   </span>
                   <span className="mt-1.5 block text-[12px] font-medium text-[#5A4A8A]">
-                    {sharedSummaryLine ?? "Nothing shared for this appointment"}
+                    {sharedSummaryLine ?? "No Health Passport shared for this appointment"}
                   </span>
                 </span>
                 <ChevronDown
                   className={`mt-1 h-5 w-5 shrink-0 text-[#A89BD0] transition-transform ${sharedRefOpen ? "rotate-180" : ""}`}
                 />
               </button>
-              {!sharedRefOpen && (
+              {!sharedRefOpen && sharedPassportGrant && (
                 <div className="border-t border-[#F1EAFB] px-5 py-3">
                   <button
                     type="button"
-                    onClick={() => setSharedRefOpen(true)}
+                    onClick={() => setSharedPassportDialogOpen(true)}
                     className="rounded-[10px] border border-[#D6CCEC] bg-white px-3.5 py-1.5 text-[12px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FB]"
                   >
-                    Review shared information
+                    View shared Health Passport
                   </button>
                 </div>
               )}
               {sharedRefOpen && (
-                <div className="border-t border-[#F1EAFB] bg-[#FBF9FF] px-4 py-5 md:px-6">
+                <div className="space-y-4 border-t border-[#F1EAFB] bg-[#FBF9FF] px-4 py-5 md:px-6">
+                  {sharedPassportGrant ? (
+                    <div id="shared-passport-block" className="rounded-[16px] border border-[#E5DCF5] bg-white px-4 py-4">
+                      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                        <div className="min-w-0">
+                          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#A89BD0]">
+                            Shared Health Passport
+                          </p>
+                          <p className="mt-1 text-[14px] font-semibold text-[#2C2B4B]">
+                            Same shared information shown in the appointment list
+                          </p>
+                          <p className="mt-1 text-[12.5px] leading-snug text-[#7E6BAF]">
+                            The provider brief below is a summary; it does not replace these entries.
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setSharedPassportDialogOpen(true)}
+                          className="inline-flex h-9 shrink-0 items-center rounded-[10px] bg-[#3D2E6B] px-3.5 text-[12px] font-semibold text-white hover:bg-[#2C2B4B]"
+                        >
+                          Open full Passport view
+                        </button>
+                      </div>
+                      <div className="mt-4">
+                        <ProviderSharedPassportContents grant={sharedPassportGrant} />
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="rounded-[16px] border border-dashed border-[#E5DCF5] bg-white px-4 py-3.5">
+                      <p className="text-[13px] font-semibold text-[#3D2E6B]">No Health Passport shared</p>
+                      <p className="mt-1 text-[12.5px] text-[#7E6BAF]">
+                        No shared client Health Passport is attached to this appointment.
+                      </p>
+                    </div>
+                  )}
                   <AiProviderBrief
                     appointmentId={appt.id}
                     providerName={providerDisplayName}
@@ -1113,7 +1164,7 @@ function DetailsPage() {
                 number={2}
                 eyebrow="After the session"
                 title="Visit summary for Health Passport"
-                description={`Add a session recap, next steps, resources and documents. Before sharing, these will appear in ${clientLabel}'s Health Passport.`}
+                description={`Add a session recap, next steps, resources and documents. These will appear in ${clientLabel}'s Health Passport after you share them.`}
                 openOverride={openStep === "care-plan"}
                 onToggle={() => toggleStep("care-plan")}
                 done={isPublished || !!acks.summary}
@@ -1280,6 +1331,39 @@ function DetailsPage() {
                         appointmentCompleted
                       />
                     </div>
+                    {hasFollowUpContent && (
+                      <div className="mt-3.5 rounded-[14px] border border-[#E5DCF5] bg-[#FBF9FF] px-4 py-3.5">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                          <div className="min-w-0">
+                            <p className="text-[13px] font-semibold text-[#2C2B4B]">
+                              {isPublished ? "Shared summary" : "Not shared summary"}
+                            </p>
+                            <p className="mt-0.5 text-[12.5px] leading-snug text-[#7E6BAF]">
+                              {isPublished
+                                ? `${clientLabel} can read this in their Health Passport.`
+                                : `No visit summary was shared to ${clientLabel}'s Health Passport.`}
+                            </p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setCompletedSummaryOpen((value) => !value)}
+                            className="inline-flex h-9 shrink-0 items-center rounded-[10px] border border-[#D6CCEC] bg-white px-3.5 text-[12.5px] font-semibold text-[#3D2E6B] hover:bg-[#F7F4FB]"
+                          >
+                            {completedSummaryOpen ? "Hide summary" : "View summary"}
+                          </button>
+                        </div>
+                        {completedSummaryOpen && (
+                          <CompletedSummaryPreview
+                            clientLabel={clientLabel}
+                            providerName={appt.publishedFollowUp?.by ?? providerDisplayName}
+                            publishedAt={appt.publishedFollowUp?.at}
+                            sessionDateLabel={[appt.month, appt.date].filter(Boolean).join(" ") || undefined}
+                            followUp={appt.followUp}
+                            attachments={appt.attachments ?? []}
+                          />
+                        )}
+                      </div>
+                    )}
                     {recordedOutcome !== "provider_no_show" && (
                       <div className="mt-3.5">
                         <ApptPayoutStatus
@@ -1545,6 +1629,14 @@ function DetailsPage() {
           </div>
         </DialogContent>
       </Dialog>
+      {sharedPassportDialogOpen && sharedPassportGrant && (
+        <SharedPassportDialog
+          grant={sharedPassportGrant}
+          patientName={appt.client ?? clientLabel}
+          ack={sharedPassportAck}
+          onClose={() => setSharedPassportDialogOpen(false)}
+        />
+      )}
       {import.meta.env.DEV && appt?.id && (
         <DevPatientDataToggle
           appointmentId={appt.id}
@@ -1561,6 +1653,104 @@ function FactTile({ label, value, sub }: { label: string; value: string; sub?: s
       <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">{label}</p>
       <p className="mt-1 truncate text-[13px] font-semibold text-[#2C2B4B]">{value}</p>
       {sub && <p className="truncate text-[11px] text-[#7E6BAF]">{sub}</p>}
+    </div>
+  );
+}
+
+function CompletedSummaryPreview({
+  clientLabel,
+  providerName,
+  publishedAt,
+  sessionDateLabel,
+  followUp,
+  attachments,
+}: {
+  clientLabel: string;
+  providerName?: string;
+  publishedAt?: number;
+  sessionDateLabel?: string;
+  followUp?: ApptLite["followUp"];
+  attachments: NonNullable<ApptLite["attachments"]>;
+}) {
+  const resources = followUp?.resources ?? [];
+  const status = publishedAt ? "Shared" : "Not shared";
+  return (
+    <div className="mt-3 rounded-[12px] border border-[#EAE2F6] bg-white px-4 py-4">
+      <div className="flex flex-wrap items-start justify-between gap-3 border-b border-[#F0EAFB] pb-3">
+        <div>
+          <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#A89BD0]">
+            Summary for {clientLabel}
+          </p>
+          <p className="mt-1 text-[14px] font-semibold text-[#2C2B4B]">
+            {publishedAt ? "Shared to the client's Health Passport" : "Not shared to the client's Health Passport"}
+          </p>
+          <p className="mt-0.5 text-[12px] text-[#7E6BAF]">
+            {providerName ? `Prepared by ${providerName}` : "Prepared by the provider"}
+            {sessionDateLabel ? ` · ${sessionDateLabel}` : ""}
+          </p>
+        </div>
+        <span
+          className={`rounded-[8px] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider ${
+            publishedAt ? "bg-[#EAF6EF] text-[#256B47]" : "bg-[#F3F0FA] text-[#5B4B8A]"
+          }`}
+        >
+          {status}
+        </span>
+      </div>
+      <div className="mt-3 space-y-4">
+        <SummaryPreviewLine label="Visit summary" value={followUp?.summary} />
+        <SummaryPreviewLine label="Agreed next steps" value={followUp?.homework} multiline />
+        <SummaryPreviewLine label="Take-home notes" value={followUp?.nextFocus} multiline />
+        {resources.length > 0 && (
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">Resources</p>
+            <ul className="mt-1.5 space-y-2">
+              {resources.map((resource, index) => (
+                <li key={`${resource.label}-${index}`} className="rounded-[10px] border border-[#F0EAFB] bg-[#FBF9FF] px-3 py-2.5">
+                  <p className="text-[12.5px] font-semibold text-[#3D2E6B]">{resource.label}</p>
+                  <p className="mt-0.5 break-all text-[11.5px] text-[#7E6BAF]">{resource.url}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        {attachments.length > 0 && (
+          <div>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">Documents</p>
+            <ul className="mt-1.5 space-y-2">
+              {attachments.map((attachment, index) => (
+                <li key={`${attachment.name}-${index}`} className="rounded-[10px] border border-[#F0EAFB] bg-[#FBF9FF] px-3 py-2.5">
+                  <p className="text-[12.5px] font-semibold text-[#3D2E6B]">{attachment.title || attachment.name}</p>
+                  <p className="mt-0.5 text-[11.5px] text-[#7E6BAF]">
+                    {attachment.name} · {attachment.size}
+                  </p>
+                  {attachment.description && <p className="mt-1 text-[12px] text-[#5A4A8A]">{attachment.description}</p>}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function SummaryPreviewLine({
+  label,
+  value,
+  multiline = false,
+}: {
+  label: string;
+  value?: string;
+  multiline?: boolean;
+}) {
+  if (!value?.trim()) return null;
+  return (
+    <div>
+      <p className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">{label}</p>
+      <p className={`mt-1 text-[13px] leading-relaxed text-[#3D2E6B] ${multiline ? "whitespace-pre-wrap" : ""}`}>
+        {value}
+      </p>
     </div>
   );
 }

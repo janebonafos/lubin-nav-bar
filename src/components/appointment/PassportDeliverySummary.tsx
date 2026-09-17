@@ -32,7 +32,9 @@ export default function PassportDeliverySummary({
   return (
     <section className="rounded-[12px] border border-brand-lavender bg-card px-4 py-4 font-body">
       <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-brand-purple">
-        {shared ? "Shared to the client’s Health Passport" : "Will appear in the client’s Health Passport"}
+        {shared
+          ? "Shared to the client’s Health Passport"
+          : "These will appear in the client’s Health Passport after you share them"}
       </p>
       {publishedAt && (
         <p className="mt-1 text-[11.5px] font-medium text-brand-navy/60">{formatSharedAt(publishedAt)}</p>

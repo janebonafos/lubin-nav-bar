@@ -6,3 +6,4 @@
 - [x] Add fictional checkup and result examples for the prototype.
 - [x] Verify both entry points on desktop and mobile.
 - [x] Align provider appointment and post-appointment screens with actual shared Health Passport sections and accurate pre/post delivery labels.
+- [ ] Match appointment details to the provider list shared Passport, add shared visit/document controls, keep completed summaries readable, and correct provider wording.
