@@ -120,11 +120,12 @@ function LinkedInGlyph({ className }: { className?: string }) {
 
 function CheckoutPage() {
   const search = Route.useSearch();
-  const providerId = providerId ?? "";
-  const serviceId = serviceId ?? "";
-  const bookingDate = bookingDate ?? "";
-  const bookingTime = bookingTime ?? "";
-  const format = format ?? "online";
+  const providerId = search.providerId ?? "";
+  const serviceId = search.serviceId ?? "";
+  const bookingDate = search.date ?? "";
+  const bookingTime = search.time ?? "";
+  const format = search.format ?? "online";
+
   const navigate = useNavigate();
 
   const provider = getProviderById(providerId);
