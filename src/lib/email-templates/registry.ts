@@ -132,5 +132,6 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
     },
     replyTo: (data) => data.replyToAddress,
   },
+  "webinar-confirmation": webinarConfirmation,
 };
 
