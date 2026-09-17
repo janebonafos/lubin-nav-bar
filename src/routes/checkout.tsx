@@ -27,13 +27,19 @@ import {
   type PendingShare,
 } from "@/lib/share/pendingShare";
 import { useEffect } from "react";
+import WebinarRegistration from "@/components/checkout/WebinarRegistration";
+import { getWebinarById } from "@/lib/webinars";
 
 const searchSchema = z.object({
-  providerId: z.string(),
-  serviceId: z.string(),
-  date: z.string(), // YYYY-MM-DD
-  time: z.string(),
-  format: z.enum(["online", "in-person"]),
+  // Provider booking flow
+  providerId: z.string().optional().default(""),
+  serviceId: z.string().optional().default(""),
+  date: z.string().optional().default(""), // YYYY-MM-DD
+  time: z.string().optional().default(""),
+  format: z.enum(["online", "in-person"]).optional().default("online"),
+  // Webinar registration flow
+  type: z.enum(["session", "webinar"]).optional().default("session"),
+  webinarId: z.string().optional(),
 });
 
 export const Route = createFileRoute("/checkout")({
