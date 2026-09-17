@@ -32,13 +32,13 @@ import { getWebinarById } from "@/lib/webinars";
 
 const searchSchema = z.object({
   // Provider booking flow
-  providerId: z.string().optional().default(""),
-  serviceId: z.string().optional().default(""),
-  date: z.string().optional().default(""), // YYYY-MM-DD
-  time: z.string().optional().default(""),
-  format: z.enum(["online", "in-person"]).optional().default("online"),
+  providerId: z.string().optional(),
+  serviceId: z.string().optional(),
+  date: z.string().optional(), // YYYY-MM-DD
+  time: z.string().optional(),
+  format: z.enum(["online", "in-person"]).optional(),
   // Webinar registration flow
-  type: z.enum(["session", "webinar"]).optional().default("session"),
+  type: z.enum(["session", "webinar"]).optional(),
   webinarId: z.string().optional(),
 });
 
