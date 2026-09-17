@@ -33,7 +33,12 @@ export default function SharedPassportDialog({
 
   return createPortal(
     <div className="fixed inset-0 z-[200] flex items-start justify-center bg-[#241C42]/55 p-4 backdrop-blur-sm">
-      <div className="flex max-h-[calc(100vh-2rem)] w-full max-w-4xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={`Shared Health Passport for ${patientName}`}
+        className="flex max-h-[calc(100vh-2rem)] w-full max-w-4xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl"
+      >
         <div className="shrink-0 flex items-start justify-between gap-4 border-b border-[#EFEAFA] px-6 py-5">
           <div>
             <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#A89BD0]">
