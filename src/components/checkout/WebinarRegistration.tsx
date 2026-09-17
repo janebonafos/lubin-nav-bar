@@ -210,7 +210,13 @@ export default function WebinarRegistration({ webinar }: { webinar: Webinar }) {
 
         <label
           className={`mt-4 flex cursor-pointer items-start gap-2.5 rounded-xl border p-4 transition ${
-            consent ? "border-[#D3C8EE] bg-[#F7F4FC]" : "border-[#E9E6FA] bg-white"
+            account
+              ? consent
+                ? "border-brand-purple bg-[#F3EFFB] shadow-[0_0_0_3px_rgba(124,113,176,0.18)]"
+                : "border-brand-purple bg-[#FAF8FD] shadow-[0_0_0_3px_rgba(124,113,176,0.18)]"
+              : consent
+                ? "border-[#D3C8EE] bg-[#F7F4FC]"
+                : "border-[#E9E6FA] bg-white"
           }`}
         >
           <input
