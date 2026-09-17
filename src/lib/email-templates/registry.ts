@@ -21,6 +21,7 @@ import AppointmentMessageEmail, {
 import HealthPassportSharedEmail, {
   template as healthPassportShared,
 } from "./health-passport-shared";
+import { template as webinarConfirmation } from "./webinar-confirmation";
 
 export type TemplateEntry = {
   component: ComponentType<any>;
