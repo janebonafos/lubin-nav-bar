@@ -166,14 +166,14 @@ export function AiProviderBrief({
 
         <div className="rounded-2xl border border-dashed border-[#E1D9F1] bg-[#FBF9FF] p-5 opacity-80">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-sm font-semibold text-[#3D2E6B]">AI Provider Brief</p>
+            <p className="text-sm font-semibold text-[#3D2E6B]">Pre-visit shared record</p>
             <span className="w-fit rounded-full bg-[#F0EEF6] px-2.5 py-1 text-[10px] font-semibold text-[#6B6684]">
               Unavailable
             </span>
           </div>
           <p className="mt-2 text-xs leading-relaxed text-[#6B6684]">
-            A brief can't be generated until Health Passport information is shared. No action is
-            required from you.
+            This overview can't be generated until Health Passport information is shared. No
+            action is required from you.
           </p>
         </div>
 
@@ -203,7 +203,7 @@ export function AiProviderBrief({
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
         <p className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-[13px] text-[#7E6BAF]">
           <span className="shrink-0 rounded-full bg-[#EFE8FB] px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] text-[#3D2E6B]">
-            Provider only
+            Pre-visit shared record
           </span>
           <span>Check-in overview · {snap.rangeLabel}</span>
           <span className="text-[#A89BD0]">·</span>
@@ -228,7 +228,8 @@ export function AiProviderBrief({
 
       {aboutOpen && (
         <p className="mt-4 max-w-[620px] border-l-2 border-[#EAE2F6] pl-4 text-[13px] leading-relaxed text-[#7E6BAF]">
-          Created from information {firstName} chose to share. Review before using it in your
+          This provider-only overview is created from information {firstName} chose to share. It
+          does not replace the shared Health Passport entries; review those before using it in your
           clinical assessment.
         </p>
       )}
