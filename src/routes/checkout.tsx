@@ -120,13 +120,18 @@ function LinkedInGlyph({ className }: { className?: string }) {
 
 function CheckoutPage() {
   const search = Route.useSearch();
+  const providerId = providerId ?? "";
+  const serviceId = serviceId ?? "";
+  const bookingDate = bookingDate ?? "";
+  const bookingTime = bookingTime ?? "";
+  const format = format ?? "online";
   const navigate = useNavigate();
 
-  const provider = getProviderById(search.providerId);
+  const provider = getProviderById(providerId);
   const service = useMemo(() => {
     if (!provider) return undefined;
-    return getServicesForProvider(provider).find((s) => s.id === search.serviceId);
-  }, [provider, search.serviceId]);
+    return getServicesForProvider(provider).find((s) => s.id === serviceId);
+  }, [provider, serviceId]);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -150,8 +155,8 @@ function CheckoutPage() {
   >([]);
 
   const bookingKey = useMemo(
-    () => bookingKeyFor(search.providerId, search.date, search.time),
-    [search.providerId, search.date, search.time],
+    () => bookingKeyFor(providerId, bookingDate, bookingTime),
+    [providerId, bookingDate, bookingTime],
   );
 
   useEffect(() => {
@@ -270,7 +275,7 @@ function CheckoutPage() {
     );
   }
 
-  const dateObj = new Date(search.date + "T00:00:00");
+  const dateObj = new Date(bookingDate + "T00:00:00");
   const dateLabel = dateObj.toLocaleDateString(undefined, {
     weekday: "long",
     month: "long",
@@ -282,7 +287,7 @@ function CheckoutPage() {
     month: "short",
     day: "numeric",
   });
-  const appointmentLabel = `${shortDateLabel} · ${search.time}`;
+  const appointmentLabel = `${shortDateLabel} · ${bookingTime}`;
   const appointmentDate = dateObj.toLocaleDateString(undefined, {
     month: "long",
     day: "numeric",
@@ -336,11 +341,11 @@ function CheckoutPage() {
         navigate({
           to: "/payment-failed",
           search: {
-            providerId: search.providerId,
-            serviceId: search.serviceId,
-            date: search.date,
-            time: search.time,
-            format: search.format,
+            providerId: providerId,
+            serviceId: serviceId,
+            date: bookingDate,
+            time: bookingTime,
+            format: format,
             email,
             name,
             ref,
@@ -353,11 +358,11 @@ function CheckoutPage() {
         navigate({
           to: "/payment-success",
           search: {
-            providerId: search.providerId,
-            serviceId: search.serviceId,
-            date: search.date,
-            time: search.time,
-            format: search.format,
+            providerId: providerId,
+            serviceId: serviceId,
+            date: bookingDate,
+            time: bookingTime,
+            format: format,
             email,
             name,
             ref,
@@ -597,7 +602,7 @@ function CheckoutPage() {
                     AI Provider Brief
                   </span>{" "}
                   so your provider can prepare for your{" "}
-                  {search.format === "online" ? "online session" : "visit"}.
+                  {format === "online" ? "online session" : "visit"}.
                 </p>
               )}
 
@@ -730,20 +735,20 @@ function CheckoutPage() {
               </li>
               <li className="flex items-center gap-2">
                 <Clock className="h-3.5 w-3.5 text-brand-purple" />
-                {search.time} · {service.duration}
+                {bookingTime} · {service.duration}
               </li>
               <li className="flex items-center gap-2">
                 <Globe2 className="h-3.5 w-3.5 text-brand-purple" />
                 Philippine Time (PHT, GMT+8)
               </li>
               <li className="flex items-start gap-2">
-                {search.format === "online" ? (
+                {format === "online" ? (
                   <Video className="mt-0.5 h-3.5 w-3.5 flex-none text-brand-purple" />
                 ) : (
                   <MapPin className="mt-0.5 h-3.5 w-3.5 flex-none text-brand-purple" />
                 )}
                 <span>
-                  {search.format === "online" ? (
+                  {format === "online" ? (
                     <>
                       <span className="font-semibold text-slate-700">Online (video).</span>{" "}
                       Secure link emailed after payment.
