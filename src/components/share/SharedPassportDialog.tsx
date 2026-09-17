@@ -32,9 +32,14 @@ export default function SharedPassportDialog({
   );
 
   return createPortal(
-    <div className="fixed inset-0 z-[200] flex items-start justify-center overflow-y-auto bg-[#241C42]/55 p-4 backdrop-blur-sm sm:items-center">
-      <div className="w-full max-w-4xl rounded-2xl bg-white shadow-2xl">
-        <div className="flex items-start justify-between gap-4 border-b border-[#EFEAFA] px-6 py-5">
+    <div className="fixed inset-0 z-[200] flex items-start justify-center bg-[#241C42]/55 p-4 backdrop-blur-sm">
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={`Shared Health Passport for ${patientName}`}
+        className="flex max-h-[calc(100vh-2rem)] w-full max-w-4xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl"
+      >
+        <div className="shrink-0 flex items-start justify-between gap-4 border-b border-[#EFEAFA] px-6 py-5">
           <div>
             <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-[#A89BD0]">
               Shared Health Passport
@@ -54,7 +59,7 @@ export default function SharedPassportDialog({
           </button>
         </div>
 
-        <div className="space-y-5 px-6 py-6">
+        <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-6 py-6">
           <div
             className={`rounded-xl px-4 py-3 text-[13px] font-semibold ${
               active ? "bg-[#EAF6EF] text-[#256B47]" : "bg-[#F3F0FA] text-[#5B4B8A]"
@@ -126,7 +131,7 @@ export default function SharedPassportDialog({
           </p>
         </div>
 
-        <div className="flex justify-end border-t border-[#EFEAFA] px-6 py-4">
+        <div className="shrink-0 flex justify-end border-t border-[#EFEAFA] px-6 py-4">
           <button
             type="button"
             onClick={onClose}

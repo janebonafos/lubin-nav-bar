@@ -13,6 +13,7 @@
  *   delivered or a page being opened — only from an explicit action.
  */
 import { INCLUDE_OPTIONS, mockSummary } from "@/lib/share/summary";
+import { loadHealthDetails, setHealthDetail } from "@/lib/intake/healthDetails";
 import {
   createProviderGrant,
   getAnyProviderGrant,
@@ -232,15 +233,38 @@ export function previewExpiry(appointmentTs?: number): number {
  */
 const DEMO_FLAG = "lubin.share.appointmentDemo.v1";
 
+function seedDemoHealthDetails() {
+  const details = loadHealthDetails();
+  const defaults: Record<string, string> = {
+    "medication.list": "Sertraline 50 mg — every morning",
+    "history.allergies": "Penicillin",
+    "history.conditions": "Anxiety, Bipolar II",
+    "history.pregnancy": "None of these apply",
+  };
+  for (const [id, value] of Object.entries(defaults)) {
+    if (!(details[id] ?? "").trim()) setHealthDetail(id, value);
+  }
+}
+
 export function seedDemoAppointmentSharing(): void {
   if (typeof window === "undefined") return;
-  try {
-    if (window.localStorage.getItem(DEMO_FLAG)) return;
-    window.localStorage.setItem(DEMO_FLAG, "1");
-  } catch {
+  seedDemoHealthDetails();
+  const existing = getAnyProviderGrant("cu2");
+  if (existing) {
+    if (!getAcknowledgment("cu2")) {
+      acknowledgeShare({
+        appointmentId: "cu2",
+        providerName: "Coach Liam Park",
+        patientName: "Jordan Lee",
+      });
+    }
     return;
   }
-  if (getAnyProviderGrant("cu2")) return;
+  try {
+    window.localStorage.setItem(DEMO_FLAG, "1");
+  } catch {
+    /* The demo can still create an in-memory-looking grant if storage writes fail. */
+  }
   sharePassportForAppointment({
     appointmentId: "cu2",
     providerName: "Coach Liam Park",
@@ -250,6 +274,6 @@ export function seedDemoAppointmentSharing(): void {
   acknowledgeShare({
     appointmentId: "cu2",
     providerName: "Coach Liam Park",
-    patientName: "Anna Reyes",
+    patientName: "Jordan Lee",
   });
 }
