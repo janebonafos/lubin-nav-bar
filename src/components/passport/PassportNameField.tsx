@@ -421,6 +421,7 @@ function NameChangeDialog({
                 reason,
                 documentName: documentName ?? undefined,
                 by: changedBy(holder),
+                from: holder.legalName ? undefined : holder.registeredName,
               });
               onDone();
             }}

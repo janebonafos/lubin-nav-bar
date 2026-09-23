@@ -108,9 +108,11 @@ export function recordLegalName(input: {
   reason: NameChangeReason;
   documentName?: string;
   by: string;
+  /** Earlier name when no legal name was saved yet (e.g. the registered name). */
+  from?: string | null;
 }) {
   if (typeof window === "undefined") return;
-  const from = loadHealthDetails()["identity.fullName"]?.trim() || null;
+  const from = loadHealthDetails()["identity.fullName"]?.trim() || input.from?.trim() || null;
   const to = input.to.trim().replace(/\s+/g, " ");
   if (!to || to === from) return;
   const reasonLabel =
