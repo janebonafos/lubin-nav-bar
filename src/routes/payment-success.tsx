@@ -30,7 +30,7 @@ import {
   subscribeProviderShares,
   type ProviderShareGrant,
 } from "@/lib/share/providerShareStore";
-import { buildSummary, mockSummary, INCLUDE_OPTIONS, type RangeKey, type SummaryData } from "@/lib/share/summary";
+import { buildSummary, INCLUDE_OPTIONS, type RangeKey, type SummaryData } from "@/lib/share/summary";
 import ShareConsentModal from "@/components/share/ShareConsentModal";
 
 const searchSchema = z.object({
