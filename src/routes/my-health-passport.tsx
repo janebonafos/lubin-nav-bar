@@ -76,7 +76,8 @@ import PassportEmptyState from "@/components/passport/PassportEmptyState";
 import ClinicRecipientPreview from "@/components/passport/ClinicRecipientPreview";
 import ManageSharing from "@/components/passport/ManageSharing";
 import PassportNav, { PassportSubNav, type PassportArea } from "@/components/passport/PassportNav";
-import { loadProxySignup, proxyFirstName } from "@/lib/proxySignup";
+import { usePassportHolder } from "@/lib/passport/holder";
+import PassportHolderPanel from "@/components/passport/PassportHolderPanel";
 import {
   getProviderGrant,
   subscribeProviderShares,
@@ -208,17 +209,10 @@ function PassportPage() {
   const [registerNudge, setRegisterNudge] = useState(false);
   const [authMode, setAuthMode] = useState<AuthMode | null>(null);
   const [returnTo, setReturnTo] = useState<string | null>(null);
-  const proxySignup = useMemo(() => loadProxySignup(), []);
-  const detailsName = useMemo(
-    () => proxyFirstName(proxySignup),
-    [proxySignup],
-  );
-  const proxyRelationship = proxySignup
-    ? (proxySignup.relationship === "other" && proxySignup.relationshipOther
-        ? proxySignup.relationshipOther
-        : proxySignup.relationshipLabel ?? proxySignup.relationship
-      ).toLowerCase()
-    : null;
+  // The passport is always in the name of the person receiving care — never
+  // the account holder's, when they registered on someone else's behalf.
+  const holder = usePassportHolder();
+  const detailsName = holder.isProxy ? holder.firstName : null;
 
   const openAuth = (mode: AuthMode = "signup") => setAuthMode(mode);
   const [hasInProgress, setHasInProgress] = useState(false);
@@ -340,7 +334,7 @@ function PassportPage() {
           <div>
             <div className="inline-flex items-center gap-2 rounded-lg bg-white/60 px-3 py-1.5 ring-1 ring-brand-purple/15 backdrop-blur-sm">
               <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-brand-purple">
-                Your Health Passport
+                {detailsName ? `${detailsName}'s Health Passport` : "Your Health Passport"}
               </p>
             </div>
             <h1 className="font-display mt-4 text-3xl font-semibold leading-[1.12] text-brand-purple-dark md:text-[2.75rem]">
@@ -398,6 +392,9 @@ function PassportPage() {
 
         {/* Tab content */}
         <div className="mt-8">
+          {tab === "home" && !forceEmpty && holder.isProxy && (
+            <PassportHolderPanel holder={holder} compact />
+          )}
           {tab === "home" && (
             <PassportHome
               ownerName={detailsName ?? "Maria Santos"}
@@ -491,24 +488,19 @@ function PassportPage() {
                   onAutoOpenHandled={() => setAutoOpenAppointmentId(null)}
                 />
                 <div className="mt-6">
-                  <ClinicRecipientPreview patientName={detailsName ?? "Maria Santos"} />
+                  <ClinicRecipientPreview
+                    patientName={holder.isProxy ? holder.legalName ?? detailsName ?? "Maria Santos" : "Maria Santos"}
+                    managedBy={holder.isProxy ? holder.relationshipLabel : null}
+                    previousNames={holder.previousNames}
+                  />
                 </div>
               </>
             )
           )}
           {tab === "details" && (
             <div className="mx-auto max-w-5xl">
-              {/* Who this passport belongs to — set at registration */}
-              <div className="mb-6 flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-2xl border border-brand-purple/15 bg-brand-purple/[0.06] px-4 py-3">
-                <span className="inline-flex items-center gap-1.5 rounded-lg bg-white px-2.5 py-1 text-[11px] font-bold uppercase tracking-[0.14em] text-brand-purple">
-                  {detailsName ? "Managing for someone" : "This is your Health Passport"}
-                </span>
-                <p className="text-sm text-brand-purple-dark/70">
-                  {detailsName
-                    ? `You registered as ${detailsName}'s ${proxyRelationship ?? "carer"}, so everything here is kept in ${detailsName}'s name and answers providers' questions on their behalf.`
-                    : "You registered as the person receiving care, so these details belong to you and help providers understand your health."}
-                </p>
-              </div>
+              {/* Who this passport belongs to — set at registration, read-only */}
+              <PassportHolderPanel holder={holder} />
 
               <HealthDetailsCard showHeader={false} />
 
