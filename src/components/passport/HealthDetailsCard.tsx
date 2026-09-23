@@ -37,7 +37,8 @@ import {
   downloadPassportCardPdf,
 } from "@/lib/passport/pdf";
 
-import { loadProxySignup, proxyFirstName } from "@/lib/proxySignup";
+import { usePassportHolder } from "@/lib/passport/holder";
+import PassportNameField from "@/components/passport/PassportNameField";
 
 const GROUP_BLURB: Record<string, string> = {
   "about-you": "Name and date of birth",
@@ -236,6 +237,7 @@ function PassportCard({
   filled,
   total,
   ownerName,
+  managedByLabel,
   reviews,
   cardId,
   updatedAt,
@@ -244,6 +246,7 @@ function PassportCard({
   filled: number;
   total: number;
   ownerName: string | null;
+  managedByLabel?: string | null;
   reviews: ItemReviewMap;
   cardId: string;
   updatedAt: number | null;
@@ -322,6 +325,11 @@ function PassportCard({
               <h3 className="truncate font-display text-2xl font-semibold tracking-tight sm:text-3xl">
                 {name || "Your name"}
               </h3>
+              {managedByLabel && (
+                <p className="mt-1 truncate text-[10.5px] font-medium text-white/60">
+                  {managedByLabel}
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -1062,7 +1070,8 @@ function SafetyNetFields({
 export default function HealthDetailsCard({ showHeader = true }: { showHeader?: boolean }) {
   const [details, setDetails] = useState<HealthDetails>({});
   const [openGroup, setOpenGroup] = useState<string | null>(null);
-  const [proxyName, setProxyName] = useState<string | null>(null);
+  const holder = usePassportHolder();
+  const proxyName = holder.firstName;
   const [agreed, setAgreed] = useState(false);
   const [reviews, setReviews] = useState<ItemReviewMap>({});
   const [cardId, setCardId] = useState("LBN-0000-0000");
@@ -1071,7 +1080,6 @@ export default function HealthDetailsCard({ showHeader = true }: { showHeader?: 
   useEffect(() => {
     ensureDemoItemReviews();
     setDetails(loadHealthDetails());
-    setProxyName(proxyFirstName(loadProxySignup()));
     setAgreed(loadHealthAgreement());
     setReviews(loadItemReviews());
     setCardId(loadPassportId());
@@ -1138,7 +1146,12 @@ export default function HealthDetailsCard({ showHeader = true }: { showHeader?: 
               details={details}
               filled={progress.filled}
               total={progress.total}
-              ownerName={proxyName}
+              ownerName={holder.isProxy ? proxyName : null}
+              managedByLabel={
+                holder.isProxy && holder.relationshipLabel
+                  ? `Managed by ${holder.relationshipLabel.toLowerCase()}`
+                  : null
+              }
               reviews={reviews}
               cardId={cardId}
               updatedAt={updatedAt}
@@ -1238,7 +1251,7 @@ export default function HealthDetailsCard({ showHeader = true }: { showHeader?: 
                               : "text-brand-purple-dark"
                         }`}
                       >
-                        {group.label}
+                        {group.id === "about-you" && proxyName ? `About ${proxyName}` : group.label}
                       </h4>
                       <p className="mt-0.5 truncate text-[12.5px] text-brand-purple-dark/50">
                         {GROUP_BLURB[group.id] ?? group.why}
@@ -1296,7 +1309,14 @@ export default function HealthDetailsCard({ showHeader = true }: { showHeader?: 
                       <SafetyNetFields details={details} update={update} />
                     ) : (
                       <div className="grid gap-4 sm:grid-cols-2">
-                        {group.fields.map((field) => (
+                        {group.fields.map((field) =>
+                          field.id === "identity.fullName" ? (
+                            <PassportNameField
+                              key={field.id}
+                              holder={holder}
+                              value={details[field.id] ?? ""}
+                            />
+                          ) : (
                           <div
                             key={field.id}
                             className={
@@ -1314,7 +1334,8 @@ export default function HealthDetailsCard({ showHeader = true }: { showHeader?: 
                               onChange={(v) => update(field.id, v)}
                             />
                           </div>
-                        ))}
+                          ),
+                        )}
                       </div>
                     )}
                     <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-brand-purple/10 pt-4">
