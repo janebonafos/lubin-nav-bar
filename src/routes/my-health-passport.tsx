@@ -338,7 +338,7 @@ function PassportPage() {
               </p>
             </div>
             <h1 className="font-display mt-4 text-3xl font-semibold leading-[1.12] text-brand-purple-dark md:text-[2.75rem]">
-              Your health information,<br className="hidden md:inline" /> <span className="bg-gradient-to-r from-brand-purple to-brand-purple-dark bg-clip-text text-transparent">ready for your next visit.</span>
+              {detailsName ? `${detailsName}'s health information,` : "Your health information,"}<br className="hidden md:inline" /> <span className="bg-gradient-to-r from-brand-purple to-brand-purple-dark bg-clip-text text-transparent">{detailsName ? "ready for their next visit." : "ready for your next visit."}</span>
             </h1>
             <p className="mt-3 max-w-2xl text-sm leading-relaxed text-brand-purple-dark/65 sm:text-[15px]">
               Keep your details, visits, medications, and records together. Choose what to share with your care team.
