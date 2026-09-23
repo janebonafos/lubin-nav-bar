@@ -91,10 +91,12 @@ function PaymentSuccessPage() {
   const [grant, setGrant] = useState<ProviderShareGrant | null>(null);
   const [shareOpen, setShareOpen] = useState(false);
   const [shareRange, setShareRange] = useState<RangeKey>("30d");
-  const shareSummary = useMemo<SummaryData>(() => {
-    const real = buildSummary(shareRange, { checkins: [] });
-    return real.hasAnyData ? real : mockSummary();
-  }, [shareRange]);
+  // The patient's own data only — an empty passport shows the modal's
+  // "nothing to share yet" screen instead of sample data.
+  const shareSummary = useMemo<SummaryData>(
+    () => buildSummary(shareRange, { checkins: [] }),
+    [shareRange],
+  );
 
   useEffect(() => {
     // Activate any pending pre-payment selection now that the booking is confirmed.
