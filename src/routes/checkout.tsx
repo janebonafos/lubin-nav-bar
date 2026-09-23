@@ -18,7 +18,7 @@ import {
 import Navbar from "@/components/Navbar";
 import { getProviderById, getServicesForProvider, currencySymbol, paymentGatewayName } from "@/lib/providers";
 import ShareConsentModal from "@/components/share/ShareConsentModal";
-import { buildSummary, mockSummary, type RangeKey } from "@/lib/share/summary";
+import { buildSummary, type RangeKey } from "@/lib/share/summary";
 import {
   bookingKeyFor,
   getPendingShare,
@@ -220,12 +220,13 @@ function CheckoutPage() {
 
 
 
-  // Build a summary snapshot for the modal (uses local check-ins if available,
-  // otherwise falls back to the mock so the user can preview categories).
-  const shareSummary = useMemo(() => {
-    const real = buildSummary(shareRange, { checkins: localCheckins });
-    return real.hasAnyData ? real : mockSummary();
-  }, [localCheckins, shareRange]);
+  // Build a summary snapshot for the modal from the patient's own data. An
+  // empty passport gets its own "nothing to share yet" screen in the modal
+  // rather than sample data the patient never entered.
+  const shareSummary = useMemo(
+    () => buildSummary(shareRange, { checkins: localCheckins }),
+    [localCheckins, shareRange],
+  );
 
   // Webinar registration flow — reuses the checkout shell.
   if (search.type === "webinar") {

@@ -8,6 +8,11 @@ import {
   ChevronDown,
   ChevronRight,
   Loader2,
+  HeartPulse,
+  Smile,
+  Sparkles,
+  ExternalLink,
+  CalendarCheck,
 } from "lucide-react";
 import {
   INCLUDE_OPTIONS,
@@ -244,6 +249,10 @@ export default function ShareConsentModal({
     (k) => itemHasData[k],
   );
   const allSelected = allAvailable.every((k) => included.includes(k));
+  // Provider-linked sharing with an empty passport: there is nothing to pick,
+  // so show a clear way forward instead of a disabled selection screen.
+  const passportEmpty =
+    !!providerContext && mode !== "update" && allAvailable.length === 0;
 
   const toggleAttempt = (id: string) =>
     setSelectedAttemptIds((prev) =>
@@ -270,7 +279,9 @@ export default function ShareConsentModal({
   const providerStepsTotal = 1;
   const totalSteps = providerContext ? providerStepsTotal : 3;
   const displayedStep = providerContext ? 1 : step;
-  const stepTitle = providerContext
+  const stepTitle = passportEmpty
+    ? "Nothing to share yet"
+    : providerContext
     ? "Review and share"
     : step === 1
       ? "Choose what to include"
@@ -282,7 +293,9 @@ export default function ShareConsentModal({
   // In update mode, hide the primary "share update" button until the
   // patient actually changes something.
   const showPrimary = isUpdateMode ? dirty : true;
-  const nextButtonLabel = isConfirmStep
+  const nextButtonLabel = passportEmpty
+    ? "Continue without sharing"
+    : isConfirmStep
     ? confirmLabelOverride ??
       (isUpdateMode ? "Share update" : "Continue and share")
     : "Continue";
@@ -301,6 +314,10 @@ export default function ShareConsentModal({
   });
 
   const advance = () => {
+    if (passportEmpty) {
+      onConfirm({ includedKeys: [], recipient: "other-mhp" });
+      return;
+    }
     if (providerContext) {
       if (recipient && !confirmDisabled) {
         onConfirm(buildResult());
@@ -333,7 +350,7 @@ export default function ShareConsentModal({
         <div className="relative">
           <div className="flex items-center justify-between gap-3 px-5 pt-4 md:px-7">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#5A4A8A]">
-              Step {displayedStep} of {totalSteps}
+              {passportEmpty ? "Health Passport" : `Step ${displayedStep} of ${totalSteps}`}
             </p>
             <p className="text-[11px] font-medium text-[#A29EB6]">
               {stepTitle}
@@ -361,7 +378,10 @@ export default function ShareConsentModal({
         </div>
 
         <div className="px-5 pb-6 md:px-7">
-          {step === 1 && (
+          {passportEmpty && providerContext && (
+            <EmptyPassportShare providerName={providerContext.providerName} />
+          )}
+          {step === 1 && !passportEmpty && (
             <Step1
               included={included}
               toggle={toggleIncluded}
@@ -402,7 +422,7 @@ export default function ShareConsentModal({
             />
           )}
           {/* Provider-linked flow: merge review/consent into the selection step. */}
-          {providerContext && step === 1 && (
+          {providerContext && step === 1 && !passportEmpty && (
             <div className="mt-2">
               <Step3
                 providerContext={providerContext}
@@ -447,6 +467,7 @@ export default function ShareConsentModal({
           <button
             type="button"
             disabled={
+              passportEmpty ? submitting :
               (step === 1 && !providerContext && !canStep1Continue) ||
               (step === 1 && providerContext && !agreed) ||
               (step === 2 && !canStep2Continue) ||
@@ -881,6 +902,109 @@ function Step1({
           <li>• Your private notes</li>
           <li>• Anything you haven't shared</li>
         </ul>
+      </div>
+    </div>
+  );
+}
+
+const EMPTY_ADD_WAYS = [
+  {
+    icon: HeartPulse,
+    title: "Add your health details",
+    body: "Medications, allergies and conditions — the most useful for a first visit.",
+    time: "About 3 min",
+    href: "/my-health-passport?tab=details",
+  },
+  {
+    icon: Smile,
+    title: "Do a quick check-in",
+    body: "Log how you've been feeling so mood patterns can build over time.",
+    time: "1 min",
+    href: "/check-in",
+  },
+  {
+    icon: Sparkles,
+    title: "Take a self-check",
+    body: "A short assessment your clinician can review with you.",
+    time: "5 min",
+    href: "/self-discovery",
+  },
+] as const;
+
+/**
+ * Shown instead of the selection screen when the Health Passport has nothing
+ * in it yet. Booking is never blocked: the patient can continue without
+ * sharing, or add something (in a new tab, so the booking isn't lost) and
+ * share it later from the appointment.
+ */
+function EmptyPassportShare({ providerName }: { providerName: string }) {
+  return (
+    <div>
+      <div className="mt-2 flex items-start gap-4">
+        <div className="relative hidden h-[72px] w-[58px] flex-none sm:block" aria-hidden>
+          <span className="absolute left-2 top-1 h-[64px] w-[50px] rotate-[8deg] rounded-[10px] border border-dashed border-[#D6CCEC] bg-[#FAF8FD]" />
+          <span className="absolute left-0 top-0 flex h-[64px] w-[50px] -rotate-[4deg] flex-col gap-1.5 rounded-[10px] border border-[#E1DAF1] bg-white px-2 py-2.5 shadow-sm">
+            <span className="h-1.5 w-6 rounded-full bg-[#CFC4EA]" />
+            <span className="h-1 w-8 rounded-full border border-dashed border-[#D6CCEC]" />
+            <span className="h-1 w-7 rounded-full border border-dashed border-[#D6CCEC]" />
+            <span className="h-1 w-5 rounded-full border border-dashed border-[#D6CCEC]" />
+          </span>
+        </div>
+        <div className="min-w-0">
+          <h2 className="text-xl font-bold text-[#3D2E6B]">
+            Nothing to share with {providerName} yet
+          </h2>
+          <p className="mt-1.5 text-sm leading-relaxed text-[#5A4A8A]">
+            Your Health Passport is still empty, so there's nothing to send. That's okay — your
+            booking doesn't depend on it, and {providerName} will ask what they need during the
+            session.
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-5 rounded-2xl border border-[#ECE7F6] bg-[#FAF8FD] p-4">
+        <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-[#7E6BAF]">
+          Want to arrive prepared?
+        </p>
+        <p className="mt-1 text-xs text-[#5A4A8A]">
+          Add any of these now — each opens in a new tab, so this booking stays right here.
+        </p>
+        <ul className="mt-3 space-y-2">
+          {EMPTY_ADD_WAYS.map((w) => {
+            const Icon = w.icon;
+            return (
+              <li key={w.title}>
+                <a
+                  href={w.href}
+                  target="_blank"
+                  rel="noopener"
+                  className="group flex items-center gap-3 rounded-xl border border-[#ECE7F6] bg-white p-3.5 transition hover:border-[#7E6BAF]/50 hover:shadow-sm"
+                >
+                  <span className="flex h-9 w-9 flex-none items-center justify-center rounded-[10px] bg-[#F4F0FB] text-[#7E6BAF] transition group-hover:bg-[#7E6BAF] group-hover:text-white">
+                    <Icon className="h-4 w-4" />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="flex flex-wrap items-center gap-x-2">
+                      <span className="text-sm font-semibold text-[#3D2E6B]">{w.title}</span>
+                      <span className="text-[11px] font-medium text-[#A29EB6]">{w.time}</span>
+                    </span>
+                    <span className="mt-0.5 block text-xs text-[#5A4A8A]">{w.body}</span>
+                  </span>
+                  <ExternalLink className="h-4 w-4 flex-none text-[#A89BD0] transition group-hover:text-[#7E6BAF]" />
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+
+      <div className="mt-4 flex items-start gap-3 rounded-2xl border border-[#ECE7F6] bg-white p-4">
+        <CalendarCheck className="mt-0.5 h-4 w-4 flex-none text-[#7E6BAF]" />
+        <p className="text-xs leading-relaxed text-[#5A4A8A]">
+          <span className="font-semibold text-[#3D2E6B]">You can share later.</span> Once you've
+          added something, open this appointment and choose "Share Health Passport" any time before
+          your session. Nothing is ever shared automatically.
+        </p>
       </div>
     </div>
   );
