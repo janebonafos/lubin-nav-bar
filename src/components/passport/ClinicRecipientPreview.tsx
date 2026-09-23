@@ -15,8 +15,13 @@ type Recipient = "reception" | "clinician";
  */
 export default function ClinicRecipientPreview({
   patientName = "Maria Santos",
+  managedBy = null,
+  previousNames = [],
 }: {
   patientName?: string;
+  /** Account holder's relationship when they manage the passport for the patient. */
+  managedBy?: string | null;
+  previousNames?: string[];
 }) {
   const [recipient, setRecipient] = useState<Recipient>("reception");
   const [meds, setMeds] = useState<ReturnType<typeof groupMedications>>({ current: [], past: [] });
@@ -72,7 +77,17 @@ export default function ClinicRecipientPreview({
 
         {recipient === "reception" ? (
           <div className="mt-4 grid gap-4 sm:grid-cols-2">
-            <Row label="Name on card">{patientName}</Row>
+            <Row label="Name on card">
+              {patientName}
+              {previousNames.length > 0 && (
+                <span className="mt-0.5 block text-[12px] font-normal text-[#6F6889]">
+                  Previously known as {previousNames.join(", ")}
+                </span>
+              )}
+            </Row>
+            {managedBy && (
+              <Row label="Account managed by">{managedBy} · acts on the patient's behalf</Row>
+            )}
             <Row label="Date of birth">Apr 12, 1991</Row>
             <Row label="Passport ID">LBN-4821-9037</Row>
             <Row label="Contact number">+63 917 555 0134</Row>

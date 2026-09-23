@@ -406,8 +406,9 @@ export default function AuthModal({
               </p>
               {selectedRole === "client" && (
                 <p className="mt-2 text-[11.5px] leading-snug text-[#5A4E8A]">
-                  This was set when the account was created. You can change it in your profile
-                  settings — signing in never changes it.
+                  {savedProxy
+                    ? `This was set when the account was created. The passport stays in ${savedProxy.personName}'s name and can't be moved to someone else — signing in never changes it.`
+                    : "This was set when the account was created. Signing in never changes it."}
                 </p>
               )}
             </div>
@@ -505,6 +506,9 @@ export default function AuthModal({
                     <span className="mb-1 block text-[10.5px] font-semibold uppercase tracking-[0.12em] text-[#7E6BAF]">
                       Their first name
                     </span>
+                    <span className="mb-1.5 block text-[11.5px] leading-snug text-[#5A4E8A]">
+                      The Health Passport is created in this name — not yours.
+                    </span>
                     <input
                       type="text"
                       value={personName}
@@ -529,8 +533,9 @@ export default function AuthModal({
             </div>
 
             <p className="mt-3 text-[11.5px] leading-snug text-[#5A4E8A]">
-              This is asked once, now. You can change it later in your profile settings — signing in
-              again won't ask you to choose.
+              This is asked once, now, and stays with the passport. Who it belongs to and your
+              relationship can't be changed or re-assigned later — only the person's name can be
+              corrected, with a recorded reason.
             </p>
 
             <button

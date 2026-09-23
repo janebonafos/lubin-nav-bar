@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
 import AuthModal, { type UserRole } from "@/components/AuthModal";
-import { saveProxySignup, type ProxySignup } from "@/lib/proxySignup";
+import type { ProxySignup } from "@/lib/proxySignup";
 
 const searchSchema = z.object({
   redirect: z.string().optional(),
@@ -39,7 +39,9 @@ function AuthPage() {
       if (typeof window !== "undefined") {
         window.localStorage.setItem("lubin.userRole", role);
         window.localStorage.setItem("lubin.signedIn", "1");
-        saveProxySignup(role === "client" ? proxy ?? null : null);
+        // Who the passport belongs to is saved once, at registration, by the
+        // auth step itself. Signing in never rewrites or re-assigns it.
+        void proxy;
         if (!window.localStorage.getItem("lubin.userName")) {
           const fallbackName = role === "provider" ? "Dr. Provider" : "Guest User";
           window.localStorage.setItem("lubin.userName", fallbackName);
