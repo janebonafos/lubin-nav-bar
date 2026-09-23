@@ -350,7 +350,7 @@ export default function ShareConsentModal({
         <div className="relative">
           <div className="flex items-center justify-between gap-3 px-5 pt-4 md:px-7">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#5A4A8A]">
-              Step {displayedStep} of {totalSteps}
+              {passportEmpty ? "Health Passport" : `Step ${displayedStep} of ${totalSteps}`}
             </p>
             <p className="text-[11px] font-medium text-[#A29EB6]">
               {stepTitle}
