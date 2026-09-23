@@ -398,6 +398,7 @@ function PassportPage() {
           {tab === "home" && (
             <PassportHome
               ownerName={detailsName ?? "Maria Santos"}
+              forPerson={detailsName}
               forceEmpty={forceEmpty}
               onNavigate={(destination) => {
                 if (destination === "card" || destination === "details") setTab("details");

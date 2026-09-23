@@ -32,10 +32,13 @@ type PassportDestination =
 
 export default function PassportHome({
   ownerName = "Maria Santos",
+  forPerson = null,
   forceEmpty = false,
   onNavigate,
 }: {
   ownerName?: string;
+  /** Set when the account holder manages this passport for someone else. */
+  forPerson?: string | null;
   forceEmpty?: boolean;
   onNavigate: (destination: PassportDestination) => void;
 }) {
@@ -130,7 +133,9 @@ export default function PassportHome({
         <div className="relative overflow-hidden rounded-[2rem] bg-white p-8 shadow-[0_10px_40px_-12px_color-mix(in_oklab,var(--color-brand-purple)_22%,transparent)] ring-1 ring-brand-purple/10 md:p-10">
           <div className="relative z-10 max-w-md">
             <h2 className="font-display mb-4 text-3xl leading-tight text-brand-purple-dark md:text-4xl">
-              Your health information, ready for your next visit.
+              {forPerson
+                ? `${forPerson}'s health information, ready for their next visit.`
+                : "Your health information, ready for your next visit."}
             </h2>
             <p className="mb-8 leading-relaxed text-brand-purple-dark/70">
               Keep your details, visits, medications, and records together.
@@ -149,7 +154,7 @@ export default function PassportHome({
                 onClick={() => onNavigate("details")}
                 className="rounded-full border border-brand-purple/20 bg-brand-lavender/60 px-6 py-3 text-sm font-semibold text-brand-purple-dark backdrop-blur-sm transition-all hover:bg-brand-lavender"
               >
-                Review my details
+                {forPerson ? `Review ${forPerson}'s details` : "Review my details"}
               </button>
             </div>
           </div>
