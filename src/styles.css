@@ -159,6 +159,7 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    font-family: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
   }
 
   /* Global interactive feedback for buttons and link-buttons.

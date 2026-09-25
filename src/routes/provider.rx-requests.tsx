@@ -1,24 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import {
-  AlertTriangle,
-  ArrowLeft,
-  BadgeCheck,
-  Check,
-  ChevronDown,
-  ChevronUp,
-  CircleHelp,
-  FilePenLine,
-  Lightbulb,
-  MessageSquare,
-  Pill,
-  RotateCcw,
-  Send,
-  ShieldAlert,
-  Signpost,
-  Sparkles,
-  X,
-} from "lucide-react";
 
 import Navbar from "@/components/Navbar";
 import {
@@ -99,7 +80,7 @@ function RxRequestsPage() {
               to="/provider/appointments"
               className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase text-brand-purple hover:text-brand-purple-dark"
             >
-              <ArrowLeft className="h-3 w-3" /> Lubin for doctors
+              Lubin for doctors
             </Link>
             <h1 className="font-display mt-1 text-3xl font-semibold text-brand-purple-dark">Patient requests</h1>
           </div>
@@ -145,22 +126,6 @@ function RxRequestsPage() {
         </div>
       </main>
     </div>
-  );
-}
-
-function Card({ title, icon, children, tone }: { title: string; icon: React.ReactNode; children: React.ReactNode; tone?: "ai" }) {
-  return (
-    <section
-      className={`rounded-2xl border p-5 ${
-        tone === "ai" ? "border-[#C9B8EA] bg-[#F7F3FE]" : "border-[#E2D6F5] bg-white"
-      }`}
-    >
-      <h3 className="mb-3 flex items-center gap-2 text-sm font-bold text-[#3D2E6B]">
-        {icon}
-        {title}
-      </h3>
-      {children}
-    </section>
   );
 }
 
@@ -285,7 +250,6 @@ function ReviewPanel({ req, saved }: { req: ChatRxRequest; saved?: ChatRxRespons
 type Upd = (patch: (x: ChatRxResponse) => ChatRxResponse) => void;
 
 function Section({
-  icon,
   title,
   badge,
   open,
@@ -293,7 +257,6 @@ function Section({
   addLabel,
   children,
 }: {
-  icon: React.ReactNode;
   title: string;
   badge?: React.ReactNode;
   open: boolean;
@@ -305,7 +268,7 @@ function Section({
     <div className="rounded-xl border border-border bg-card">
       <div className="flex items-center justify-between gap-2 px-4 py-3">
         <div className="flex items-center gap-2 text-sm font-semibold text-brand-purple-dark">
-          {icon} {title} {badge}
+          {title} {badge}
         </div>
         <button onClick={onToggle} className="text-xs font-semibold text-brand-purple hover:underline">
           {open ? "Close" : addLabel}
@@ -333,7 +296,6 @@ function QuestionsSection({ req, r, update, locked }: { req: ChatRxRequest; r: C
   ) : null;
   return (
     <Section
-      icon={<CircleHelp className="h-4 w-4" />}
       title="Questions for the patient"
       badge={badge}
       open={q.open}
@@ -386,7 +348,7 @@ function QuestionsSection({ req, r, update, locked }: { req: ChatRxRequest; r: C
             disabled={!q.text.trim() || locked}
             onClick={() => update((x) => (x.questions.sentAt ? x : { ...x, questions: { ...x.questions, sentAt: Date.now() } }))}
           >
-            <Send className="h-4 w-4" /> Send questions
+            Send questions
           </button>
           {q.text && (
             <button className={secondary} onClick={() => update((x) => ({ ...x, questions: { open: false, text: "" } }))}>
@@ -455,7 +417,6 @@ function DraftSection({ req, r, update }: { req: ChatRxRequest; r: ChatRxRespons
 
   return (
     <Section
-      icon={<Pill className="h-4 w-4" />}
       title="Prescription draft"
       badge={badge}
       open={d.open}
@@ -464,8 +425,8 @@ function DraftSection({ req, r, update }: { req: ChatRxRequest; r: ChatRxRespons
     >
       {!signed && req.suggestion && (sugFill.length > 0 || d.aiFilled) && (
         <div className="mb-4 rounded-xl border border-[#C9B8EA] bg-[#F7F3FE] p-3 text-sm">
-          <p className="flex items-center gap-1.5 font-semibold text-[#3D2E6B]">
-            <Sparkles className="h-4 w-4" /> AI suggestion: {req.suggestion.medicine} {req.suggestion.strength}
+          <p className="font-semibold text-[#3D2E6B]">
+            AI suggestion: {req.suggestion.medicine} {req.suggestion.strength}
           </p>
           {sugFill.length > 0 ? (
             <>
@@ -481,10 +442,10 @@ function DraftSection({ req, r, update }: { req: ChatRxRequest; r: ChatRxRespons
           )}
           {d.aiFilled && (
             <button
-              className="mt-2 ml-2 inline-flex items-center gap-1 text-xs font-semibold text-[#3D2E6B] hover:underline"
+              className="mt-2 ml-2 text-xs font-semibold text-[#3D2E6B] hover:underline"
               onClick={() => update((x) => ({ ...x, draft: { ...x.draft, fields: x.draft.aiFilled!.before, aiFilled: undefined } }))}
             >
-              <RotateCcw className="h-3 w-3" /> Undo
+              Undo
             </button>
           )}
         </div>
@@ -531,7 +492,7 @@ function DraftSection({ req, r, update }: { req: ChatRxRequest; r: ChatRxRespons
             <p className="text-xs text-[#7A5410]">You have unsent questions. Send or remove them before signing.</p>
           )}
           <button className={primary} disabled={missing.length > 0 || unsentQuestions} onClick={() => setConfirming(true)}>
-            <FilePenLine className="h-4 w-4" /> Review and sign
+            Review and sign
           </button>
         </div>
       )}
@@ -553,21 +514,19 @@ function DraftSection({ req, r, update }: { req: ChatRxRequest; r: ChatRxRespons
 
       {signed && (
         <div className="mt-4 space-y-2 rounded-xl bg-[#F4F9F5] p-3 text-sm">
-          <p className="flex items-center gap-1.5 font-semibold text-[#1F6B3A]">
-            <Check className="h-4 w-4" /> Signed {fmt(d.signedAt!)}
-          </p>
+          <p className="font-semibold text-[#1F6B3A]">Signed {fmt(d.signedAt!)}</p>
           {d.delivery === "delivered" ? (
             <p className="text-[#1F6B3A]">Delivered to {req.patient.name} {fmt(d.deliveredAt!)}</p>
           ) : d.delivery === "failed" ? (
             <div className="flex flex-wrap items-center gap-2">
               <p className="text-[#9B2C2C]">Delivery failed. The signed prescription is safe; the patient hasn't received it.</p>
               <button className={secondary} onClick={deliver}>
-                <RotateCcw className="h-4 w-4" /> Retry delivery
+                Retry delivery
               </button>
             </div>
           ) : (
             <button className={primary} disabled={d.delivery === "delivering"} onClick={deliver}>
-              <Send className="h-4 w-4" /> {d.delivery === "delivering" ? "Delivering…" : "Deliver to patient"}
+              {d.delivery === "delivering" ? "Delivering…" : "Deliver to patient"}
             </button>
           )}
         </div>
@@ -609,8 +568,8 @@ function SignConfirm({
       <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6">
         <div className="flex items-center justify-between">
           <h4 className="text-lg font-bold text-[#3D2E6B]">Confirm and sign</h4>
-          <button onClick={onCancel} aria-label="Close">
-            <X className="h-5 w-5 text-[#7E6BAF]" />
+          <button onClick={onCancel} className="text-xs font-semibold text-[#7E6BAF] hover:underline">
+            Close
           </button>
         </div>
         <div className="mt-4 rounded-xl border border-[#E2D6F5] p-4 text-sm text-[#3D2E6B]">
@@ -645,40 +604,6 @@ function SignConfirm({
   );
 }
 
-function AdviceSection({ r, update }: { r: ChatRxResponse; update: Upd }) {
-  const a = r.advice;
-  return (
-    <Section
-      icon={<Lightbulb className="h-4 w-4" />}
-      title="Advice and next steps"
-      badge={a.sentAt ? <Pill_ cls="bg-[#E4F0FB] text-[#1F4F7A]">Sent</Pill_> : a.text.trim() ? <Pill_ cls="bg-[#F4F1FA] text-[#7E6BAF]">Draft · not sent</Pill_> : null}
-      open={a.open}
-      onToggle={() => update((x) => ({ ...x, advice: { ...x.advice, open: !x.advice.open } }))}
-      addLabel={a.text ? "Open" : "Add advice"}
-    >
-      <textarea
-        rows={3}
-        disabled={!!a.sentAt}
-        value={a.text}
-        placeholder="e.g. Avoid coffee after noon and keep a regular wake-up time."
-        onChange={(e) => update((x) => ({ ...x, advice: { ...x.advice, text: e.target.value } }))}
-        className={input}
-      />
-      {a.sentAt ? (
-        <p className="mt-2 text-xs text-[#7E6BAF]">Sent {fmt(a.sentAt)}</p>
-      ) : (
-        <button
-          className={`${primary} mt-3`}
-          disabled={!a.text.trim()}
-          onClick={() => update((x) => (x.advice.sentAt ? x : { ...x, advice: { ...x.advice, sentAt: Date.now() } }))}
-        >
-          <Send className="h-4 w-4" /> Send advice
-        </button>
-      )}
-    </Section>
-  );
-}
-
 function AdviceAndNextStepsSection({ r, update, locked }: { r: ChatRxResponse; update: Upd; locked: boolean }) {
   const a = r.advice;
   const n = r.nextStep;
@@ -687,7 +612,6 @@ function AdviceAndNextStepsSection({ r, update, locked }: { r: ChatRxResponse; u
 
   return (
     <Section
-      icon={<Lightbulb className="h-4 w-4" />}
       title="Advice and next steps"
       badge={sent ? <Pill_ cls="bg-[#E4F0FB] text-[#1F4F7A]">Sent</Pill_> : null}
       open={open}
@@ -719,7 +643,7 @@ function AdviceAndNextStepsSection({ r, update, locked }: { r: ChatRxResponse; u
               disabled={!a.text.trim()}
               onClick={() => update((x) => (x.advice.sentAt ? x : { ...x, advice: { ...x.advice, sentAt: Date.now() } }))}
             >
-              <Send className="h-4 w-4" /> Send advice
+              Send advice
             </button>
           )}
         </div>
@@ -759,7 +683,7 @@ function AdviceAndNextStepsSection({ r, update, locked }: { r: ChatRxResponse; u
               disabled={!n.note.trim()}
               onClick={() => update((x) => (x.nextStep.sentAt ? x : { ...x, nextStep: { ...x.nextStep, sentAt: Date.now() } }))}
             >
-              <Send className="h-4 w-4" /> Send recommendation
+              Send recommendation
             </button>
           )}
         </div>
@@ -773,54 +697,3 @@ const NEXT: Record<NextStepKind, string> = {
   referral: "Referral to another provider",
   other: "Other care",
 };
-
-function NextStepSection({ r, update, locked }: { r: ChatRxResponse; update: Upd; locked: boolean }) {
-  const n = r.nextStep;
-  return (
-    <Section
-      icon={<Signpost className="h-4 w-4" />}
-      title="Recommend another next step"
-      badge={n.sentAt ? <Pill_ cls="bg-[#E4F0FB] text-[#1F4F7A]">Sent · no prescription</Pill_> : null}
-      open={n.open}
-      onToggle={() => update((x) => ({ ...x, nextStep: { ...x.nextStep, open: !x.nextStep.open } }))}
-      addLabel="Recommend instead"
-    >
-      <p className="mb-3 text-xs text-[#7E6BAF]">A non-prescribing path. The patient is told no prescription was issued from this request.</p>
-      <div className="flex flex-wrap gap-2">
-        {(Object.keys(NEXT) as NextStepKind[]).map((k) => (
-          <button
-            key={k}
-            disabled={!!n.sentAt}
-            onClick={() => update((x) => ({ ...x, nextStep: { ...x.nextStep, kind: k } }))}
-            className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${
-              n.kind === k ? "border-[#3D2E6B] bg-[#3D2E6B] text-white" : "border-[#D8C7F0] text-[#3D2E6B]"
-            }`}
-          >
-            {NEXT[k]}
-          </button>
-        ))}
-      </div>
-      <textarea
-        rows={2}
-        disabled={!!n.sentAt}
-        value={n.note}
-        placeholder="Why, and what the patient should do next"
-        onChange={(e) => update((x) => ({ ...x, nextStep: { ...x.nextStep, note: e.target.value } }))}
-        className={`${input} mt-3`}
-      />
-      {n.sentAt ? (
-        <p className="mt-2 text-xs text-[#7E6BAF]">Sent {fmt(n.sentAt)} · {NEXT[n.kind]}</p>
-      ) : locked ? (
-        <p className="mt-2 text-xs text-[#7E6BAF]">A prescription was already signed for this request.</p>
-      ) : (
-        <button
-          className={`${primary} mt-3`}
-          disabled={!n.note.trim()}
-          onClick={() => update((x) => (x.nextStep.sentAt ? x : { ...x, nextStep: { ...x.nextStep, sentAt: Date.now() } }))}
-        >
-          <Send className="h-4 w-4" /> Send recommendation
-        </button>
-      )}
-    </Section>
-  );
-}
