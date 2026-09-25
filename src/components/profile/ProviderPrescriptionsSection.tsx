@@ -1,10 +1,12 @@
 import { type ReactNode, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
+import { Link } from "@tanstack/react-router";
 import {
   Archive,
   ArchiveRestore,
   Check,
   ChevronDown,
+  ChevronRight,
   Download,
   Eye,
   Mail,
@@ -13,6 +15,7 @@ import {
   Search,
   ShieldAlert,
 } from "lucide-react";
+import { CHAT_RX_REQUESTS } from "@/lib/prescription/chatRequests";
 import { toast } from "sonner";
 import {
   CLAIM_STATE_LABEL,
