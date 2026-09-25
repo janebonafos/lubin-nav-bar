@@ -1,10 +1,12 @@
 import { type ReactNode, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
+import { Link } from "@tanstack/react-router";
 import {
   Archive,
   ArchiveRestore,
   Check,
   ChevronDown,
+  ChevronRight,
   Download,
   Eye,
   Mail,
@@ -13,6 +15,7 @@ import {
   Search,
   ShieldAlert,
 } from "lucide-react";
+import { CHAT_RX_REQUESTS } from "@/lib/prescription/chatRequests";
 import { toast } from "sonner";
 import {
   CLAIM_STATE_LABEL,
@@ -299,6 +302,23 @@ export default function ProviderPrescriptionsSection() {
         }}
       />
 
+
+      <Link
+        to="/provider/rx-requests"
+        className="mt-6 flex items-center justify-between gap-3 rounded-2xl border border-[#D8C7F0] bg-[#F4F0FE] px-4 py-3 transition hover:bg-[#EAE2FB]"
+      >
+        <span>
+          <span className="block text-[13px] font-semibold text-[#3D2E6B]">
+            Prescription requests from chat
+          </span>
+          <span className="mt-0.5 block text-[12px] text-[#6F6889]">
+            Requests clients sent through chat, kept separate from prescriptions you write in a session.
+          </span>
+        </span>
+        <span className="flex items-center gap-2 whitespace-nowrap text-[12px] font-semibold text-[#6F5BA0]">
+          {CHAT_RX_REQUESTS.length} waiting <ChevronRight className="h-4 w-4" />
+        </span>
+      </Link>
 
       {view === "drafts" ? (
         activeDrafts.length === 0 ? (
