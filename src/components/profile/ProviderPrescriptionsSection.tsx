@@ -236,6 +236,46 @@ export default function ProviderPrescriptionsSection() {
 
   return (
     <section className="rounded-2xl border border-[#E3DBF5]/60 bg-[#FBF9FF]/90 p-6 shadow-md shadow-[#3D2E6B]/5 backdrop-blur-xl sm:p-8">
+      <div className="mb-6 grid grid-cols-1 gap-2 sm:grid-cols-2">
+        <button
+          type="button"
+          onClick={() => setPage("sessions")}
+          className={`rounded-2xl border px-4 py-3 text-left transition ${
+            page === "sessions"
+              ? "border-[#3D2E6B] bg-[#3D2E6B] text-white shadow-sm"
+              : "border-[#E3DBF5] bg-white text-[#3D2E6B] hover:bg-[#F4F0FE]"
+          }`}
+        >
+          <span className="block text-[13px] font-bold">Written in sessions</span>
+          <span className={`mt-0.5 block text-[12px] ${page === "sessions" ? "text-white/75" : "text-[#6F6889]"}`}>
+            Prescriptions you create and sign during an appointment.
+          </span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setPage("chat")}
+          className={`rounded-2xl border px-4 py-3 text-left transition ${
+            page === "chat"
+              ? "border-[#3D2E6B] bg-[#3D2E6B] text-white shadow-sm"
+              : "border-[#E3DBF5] bg-white text-[#3D2E6B] hover:bg-[#F4F0FE]"
+          }`}
+        >
+          <span className="block text-[13px] font-bold">
+            Requests from chat
+            <span className={`ml-2 rounded-full px-2 py-0.5 text-[11px] font-semibold ${page === "chat" ? "bg-white/20 text-white" : "bg-[#EDE6FA] text-[#6F5BA0]"}`}>
+              {CHAT_RX_REQUESTS.length} waiting
+            </span>
+          </span>
+          <span className={`mt-0.5 block text-[12px] ${page === "chat" ? "text-white/75" : "text-[#6F6889]"}`}>
+            Prescription and renewal requests clients sent through chat.
+          </span>
+        </button>
+      </div>
+
+      {page === "chat" ? (
+        <ChatRequestsPanel />
+      ) : (
+      <>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h3 className="text-[15px] font-bold text-[#3D2E6B]">Issued prescriptions</h3>
