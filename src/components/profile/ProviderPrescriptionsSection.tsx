@@ -300,6 +300,23 @@ export default function ProviderPrescriptionsSection() {
       />
 
 
+      <Link
+        to="/provider/rx-requests"
+        className="mt-6 flex items-center justify-between gap-3 rounded-2xl border border-[#D8C7F0] bg-[#F4F0FE] px-4 py-3 transition hover:bg-[#EAE2FB]"
+      >
+        <span>
+          <span className="block text-[13px] font-semibold text-[#3D2E6B]">
+            Prescription requests from chat
+          </span>
+          <span className="mt-0.5 block text-[12px] text-[#6F6889]">
+            Requests clients sent through chat, kept separate from prescriptions you write in a session.
+          </span>
+        </span>
+        <span className="flex items-center gap-2 whitespace-nowrap text-[12px] font-semibold text-[#6F5BA0]">
+          {CHAT_RX_REQUESTS.length} waiting <ChevronRight className="h-4 w-4" />
+        </span>
+      </Link>
+
       {view === "drafts" ? (
         activeDrafts.length === 0 ? (
           <div className="mt-6 rounded-2xl border border-dashed border-[#DCD4F0] bg-white/70 px-5 py-10 text-center">
