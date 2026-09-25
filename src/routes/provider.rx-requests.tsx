@@ -302,16 +302,16 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <div className="rounded-xl border border-[#E2D6F5]">
+    <div className="rounded-xl border border-border bg-card">
       <div className="flex items-center justify-between gap-2 px-4 py-3">
-        <div className="flex items-center gap-2 text-sm font-semibold text-[#3D2E6B]">
+        <div className="flex items-center gap-2 text-sm font-semibold text-brand-purple-dark">
           {icon} {title} {badge}
         </div>
-        <button onClick={onToggle} className="text-xs font-semibold text-[#3D2E6B] hover:underline">
+        <button onClick={onToggle} className="text-xs font-semibold text-brand-purple hover:underline">
           {open ? "Close" : addLabel}
         </button>
       </div>
-      {open && <div className="border-t border-[#EFE8FA] px-4 py-4">{children}</div>}
+      {open && <div className="border-t border-border px-4 py-4">{children}</div>}
     </div>
   );
 }
@@ -675,6 +675,95 @@ function AdviceSection({ r, update }: { r: ChatRxResponse; update: Upd }) {
           <Send className="h-4 w-4" /> Send advice
         </button>
       )}
+    </Section>
+  );
+}
+
+function AdviceAndNextStepsSection({ r, update, locked }: { r: ChatRxResponse; update: Upd; locked: boolean }) {
+  const a = r.advice;
+  const n = r.nextStep;
+  const open = a.open || n.open;
+  const sent = a.sentAt || n.sentAt;
+
+  return (
+    <Section
+      icon={<Lightbulb className="h-4 w-4" />}
+      title="Advice and next steps"
+      badge={sent ? <Pill_ cls="bg-[#E4F0FB] text-[#1F4F7A]">Sent</Pill_> : null}
+      open={open}
+      onToggle={() =>
+        update((x) => ({
+          ...x,
+          advice: { ...x.advice, open: !open },
+          nextStep: { ...x.nextStep, open: !open },
+        }))
+      }
+      addLabel="Open"
+    >
+      <div className="space-y-5">
+        <div>
+          <p className="mb-2 text-xs font-semibold text-brand-purple-dark">Advice to the patient</p>
+          <textarea
+            rows={3}
+            disabled={!!a.sentAt}
+            value={a.text}
+            placeholder="e.g. Avoid coffee after noon and keep a regular wake-up time."
+            onChange={(e) => update((x) => ({ ...x, advice: { ...x.advice, text: e.target.value } }))}
+            className={input}
+          />
+          {a.sentAt ? (
+            <p className="mt-2 text-xs text-muted-foreground">Sent {fmt(a.sentAt)}</p>
+          ) : (
+            <button
+              className={`${primary} mt-3`}
+              disabled={!a.text.trim()}
+              onClick={() => update((x) => (x.advice.sentAt ? x : { ...x, advice: { ...x.advice, sentAt: Date.now() } }))}
+            >
+              <Send className="h-4 w-4" /> Send advice
+            </button>
+          )}
+        </div>
+
+        <div className="border-t border-border pt-4">
+          <p className="mb-2 text-xs font-semibold text-brand-purple-dark">Recommend another next step</p>
+          <p className="mb-3 text-xs text-muted-foreground">A non-prescribing path. The patient is told no prescription was issued.</p>
+          <div className="flex flex-wrap gap-2">
+            {(Object.keys(NEXT) as NextStepKind[]).map((k) => (
+              <button
+                key={k}
+                disabled={!!n.sentAt}
+                onClick={() => update((x) => ({ ...x, nextStep: { ...x.nextStep, kind: k } }))}
+                className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${
+                  n.kind === k ? "border-brand-purple-dark bg-brand-purple-dark text-primary-foreground" : "border-border text-brand-purple-dark"
+                }`}
+              >
+                {NEXT[k]}
+              </button>
+            ))}
+          </div>
+          <textarea
+            rows={2}
+            disabled={!!n.sentAt}
+            value={n.note}
+            placeholder="Why, and what the patient should do next"
+            onChange={(e) => update((x) => ({ ...x, nextStep: { ...x.nextStep, note: e.target.value } }))}
+            className={`${input} mt-3`}
+          />
+          {n.sentAt ? (
+            <p className="mt-2 text-xs text-muted-foreground">Sent {fmt(n.sentAt)} · {NEXT[n.kind]}</p>
+          ) : locked ? (
+            <p className="mt-2 text-xs text-muted-foreground">A prescription was already signed for this request.</p>
+          ) : (
+            <button
+              className={`${primary} mt-3`}
+              disabled={!n.note.trim()}
+              onClick={() => update((x) => (x.nextStep.sentAt ? x : { ...x, nextStep: { ...x.nextStep, sentAt: Date.now() } }))}
+            >
+              <Send className="h-4 w-4" /> Send recommendation
+            </button>
+          )}
+        </div>
+      </div>
     </Section>
   );
 }
