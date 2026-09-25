@@ -15,7 +15,14 @@ import {
   Search,
   ShieldAlert,
 } from "lucide-react";
-import { CHAT_RX_REQUESTS } from "@/lib/prescription/chatRequests";
+import {
+  CHAT_RX_REQUESTS,
+  emptyResponse,
+  loadResponses,
+  responseStatus,
+  subscribeResponses,
+  type ChatRxStatus,
+} from "@/lib/prescription/chatRequests";
 import { toast } from "sonner";
 import {
   CLAIM_STATE_LABEL,
@@ -103,6 +110,10 @@ export default function ProviderPrescriptionsSection() {
    *  marked not dispensable. */
   const [voiding, setVoiding] = useState<SignedPrescriptionDocument | null>(null);
   const [voidReason, setVoidReason] = useState("");
+  /** Which prescription page is shown: ones written in a session, or
+   *  requests that arrived through the client chat. Kept separate on
+   *  purpose — the two flows never mix. */
+  const [page, setPage] = useState<"sessions" | "chat">("sessions");
 
   /** Reopens a signed prescription in the prescribing flow as a correction.
    *  The original stays in the record; the corrected version must be signed. */
@@ -225,6 +236,46 @@ export default function ProviderPrescriptionsSection() {
 
   return (
     <section className="rounded-2xl border border-[#E3DBF5]/60 bg-[#FBF9FF]/90 p-6 shadow-md shadow-[#3D2E6B]/5 backdrop-blur-xl sm:p-8">
+      <div className="mb-6 grid grid-cols-1 gap-2 sm:grid-cols-2">
+        <button
+          type="button"
+          onClick={() => setPage("sessions")}
+          className={`rounded-2xl border px-4 py-3 text-left transition ${
+            page === "sessions"
+              ? "border-[#3D2E6B] bg-[#3D2E6B] text-white shadow-sm"
+              : "border-[#E3DBF5] bg-white text-[#3D2E6B] hover:bg-[#F4F0FE]"
+          }`}
+        >
+          <span className="block text-[13px] font-bold">Written in sessions</span>
+          <span className={`mt-0.5 block text-[12px] ${page === "sessions" ? "text-white/75" : "text-[#6F6889]"}`}>
+            Prescriptions you create and sign during an appointment.
+          </span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setPage("chat")}
+          className={`rounded-2xl border px-4 py-3 text-left transition ${
+            page === "chat"
+              ? "border-[#3D2E6B] bg-[#3D2E6B] text-white shadow-sm"
+              : "border-[#E3DBF5] bg-white text-[#3D2E6B] hover:bg-[#F4F0FE]"
+          }`}
+        >
+          <span className="block text-[13px] font-bold">
+            Requests from chat
+            <span className={`ml-2 rounded-full px-2 py-0.5 text-[11px] font-semibold ${page === "chat" ? "bg-white/20 text-white" : "bg-[#EDE6FA] text-[#6F5BA0]"}`}>
+              {CHAT_RX_REQUESTS.length} waiting
+            </span>
+          </span>
+          <span className={`mt-0.5 block text-[12px] ${page === "chat" ? "text-white/75" : "text-[#6F6889]"}`}>
+            Prescription and renewal requests clients sent through chat.
+          </span>
+        </button>
+      </div>
+
+      {page === "chat" ? (
+        <ChatRequestsPanel />
+      ) : (
+      <>
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h3 className="text-[15px] font-bold text-[#3D2E6B]">Issued prescriptions</h3>
@@ -302,23 +353,6 @@ export default function ProviderPrescriptionsSection() {
         }}
       />
 
-
-      <Link
-        to="/provider/rx-requests"
-        className="mt-6 flex items-center justify-between gap-3 rounded-2xl border border-[#D8C7F0] bg-[#F4F0FE] px-4 py-3 transition hover:bg-[#EAE2FB]"
-      >
-        <span>
-          <span className="block text-[13px] font-semibold text-[#3D2E6B]">
-            Prescription requests from chat
-          </span>
-          <span className="mt-0.5 block text-[12px] text-[#6F6889]">
-            Requests clients sent through chat, kept separate from prescriptions you write in a session.
-          </span>
-        </span>
-        <span className="flex items-center gap-2 whitespace-nowrap text-[12px] font-semibold text-[#6F5BA0]">
-          {CHAT_RX_REQUESTS.length} waiting <ChevronRight className="h-4 w-4" />
-        </span>
-      </Link>
 
       {view === "drafts" ? (
         activeDrafts.length === 0 ? (
@@ -679,7 +713,85 @@ export default function ProviderPrescriptionsSection() {
           </div>,
           document.body,
         )}
+      </>
+      )}
     </section>
+  );
+}
+
+const CHAT_STATUS_STYLE: Record<ChatRxStatus, string> = {
+  New: "bg-[#EDE6FA] text-[#5B4B8A]",
+  Draft: "bg-[#FDF6E7] text-[#6B4E10]",
+  Sent: "bg-[#E7F0FD] text-[#2F4E8A]",
+  "Waiting for patient": "bg-[#FDF6E7] text-[#6B4E10]",
+  Signed: "bg-[#E9F6EE] text-[#2F6B45]",
+  Delivered: "bg-[#E9F6EE] text-[#2F6B45]",
+};
+
+/** The chat-requests page: every prescription or renewal request that came
+ *  in through the client chat, with its live status, opening the full
+ *  review page. Separate from prescriptions written in a session. */
+function ChatRequestsPanel() {
+  const [responses, setResponses] = useState(loadResponses);
+
+  useEffect(() => subscribeResponses(() => setResponses(loadResponses())), []);
+
+  return (
+    <div>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h3 className="text-[15px] font-bold text-[#3D2E6B]">Prescription requests from chat</h3>
+          <p className="mt-1 text-[13px] text-[#6F6889]">
+            Clients asked for a new prescription or a renewal while chatting with the
+            assistant. Review each request, ask follow-up questions, and decide — nothing
+            is prescribed automatically.
+          </p>
+        </div>
+      </div>
+
+      <ul className="mt-5 space-y-3">
+        {CHAT_RX_REQUESTS.map((req) => {
+          const status = responseStatus(responses[req.id] ?? emptyResponse());
+          return (
+            <li key={req.id}>
+              <Link
+                to="/provider/rx-requests"
+                className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#E3DBF5] bg-white px-5 py-4 transition hover:border-[#C9BCF2] hover:bg-[#F8F6FE] hover:shadow-sm hover:shadow-[#7E6BAF]/10"
+              >
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="text-[13.5px] font-bold text-[#3D2E6B]">{req.patient.name}</p>
+                    <span className="rounded-full bg-[#F4F1FA] px-2 py-0.5 text-[11px] font-semibold text-[#6F5BA0]">
+                      {req.kind === "renewal" ? "Renewal" : "New prescription"}
+                    </span>
+                    <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${CHAT_STATUS_STYLE[status]}`}>
+                      {status}
+                    </span>
+                  </div>
+                  <p className="mt-1 truncate text-[12.5px] text-[#6F6889]">
+                    {req.requestedMedication ? `Requested: ${req.requestedMedication} · ` : ""}
+                    {req.chatSummary}
+                  </p>
+                  <p className="mt-1 text-[11.5px] text-[#A89BD0]">
+                    Received {formatDateTime(req.receivedAt)}
+                    {req.patient.verification ? " · Identity verified" : " · Identity not verified"}
+                  </p>
+                </div>
+                <span className="inline-flex items-center gap-1 whitespace-nowrap text-[12.5px] font-semibold text-[#6F5BA0]">
+                  Review request <ChevronRight className="h-4 w-4" />
+                </span>
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+
+      <p className="mt-4 rounded-xl border border-[#E3DBF5]/70 bg-[#F8F6FE] px-4 py-3 text-[12px] leading-relaxed text-[#6F6889]">
+        These requests stay separate from prescriptions you write in a session. Signing
+        one here works the same way — your prescriber details and a confirmation are
+        required before anything is delivered to the client.
+      </p>
+    </div>
   );
 }
 
