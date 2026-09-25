@@ -31,6 +31,7 @@ import { Route as ShareTokenRouteImport } from './routes/share.$token'
 import { Route as SelfDiscoverySlugRouteImport } from './routes/self-discovery_.$slug'
 import { Route as RxClaimClaimIdRouteImport } from './routes/rx-claim.$claimId'
 import { Route as ResultTokenRouteImport } from './routes/result.$token'
+import { Route as ProviderRxRequestsRouteImport } from './routes/provider.rx-requests'
 import { Route as ProviderAppointmentsRouteImport } from './routes/provider.appointments'
 import { Route as ProviderIdRouteImport } from './routes/provider.$id'
 import { Route as ProfilePreviewRouteImport } from './routes/profile.preview'
@@ -159,6 +160,11 @@ const RxClaimClaimIdRoute = RxClaimClaimIdRouteImport.update({
 const ResultTokenRoute = ResultTokenRouteImport.update({
   id: '/result/$token',
   path: '/result/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProviderRxRequestsRoute = ProviderRxRequestsRouteImport.update({
+  id: '/provider/rx-requests',
+  path: '/provider/rx-requests',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProviderAppointmentsRoute = ProviderAppointmentsRouteImport.update({
@@ -295,6 +301,7 @@ export interface FileRoutesByFullPath {
   '/profile/preview': typeof ProfilePreviewRoute
   '/provider/$id': typeof ProviderIdRoute
   '/provider/appointments': typeof ProviderAppointmentsRoute
+  '/provider/rx-requests': typeof ProviderRxRequestsRoute
   '/result/$token': typeof ResultTokenRoute
   '/rx-claim/$claimId': typeof RxClaimClaimIdRoute
   '/self-discovery/$slug': typeof SelfDiscoverySlugRoute
@@ -338,6 +345,7 @@ export interface FileRoutesByTo {
   '/profile/preview': typeof ProfilePreviewRoute
   '/provider/$id': typeof ProviderIdRoute
   '/provider/appointments': typeof ProviderAppointmentsRoute
+  '/provider/rx-requests': typeof ProviderRxRequestsRoute
   '/result/$token': typeof ResultTokenRoute
   '/rx-claim/$claimId': typeof RxClaimClaimIdRoute
   '/self-discovery/$slug': typeof SelfDiscoverySlugRoute
@@ -382,6 +390,7 @@ export interface FileRoutesById {
   '/profile/preview': typeof ProfilePreviewRoute
   '/provider/$id': typeof ProviderIdRoute
   '/provider/appointments': typeof ProviderAppointmentsRoute
+  '/provider/rx-requests': typeof ProviderRxRequestsRoute
   '/result/$token': typeof ResultTokenRoute
   '/rx-claim/$claimId': typeof RxClaimClaimIdRoute
   '/self-discovery_/$slug': typeof SelfDiscoverySlugRoute
@@ -427,6 +436,7 @@ export interface FileRouteTypes {
     | '/profile/preview'
     | '/provider/$id'
     | '/provider/appointments'
+    | '/provider/rx-requests'
     | '/result/$token'
     | '/rx-claim/$claimId'
     | '/self-discovery/$slug'
@@ -470,6 +480,7 @@ export interface FileRouteTypes {
     | '/profile/preview'
     | '/provider/$id'
     | '/provider/appointments'
+    | '/provider/rx-requests'
     | '/result/$token'
     | '/rx-claim/$claimId'
     | '/self-discovery/$slug'
@@ -513,6 +524,7 @@ export interface FileRouteTypes {
     | '/profile/preview'
     | '/provider/$id'
     | '/provider/appointments'
+    | '/provider/rx-requests'
     | '/result/$token'
     | '/rx-claim/$claimId'
     | '/self-discovery_/$slug'
@@ -556,6 +568,7 @@ export interface RootRouteChildren {
   PreviewPsychiatristSessionRoute: typeof PreviewPsychiatristSessionRoute
   ProviderIdRoute: typeof ProviderIdRoute
   ProviderAppointmentsRoute: typeof ProviderAppointmentsRoute
+  ProviderRxRequestsRoute: typeof ProviderRxRequestsRoute
   ResultTokenRoute: typeof ResultTokenRoute
   RxClaimClaimIdRoute: typeof RxClaimClaimIdRoute
   SelfDiscoverySlugRoute: typeof SelfDiscoverySlugRoute
@@ -719,6 +732,13 @@ declare module '@tanstack/react-router' {
       path: '/result/$token'
       fullPath: '/result/$token'
       preLoaderRoute: typeof ResultTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/provider/rx-requests': {
+      id: '/provider/rx-requests'
+      path: '/provider/rx-requests'
+      fullPath: '/provider/rx-requests'
+      preLoaderRoute: typeof ProviderRxRequestsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/provider/appointments': {
@@ -902,6 +922,7 @@ const rootRouteChildren: RootRouteChildren = {
   PreviewPsychiatristSessionRoute: PreviewPsychiatristSessionRoute,
   ProviderIdRoute: ProviderIdRoute,
   ProviderAppointmentsRoute: ProviderAppointmentsRoute,
+  ProviderRxRequestsRoute: ProviderRxRequestsRoute,
   ResultTokenRoute: ResultTokenRoute,
   RxClaimClaimIdRoute: RxClaimClaimIdRoute,
   SelfDiscoverySlugRoute: SelfDiscoverySlugRoute,
