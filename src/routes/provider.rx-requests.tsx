@@ -85,48 +85,36 @@ function useResponses() {
 function RxRequestsPage() {
   const all = useResponses();
   const [selected, setSelected] = useState(CHAT_RX_REQUESTS[0].id);
-  const req = CHAT_RX_REQUESTS.find((r) => r.id === selected)!;
+  const req = CHAT_RX_REQUESTS.find((r) => r.id === selected) ?? CHAT_RX_REQUESTS[0];
+
+  if (!req) return null;
 
   return (
-    <div className="min-h-screen bg-[#F0EAFB]">
+    <div className="min-h-screen bg-background">
       <Navbar />
-      <main className="mx-auto max-w-6xl px-4 pb-20 pt-28 sm:px-6 lg:px-8">
-        <Link
-          to="/provider/appointments"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#7E6BAF] hover:text-[#3D2E6B]"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" /> Appointments
-        </Link>
-        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <div className="flex items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#3D2E6B] text-white">
-              <MessageSquare className="h-5 w-5" />
-            </span>
-            <div>
-              <h1 className="text-2xl font-bold text-[#3D2E6B] sm:text-3xl">
-                Prescription requests from chat
-              </h1>
-              <p className="mt-1 text-sm text-[#7E6BAF]">
-                Clients asked for these through Lubin chat. Prescriptions you write during an
-                appointment stay in that appointment.
-              </p>
-            </div>
+      <main className="mx-auto max-w-[1240px] px-4 pb-20 pt-24 sm:px-6 lg:px-8">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <Link
+              to="/provider/appointments"
+              className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase text-brand-purple hover:text-brand-purple-dark"
+            >
+              <ArrowLeft className="h-3 w-3" /> Lubin for doctors
+            </Link>
+            <h1 className="font-display mt-1 text-3xl font-semibold text-brand-purple-dark">Patient requests</h1>
           </div>
           <button
             onClick={resetResponses}
-            className="self-start rounded-[10px] border border-[#D8C7F0] bg-white px-3 py-2 text-xs font-semibold text-[#7E6BAF] hover:bg-[#FBF9FF]"
+            className="rounded-full border border-border bg-card px-4 py-2 text-xs font-semibold text-brand-purple-dark hover:bg-brand-lavender"
           >
             Reset demo
           </button>
         </div>
-        <p className="mt-3 rounded-xl border border-[#D8C7F0] bg-white/70 px-4 py-2 text-xs text-[#7E6BAF]">
-          Prototype with fictional patients. Nothing is prescribed, sent, or delivered.
-        </p>
 
-        <div className="mt-6 grid gap-6 lg:grid-cols-[300px_1fr]">
-          <aside className="space-y-2">
-            <p className="px-1 text-xs font-semibold uppercase tracking-wider text-[#7E6BAF]">
-              Review queue · {CHAT_RX_REQUESTS.length}
+        <div className="mt-6 grid items-start gap-5 lg:grid-cols-[300px_minmax(0,1fr)]">
+          <aside className="rounded-2xl border border-border bg-card p-3 shadow-sm lg:sticky lg:top-24">
+            <p className="px-2 pb-2 pt-1 text-xs font-semibold text-muted-foreground">
+              Waiting for you · {CHAT_RX_REQUESTS.length}
             </p>
             {CHAT_RX_REQUESTS.map((r) => {
               const st = responseStatus(all[r.id] ?? emptyResponse());
@@ -135,22 +123,20 @@ function RxRequestsPage() {
                 <button
                   key={r.id}
                   onClick={() => setSelected(r.id)}
-                  className={`w-full rounded-2xl border p-4 text-left transition ${
+                  className={`w-full rounded-xl px-3 py-3 text-left transition ${
                     active
-                      ? "border-[#3D2E6B] bg-white shadow-sm"
-                      : "border-[#E2D6F5] bg-white/70 hover:bg-white"
+                      ? "bg-brand-lavender"
+                      : "hover:bg-muted"
                   }`}
                 >
                   <div className="flex items-start justify-between gap-2">
-                    <p className="font-semibold text-[#3D2E6B]">{r.patient.name}</p>
-                    <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${STATUS_STYLE[st]}`}>
-                      {st}
-                    </span>
+                    <p className="text-sm font-semibold text-brand-purple-dark">{r.patient.name}</p>
+                    <span className="rounded-full bg-card px-2 py-0.5 text-[10px] font-semibold text-brand-purple">To review</span>
                   </div>
-                  <p className="mt-1 text-sm text-[#3D2E6B]/80">
-                    {r.kind === "renewal" ? "Renewal" : "New request"} · {r.requestedMedication}
+                  <p className="mt-1 truncate text-xs text-brand-purple-dark/80">
+                    {r.kind === "renewal" ? "Renewal" : "New request"} · {r.requestedMedication ?? "Medication not specified"}
                   </p>
-                  <p className="mt-1 text-xs text-[#7E6BAF]">Received {fmt(r.receivedAt)}</p>
+                  <p className="mt-1 text-[10px] text-muted-foreground">{r.id.toUpperCase()} · {st}</p>
                 </button>
               );
             })}
@@ -187,137 +173,110 @@ function ReviewPanel({ req, saved }: { req: ChatRxRequest; saved?: ChatRxRespons
   const locked = !!r.draft.signedAt;
 
   return (
-    <div className="space-y-4">
-      {/* Patient */}
-      <section className="rounded-2xl border border-[#E2D6F5] bg-white p-5">
+    <div className="space-y-5">
+      <section className="rounded-2xl border border-border bg-card px-5 py-4 shadow-sm">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <span className="inline-flex items-center gap-1 rounded-full bg-[#EDE6FA] px-2.5 py-1 text-[11px] font-semibold text-[#3D2E6B]">
-              <MessageSquare className="h-3 w-3" /> From chat request ·{" "}
-              {req.kind === "renewal" ? "Renewal" : "New prescription"}
-            </span>
-            <h2 className="mt-2 text-xl font-bold text-[#3D2E6B]">{req.patient.name}</h2>
-            <p className="text-sm text-[#7E6BAF]">
-              Born {req.patient.dob} · {req.patient.ageYears} yrs · {req.patient.sex}
-            </p>
+            <p className="text-[10px] font-bold uppercase text-brand-purple">{req.id.toUpperCase()} · Received {fmt(req.receivedAt)}</p>
+            <h2 className="font-display mt-1 text-2xl font-semibold text-brand-purple-dark">{req.patient.name}</h2>
+            <p className="text-xs text-brand-purple-dark/75">Born {req.patient.dob} · {req.patient.ageYears} · {req.patient.sex}</p>
           </div>
-          <span className={`rounded-full px-3 py-1 text-xs font-semibold ${STATUS_STYLE[status]}`}>{status}</span>
-        </div>
-        <div className="mt-3">
           {req.patient.verification ? (
-            <p className="inline-flex items-center gap-1.5 text-xs font-medium text-[#1F6B3A]">
-              <BadgeCheck className="h-4 w-4" /> Identity verified · {req.patient.verification.method} ·{" "}
-              {fmt(req.patient.verification.at)}
+            <p className="rounded-full border border-border bg-muted px-3 py-1.5 text-[10px] font-medium text-brand-purple-dark">
+              Identity verified · {req.patient.verification.method}
             </p>
           ) : (
-            <p className="inline-flex items-center gap-1.5 text-xs font-medium text-[#7A5410]">
-              <ShieldAlert className="h-4 w-4" /> Identity not verified
+            <p className="rounded-full bg-amber-50 px-3 py-1.5 text-[10px] font-medium text-amber-800">
+              Identity not verified
             </p>
           )}
         </div>
       </section>
 
-      {/* Summary */}
-      <Card title="AI-generated summary" icon={<Sparkles className="h-4 w-4 text-[#7E6BAF]" />} tone="ai">
-        <p className="text-sm leading-relaxed text-[#3D2E6B]">{req.chatSummary}</p>
-        <button
-          onClick={() => setShowChat((v) => !v)}
-          className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-[#3D2E6B] underline-offset-2 hover:underline"
-        >
-          {showChat ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
-          {showChat ? "Hide conversation" : "View relevant conversation"}
-        </button>
-        {showChat && (
-          <div className="mt-3 space-y-2 rounded-xl bg-white p-3">
-            {req.conversation.map((m, i) => (
-              <div key={i} className={`flex ${m.from === "client" ? "justify-end" : ""}`}>
-                <div
-                  className={`max-w-[80%] rounded-2xl px-3 py-2 text-sm ${
-                    m.from === "client" ? "bg-[#3D2E6B] text-white" : "bg-[#F4F1FA] text-[#3D2E6B]"
-                  }`}
-                >
-                  <p className="text-[10px] font-semibold uppercase opacity-70">
-                    {m.from === "client" ? req.patient.name : "Lubin assistant"}
-                  </p>
-                  {m.text}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </Card>
-
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card title="Intake answers" icon={<FilePenLine className="h-4 w-4 text-[#7E6BAF]" />}>
-          <dl className="space-y-2 text-sm">
+      <div className="grid items-stretch gap-5 md:grid-cols-2">
+        <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+          <h3 className="mb-4 text-[10px] font-bold uppercase text-brand-purple">Patient's answers</h3>
+          <dl className="space-y-3 text-xs">
+            <div className="grid grid-cols-[108px_1fr] gap-3">
+              <dt className="text-muted-foreground">Reason</dt>
+              <dd className="font-medium text-brand-purple-dark">{req.requestedMedication ?? "Medication request"}</dd>
+            </div>
             {req.intake.map((x) => (
-              <div key={x.q}>
-                <dt className="text-xs text-[#7E6BAF]">{x.q}</dt>
-                <dd className="text-[#3D2E6B]">{x.a}</dd>
+              <div key={x.q} className="grid grid-cols-[108px_1fr] gap-3">
+                <dt className="text-muted-foreground">{x.q}</dt>
+                <dd className="font-medium text-brand-purple-dark">{x.a}</dd>
               </div>
             ))}
+            <div className="grid grid-cols-[108px_1fr] gap-3">
+              <dt className="text-muted-foreground">Allergies</dt>
+              <dd className="font-medium text-brand-purple-dark">
+                {req.allergyState === "not-documented"
+                  ? "Not documented"
+                  : req.allergyState === "none-known"
+                    ? "No known allergies reported"
+                    : req.allergies.map((a) => `${a.name} — ${a.reaction ?? "reaction not recorded"}`).join(", ")}
+              </dd>
+            </div>
           </dl>
           {req.currentMedications.length > 0 && (
-            <div className="mt-3 border-t border-[#EFE8FA] pt-3">
-              <p className="text-xs text-[#7E6BAF]">Current medications (from Health Passport)</p>
-              <ul className="mt-1 list-disc pl-5 text-sm text-[#3D2E6B]">
-                {req.currentMedications.map((m) => (
-                  <li key={m}>{m}</li>
-                ))}
-              </ul>
+            <div className="mt-4 grid grid-cols-[108px_1fr] gap-3 border-t border-border pt-3 text-xs">
+              <p className="text-muted-foreground">Current medications</p>
+              <p className="font-medium text-brand-purple-dark">{req.currentMedications.join(", ")}</p>
             </div>
           )}
-        </Card>
-        <Card title="Allergies" icon={<AlertTriangle className="h-4 w-4 text-[#7E6BAF]" />}>
-          {req.allergyState === "not-documented" ? (
-            <p className="rounded-xl bg-[#FFF3DC] px-3 py-2 text-sm text-[#7A5410]">
-              Not documented — do not assume none. Ask the patient before prescribing.
+          <div className="mt-4 rounded-xl bg-muted p-4">
+            <p className="text-[10px] text-muted-foreground">AI-generated summary · check against the conversation</p>
+            <p className="mt-2 text-xs leading-relaxed text-brand-purple-dark">{req.chatSummary}</p>
+            {req.allergyState === "not-documented" && (
+              <p className="mt-2 text-xs text-destructive">Not assessed · Allergies must be confirmed</p>
+            )}
+            <button onClick={() => setShowChat((v) => !v)} className="mt-3 text-[11px] font-semibold text-brand-purple hover:underline">
+              {showChat ? "Hide conversation" : "View relevant conversation"}
+            </button>
+            {showChat && (
+              <div className="mt-3 space-y-2 border-t border-border pt-3">
+                {req.conversation.map((m, i) => (
+                  <div key={i} className="text-xs leading-relaxed text-brand-purple-dark">
+                    <span className="font-semibold">{m.from === "client" ? req.patient.name : "Lubin assistant"}: </span>{m.text}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+
+        <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+          <h3 className="text-[10px] font-bold uppercase text-brand-purple">AI considerations</h3>
+          <p className="mt-3 text-xs text-brand-purple-dark">Review these points as part of your clinical assessment.</p>
+          <div className="mt-4 rounded-xl border border-border bg-muted/40 p-4">
+            <p className="text-[10px] text-muted-foreground">General guidance</p>
+            <p className="mt-1 text-base font-semibold text-brand-purple-dark">
+              {req.kind === "renewal" ? `Review ${req.requestedMedication ?? "the current medicine"}` : "Assess before prescribing"}
             </p>
-          ) : req.allergyState === "none-known" ? (
-            <p className="text-sm text-[#3D2E6B]">Patient reports no known allergies.</p>
-          ) : (
-            <ul className="space-y-2">
-              {req.allergies.map((a) => (
-                <li key={a.id} className="rounded-xl border border-[#EFE8FA] p-3 text-sm">
-                  <p className="font-semibold text-[#3D2E6B]">{a.name}</p>
-                  <p className="text-[#3D2E6B]/80">
-                    Reaction: {a.reaction ?? "not recorded"} · {a.severity ?? "severity unknown"}
-                  </p>
-                  <p className="mt-1 text-xs text-[#7E6BAF]">
-                    {a.reviewStatus === "clinician-reviewed" ? "Reviewed by a clinician" : "Patient-reported · not yet reviewed"}
-                  </p>
-                </li>
-              ))}
+            <p className="mt-3 text-[10px] text-muted-foreground">Why it was suggested</p>
+            <ul className="mt-1 space-y-1 text-xs leading-relaxed text-brand-purple-dark">
+              {req.ai.reasoning.map((x) => <li key={x}>{x}</li>)}
             </ul>
-          )}
-        </Card>
+            <p className="mt-4 text-[10px] text-muted-foreground">Still needs your check</p>
+            <ul className="mt-1 space-y-1 text-xs leading-relaxed text-brand-purple-dark">
+              {req.ai.missing.map((x) => <li key={x}>• {x}</li>)}
+            </ul>
+          </div>
+        </section>
       </div>
 
-      <Card title="AI considerations" icon={<Lightbulb className="h-4 w-4 text-[#7E6BAF]" />} tone="ai">
-        <p className="mb-2 text-xs text-[#7E6BAF]">Read-only. Nothing here changes the prescription.</p>
-        <ul className="list-disc space-y-1 pl-5 text-sm text-[#3D2E6B]">
-          {req.ai.reasoning.map((x) => (
-            <li key={x}>{x}</li>
-          ))}
-        </ul>
-        <p className="mt-3 text-xs font-semibold uppercase tracking-wider text-[#7A5410]">Check before deciding</p>
-        <ul className="mt-1 list-disc space-y-1 pl-5 text-sm text-[#7A5410]">
-          {req.ai.missing.map((x) => (
-            <li key={x}>{x}</li>
-          ))}
-        </ul>
-      </Card>
-
       {/* Response */}
-      <section className="rounded-2xl border-2 border-[#3D2E6B] bg-white p-5">
-        <h3 className="text-lg font-bold text-[#3D2E6B]">Response to patient</h3>
-        <p className="text-sm text-[#7E6BAF]">Use any combination. Each part is sent to {req.patient.name} separately.</p>
+      <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+        <div className="flex items-center justify-between gap-3">
+          <h3 className="text-[10px] font-bold uppercase text-brand-purple">Response to patient</h3>
+          <span className={`rounded-full px-3 py-1 text-[10px] font-semibold ${STATUS_STYLE[status]}`}>{status === "New" ? "Draft · not sent" : status}</span>
+        </div>
         <div className="mt-4 space-y-3">
           <QuestionsSection req={req} r={r} update={update} locked={locked} />
           <DraftSection req={req} r={r} update={update} />
-          <AdviceSection r={r} update={update} />
-          <NextStepSection r={r} update={update} locked={locked} />
+          <AdviceAndNextStepsSection r={r} update={update} locked={locked} />
         </div>
+        <p className="mt-4 border-t border-border pt-4 text-[11px] text-muted-foreground">Add questions, a prescription or advice to respond.</p>
       </section>
     </div>
   );
