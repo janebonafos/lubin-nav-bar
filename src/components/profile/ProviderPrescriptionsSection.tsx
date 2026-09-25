@@ -15,7 +15,14 @@ import {
   Search,
   ShieldAlert,
 } from "lucide-react";
-import { CHAT_RX_REQUESTS } from "@/lib/prescription/chatRequests";
+import {
+  CHAT_RX_REQUESTS,
+  emptyResponse,
+  loadResponses,
+  responseStatus,
+  subscribeResponses,
+  type ChatRxStatus,
+} from "@/lib/prescription/chatRequests";
 import { toast } from "sonner";
 import {
   CLAIM_STATE_LABEL,
@@ -103,6 +110,10 @@ export default function ProviderPrescriptionsSection() {
    *  marked not dispensable. */
   const [voiding, setVoiding] = useState<SignedPrescriptionDocument | null>(null);
   const [voidReason, setVoidReason] = useState("");
+  /** Which prescription page is shown: ones written in a session, or
+   *  requests that arrived through the client chat. Kept separate on
+   *  purpose — the two flows never mix. */
+  const [page, setPage] = useState<"sessions" | "chat">("sessions");
 
   /** Reopens a signed prescription in the prescribing flow as a correction.
    *  The original stays in the record; the corrected version must be signed. */
