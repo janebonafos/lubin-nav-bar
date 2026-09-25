@@ -67,13 +67,21 @@ function ProviderAppointmentsPage() {
               </div>
             </div>
           </div>
-          <Link
-            to="/profile"
-            search={{ tab: "appointments" }}
-            className="inline-flex items-center justify-center rounded-[10px] border border-[#D8C7F0] bg-white px-4 py-2 text-sm font-semibold text-[#3D2E6B] transition hover:bg-[#FBF9FF]"
-          >
-            Open in profile
-          </Link>
+          <div className="flex gap-2">
+            <Link
+              to="/provider/rx-requests"
+              className="inline-flex items-center justify-center rounded-[10px] bg-[#3D2E6B] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#2E2254]"
+            >
+              Prescription requests from chat
+            </Link>
+            <Link
+              to="/profile"
+              search={{ tab: "appointments" }}
+              className="inline-flex items-center justify-center rounded-[10px] border border-[#D8C7F0] bg-white px-4 py-2 text-sm font-semibold text-[#3D2E6B] transition hover:bg-[#FBF9FF]"
+            >
+              Open in profile
+            </Link>
+          </div>
         </div>
         <AppointmentsSection />
       </main>
