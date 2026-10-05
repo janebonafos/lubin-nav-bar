@@ -5,10 +5,13 @@ export default function ChatRxCount({
   count,
   className = "",
   label,
+  ringClassName = "ring-card",
 }: {
   count: number;
   className?: string;
   label?: string;
+  /** Tailwind class for the outer ring; set it to the surrounding surface color when the badge sits on a colored button. */
+  ringClassName?: string;
 }) {
   if (count === 0) return null;
   const text = label ?? `${count} prescription requests need your attention`;
@@ -16,7 +19,7 @@ export default function ChatRxCount({
     <span
       aria-label={text}
       title={text}
-      className={`inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-destructive px-1.5 text-[11px] font-bold leading-none text-destructive-foreground ring-2 ring-card ${className}`}
+      className={`inline-flex h-[18px] min-w-[18px] shrink-0 items-center justify-center rounded-full bg-destructive px-1 text-[10.5px] font-bold leading-none text-destructive-foreground ring-2 ${ringClassName} ${className}`}
     >
       {count > 99 ? "99+" : count}
     </span>
