@@ -683,6 +683,7 @@ function ProfilePage() {
                           <ChatRxCount
                             count={waitingCount}
                             label={`${waitingCount} prescription requests need your attention`}
+                            ringClassName={role === r ? "ring-[#7E6BAF]" : "ring-card"}
                           />
                         )}
                       </span>
