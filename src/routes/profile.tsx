@@ -679,13 +679,11 @@ function ProfilePage() {
                     >
                       <span className="inline-flex items-center justify-center gap-1.5">
                         {r === "client" ? "Personal" : "Professional"}
-                        {r === "provider" && waitingCount > 0 && (
-                          <span
-                            className="inline-flex items-center justify-center whitespace-nowrap rounded-full bg-destructive px-1.5 py-0.5 text-[10px] font-bold leading-none text-destructive-foreground"
-                            aria-label={`${waitingCount} prescription requests need your attention`}
-                          >
-                            {waitingCount}
-                          </span>
+                        {r === "provider" && (
+                          <ChatRxCount
+                            count={waitingCount}
+                            label={`${waitingCount} prescription requests need your attention`}
+                          />
                         )}
                       </span>
                     </button>
@@ -715,12 +713,14 @@ function ProfilePage() {
                         }`}
                       >
                         <span className="flex-1">{label}</span>
-                        {key === "prescriptions" && role === "provider" ? <ChatRxCount count={waitingCount} className="ml-2" /> : badgeCount > 0 && (
-                          <span
-                            className="ml-2 inline-flex min-w-[20px] items-center justify-center rounded-full bg-destructive px-1.5 py-0.5 text-[11px] font-bold leading-none text-destructive-foreground shadow-sm"
-                          >
-                            {badgeCount}
-                          </span>
+                        {key === "prescriptions" && role === "provider" ? (
+                          <ChatRxCount count={waitingCount} className="ml-2" />
+                        ) : (
+                          <ChatRxCount
+                            count={badgeCount}
+                            className="ml-2"
+                            label={`${badgeCount} upcoming appointments`}
+                          />
                         )}
                       </button>
                       {key === "chat" && activeSection === "chat" && (
