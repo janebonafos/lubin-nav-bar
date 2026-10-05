@@ -267,7 +267,7 @@ export default function ProviderPrescriptionsSection() {
         >
           <span className="block text-[13px] font-bold">
             Requests from chat
-            <span className="ml-2 inline-flex items-center gap-1.5"><ChatRxCount count={waitingCount} /> <span>{waitingCount} waiting</span></span>
+            <span className="ml-2">{waitingCount} waiting</span>
           </span>
           <span className={`mt-0.5 block text-[12px] ${page === "chat" ? "text-white/75" : "text-[#6F6889]"}`}>
             Prescription and renewal requests clients sent through chat.
