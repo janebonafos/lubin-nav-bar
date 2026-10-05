@@ -251,7 +251,7 @@ export default function ProviderPrescriptionsSection() {
               : "border-[#E3DBF5] bg-white text-[#3D2E6B] hover:bg-[#F4F0FE]"
           }`}
         >
-          <span className="block text-[13px] font-bold">Written in sessions</span>
+          <span className="block text-[13px] font-bold">Create New Prescription</span>
           <span className={`mt-0.5 block text-[12px] ${page === "sessions" ? "text-white/75" : "text-[#6F6889]"}`}>
             Prescriptions you create and sign during an appointment.
           </span>
