@@ -717,11 +717,7 @@ function ProfilePage() {
                         <span className="flex-1">{label}</span>
                         {key === "prescriptions" && role === "provider" ? <ChatRxCount count={waitingCount} className="ml-2" /> : badgeCount > 0 && (
                           <span
-                            className={`ml-2 inline-flex min-w-[20px] items-center justify-center rounded-full px-1.5 py-0.5 text-[11px] font-semibold leading-none ${
-                              active
-                                ? "bg-[#5B4796] text-white"
-                                : "bg-[#7E6BAF]/20 text-[#5B4796]"
-                            }`}
+                            className="ml-2 inline-flex min-w-[20px] items-center justify-center rounded-full bg-destructive px-1.5 py-0.5 text-[11px] font-bold leading-none text-destructive-foreground shadow-sm"
                           >
                             {badgeCount}
                           </span>
