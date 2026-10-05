@@ -685,8 +685,8 @@ function ProfilePage() {
                   <div className="mt-1.5 grid grid-cols-2">
                     <div />
                     <div className="flex justify-center">
-                      <span className="inline-flex items-center rounded-full bg-destructive px-2.5 py-1 text-[10.5px] font-bold leading-none text-destructive-foreground shadow-sm">
-                        {waitingCount} prescription {waitingCount === 1 ? "request" : "requests"} waiting
+                      <span className="inline-flex items-center whitespace-nowrap rounded-full bg-destructive px-2.5 py-1 text-[10px] font-bold leading-none text-destructive-foreground shadow-sm">
+                        {waitingCount} {waitingCount === 1 ? "request" : "requests"} waiting
                       </span>
                     </div>
                   </div>
