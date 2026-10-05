@@ -686,7 +686,7 @@ function ProfilePage() {
                     <div />
                     <div className="flex justify-center">
                       <span className="inline-flex items-center whitespace-nowrap rounded-full bg-destructive px-2.5 py-1 text-[10px] font-bold leading-none text-destructive-foreground shadow-sm">
-                        {waitingCount} {waitingCount === 1 ? "request" : "requests"} waiting
+                        {waitingCount}
                       </span>
                     </div>
                   </div>
