@@ -20,6 +20,8 @@ import lubinLogo from "@/assets/lubin-logo.svg";
 import AuthModal, { type AuthMode, type UserRole } from "@/components/AuthModal";
 import { openChatWaitlist } from "@/components/ChatWaitlistModal";
 import { FREE_CONSULT_PROVIDER_ID } from "@/lib/providers";
+import ChatRxCount from "@/components/profile/ChatRxCount";
+import { useChatRxQueue } from "@/lib/prescription/useChatRxQueue";
 
 
 interface NavLinkItem {
@@ -251,6 +253,7 @@ function HowItWorksDropdown({ onClose }: { onClose: () => void }) {
 }
 
 export default function Navbar() {
+  const { waitingCount } = useChatRxQueue();
   const [open, setOpen] = useState<boolean>(false);
   const [openKey, setOpenKey] = useState<string | null>(null);
   const [authOpen, setAuthOpen] = useState<boolean>(false);
@@ -496,6 +499,7 @@ export default function Navbar() {
                     initials
                   )}
                 </span>
+                {isProvider && <ChatRxCount count={waitingCount} className="absolute -right-1.5 -top-1.5" />}
                 {isProvider && (
                   <span className="pointer-events-none absolute -bottom-0.5 -right-0.5 rounded-full bg-white px-[3px] py-[1px] text-[7px] font-extrabold uppercase tracking-[0.08em] leading-none text-white">
                     <span className="block rounded-full bg-gradient-to-br from-[#3D2E6B] to-[#2A1F4F] px-1 py-[2px]">PRO</span>
@@ -519,6 +523,11 @@ export default function Navbar() {
                     <UserIcon className="h-4 w-4" />
                     {homeLabel}
                   </button>
+                  {isProvider && (
+                    <Link role="menuitem" to="/provider/rx-requests" onClick={() => setUserMenuOpen(false)} className="flex items-center justify-between gap-2 rounded-md px-3 py-2.5 text-sm font-semibold text-brand-purple-dark hover:bg-muted">
+                      Prescription requests <ChatRxCount count={waitingCount} />
+                    </Link>
+                  )}
                   {isProvider && (
                     <button
                       type="button"
@@ -614,6 +623,7 @@ export default function Navbar() {
                       initials
                     )}
                   </span>
+                  {isProvider && <ChatRxCount count={waitingCount} />}
                   <span className="text-[14px] font-semibold text-brand-purple-dark">
                     {displayName}
                   </span>
@@ -627,6 +637,9 @@ export default function Navbar() {
                     {homeLabel}
                   </Link>
                 </li>
+                {isProvider && (
+                  <li><Link to="/provider/rx-requests" onClick={() => setOpen(false)} className="flex items-center justify-between text-sm font-semibold text-brand-purple-dark">Prescription requests <ChatRxCount count={waitingCount} /></Link></li>
+                )}
                 {isProvider && (
                   <li>
                     <Link
