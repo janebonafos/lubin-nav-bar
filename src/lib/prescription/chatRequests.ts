@@ -138,7 +138,14 @@ export function resetResponses() {
 
 export function subscribeResponses(fn: () => void) {
   window.addEventListener(EVT, fn);
-  return () => window.removeEventListener(EVT, fn);
+  const onStorage = (event: StorageEvent) => {
+    if (event.key === KEY || event.key === null) fn();
+  };
+  window.addEventListener("storage", onStorage);
+  return () => {
+    window.removeEventListener(EVT, fn);
+    window.removeEventListener("storage", onStorage);
+  };
 }
 
 const H = 3600_000;
@@ -243,6 +250,55 @@ export const CHAT_RX_REQUESTS: ChatRxRequest[] = [
     failFirstDelivery: true,
   },
 ];
+
+// Fictional high-volume examples. No suggested medicines or verified identity
+// are invented for these incomplete intakes.
+const SAMPLE_PATIENTS = [
+  ["Isabel Garcia", "1991-06-18", 35, "Female", "renewal"],
+  ["Daniel Cruz", "1985-02-09", 41, "Male", "new"],
+  ["Sofia Ramos", "1997-08-22", 29, "Female", "renewal"],
+  ["Paolo Lim", "1990-01-14", 36, "Male", "new"],
+  ["Andrea Flores", "1989-04-30", 37, "Female", "renewal"],
+  ["Marco Reyes", "1995-12-03", 30, "Male", "new"],
+  ["Nina Aquino", "1993-09-08", 33, "Female", "renewal"],
+  ["Luis Rivera", "1982-07-19", 44, "Male", "new"],
+  ["Bea Torres", "1998-05-11", 28, "Female", "renewal"],
+  ["Gabriel David", "1987-10-24", 38, "Male", "new"],
+] as const;
+
+CHAT_RX_REQUESTS.push(...SAMPLE_PATIENTS.map(([name, dob, ageYears, sex, kind], index): ChatRxRequest => ({
+  id: `chat-rx-${index + 3}`,
+  kind,
+  receivedAt: now - (index + 8) * H,
+  country: "PH",
+  patient: { name, dob, ageYears, sex },
+  requestedMedication: kind === "renewal" ? "Existing prescription — details requested" : "Medication advice requested",
+  chatSummary: `${name} ${kind === "renewal" ? "requests a renewal of an existing prescription" : "asks whether medication might be appropriate"}. Medication details and a full clinical assessment have not been provided.`,
+  conversation: [
+    { from: "client", text: kind === "renewal" ? "Could a doctor review my prescription renewal?" : "I'd like to ask a doctor about medication options.", at: now - (index + 8.2) * H },
+    { from: "assistant", text: "I will pass your request to a doctor for review. No prescription has been issued.", at: now - (index + 8.1) * H },
+  ],
+  intake: [{ q: "What would you like help with?", a: kind === "renewal" ? "Renew an existing prescription" : "Discuss a new prescription" }],
+  allergyState: "not-documented",
+  allergies: [],
+  currentMedications: [],
+  ai: {
+    reasoning: ["This intake is incomplete; a clinician needs to assess the request before recommending medication."],
+    missing: ["Identity has not been verified.", "Medication details, allergies and relevant medical history are not documented.", "Symptoms and safety risks have not been assessed."],
+  },
+})));
+
+export function needsDoctorAction(response: ChatRxResponse): boolean {
+  if (response.draft.delivery === "delivered") return false;
+  if (response.draft.signedAt) return true;
+  if (response.questions.reply) return true;
+  const status = responseStatus(response);
+  return status === "New" || status === "Draft";
+}
+
+export function countWaitingRequests(responses: Record<string, ChatRxResponse>): number {
+  return CHAT_RX_REQUESTS.filter((request) => needsDoctorAction(responses[request.id] ?? emptyResponse())).length;
+}
 
 export function fullName(r: ChatRxRequest) {
   return r.patient.name;
