@@ -642,7 +642,6 @@ function ProfilePage() {
                       />
                     )}
                   </div>
-                  {role === "provider" && <ChatRxCount count={waitingCount} className="absolute -right-2 -top-2" />}
                   {role === "provider" && (
                     <span
                       aria-hidden
@@ -665,21 +664,33 @@ function ProfilePage() {
               </div>
 
               {/* Role switch (dev/preview — toggles client vs provider experience) */}
-              <div className="mb-3 flex items-center gap-1 rounded-full border border-[#E3DBF5] bg-white/70 p-1">
-                {(["client", "provider"] as const).map((r) => (
-                  <button
-                    key={r}
-                    type="button"
-                    onClick={() => setRole(r)}
-                    className={`flex-1 rounded-full px-3 py-1.5 text-[11.5px] font-semibold capitalize transition ${
-                      role === r
-                        ? "bg-[#7E6BAF] text-white shadow-sm"
-                        : "text-[#7E6BAF] hover:bg-[#7E6BAF]/10"
-                    }`}
-                  >
-                    {r === "client" ? "Personal" : "Professional"}
-                  </button>
-                ))}
+              <div className="mb-3">
+                <div className="flex items-center gap-1 rounded-full border border-[#E3DBF5] bg-white/70 p-1">
+                  {(["client", "provider"] as const).map((r) => (
+                    <button
+                      key={r}
+                      type="button"
+                      onClick={() => setRole(r)}
+                      className={`flex-1 rounded-full px-3 py-1.5 text-[11.5px] font-semibold capitalize transition ${
+                        role === r
+                          ? "bg-[#7E6BAF] text-white shadow-sm"
+                          : "text-[#7E6BAF] hover:bg-[#7E6BAF]/10"
+                      }`}
+                    >
+                      {r === "client" ? "Personal" : "Professional"}
+                    </button>
+                  ))}
+                </div>
+                {role === "provider" && waitingCount > 0 && (
+                  <div className="mt-1.5 grid grid-cols-2">
+                    <div />
+                    <div className="flex justify-center">
+                      <span className="inline-flex items-center whitespace-nowrap rounded-full bg-destructive px-2.5 py-1 text-[10px] font-bold leading-none text-destructive-foreground shadow-sm">
+                        {waitingCount} {waitingCount === 1 ? "request" : "requests"} waiting
+                      </span>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div className="border-t border-[#EEE9F8]" />
@@ -833,7 +844,6 @@ function ProfilePage() {
                       <img src={lubinMark.url} alt="" className="h-5 w-5 object-contain opacity-90" />
                     )}
                   </div>
-                  {role === "provider" && <ChatRxCount count={waitingCount} className="absolute -left-1 -top-2" />}
                   <p className="truncate text-[13.5px] font-bold text-[#3D2E6B]">{displayName}</p>
                 </div>
                 <div className="flex shrink-0 items-center gap-1 rounded-full border border-[#E3DBF5] bg-white/80 p-1">
