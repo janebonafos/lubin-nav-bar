@@ -2,6 +2,9 @@ import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 
 import Navbar from "@/components/Navbar";
+import { Button } from "@/components/ui/button";
+import ChatRxCount from "@/components/profile/ChatRxCount";
+import { needsDoctorAction, countWaitingRequests } from "@/lib/prescription/chatRequests";
 import {
   CHAT_RX_REQUESTS,
   DRAFT_FIELD_LABELS,
@@ -21,6 +24,7 @@ import { MEDICATION_CATALOGUE } from "@/lib/prescription/catalogue";
 import { loadIdentity } from "@/lib/prescription/credentials";
 
 export const Route = createFileRoute("/provider/rx-requests")({
+  validateSearch: (search: Record<string, unknown>): { request?: string } => ({ request: typeof search.request === "string" ? search.request : undefined }),
   head: () => ({
     meta: [
       { title: "Prescription requests from chat — Lubin" },
@@ -42,7 +46,7 @@ export const Route = createFileRoute("/provider/rx-requests")({
 });
 
 const fmt = (t: number) =>
-  new Date(t).toLocaleString("en-PH", { dateStyle: "medium", timeStyle: "short" });
+  new Date(t).toLocaleString("en-PH", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Manila" });
 
 const STATUS_STYLE: Record<ChatRxStatus, string> = {
   New: "bg-[#EDE6FA] text-[#3D2E6B]",
@@ -65,7 +69,15 @@ function useResponses() {
 
 function RxRequestsPage() {
   const all = useResponses();
-  const [selected, setSelected] = useState(CHAT_RX_REQUESTS[0].id);
+  const search = Route.useSearch();
+  const [selected, setSelected] = useState(search.request ?? CHAT_RX_REQUESTS[0]?.id);
+  const [query, setQuery] = useState("");
+  const [queueFilter, setQueueFilter] = useState("attention");
+  const [queuePage, setQueuePage] = useState(1);
+  const waitingCount = countWaitingRequests(all);
+  const filtered = CHAT_RX_REQUESTS.filter((r) => (queueFilter === "all" || needsDoctorAction(all[r.id] ?? emptyResponse())) && `${r.patient.name} ${r.requestedMedication ?? ""}`.toLowerCase().includes(query.toLowerCase())).sort((a, b) => a.receivedAt - b.receivedAt);
+  const pages = Math.max(1, Math.ceil(filtered.length / 6));
+  const currentPage = Math.min(queuePage, pages);
   const req = CHAT_RX_REQUESTS.find((r) => r.id === selected) ?? CHAT_RX_REQUESTS[0];
 
   if (!req) return null;
@@ -95,9 +107,12 @@ function RxRequestsPage() {
         <div className="mt-6 grid items-start gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
           <aside className="rounded-2xl border border-border bg-card p-3 shadow-sm lg:sticky lg:top-24">
             <p className="px-2 pb-2 pt-1 text-sm font-semibold text-muted-foreground">
-              Waiting for you · {CHAT_RX_REQUESTS.length}
+              <span className="inline-flex items-center gap-2 text-destructive">Needs attention <ChatRxCount count={waitingCount} /></span>
             </p>
-            {CHAT_RX_REQUESTS.map((r) => {
+            <p className="px-2 pb-3 text-xs text-muted-foreground">Fictional sample queue · Oldest first</p>
+            <input aria-label="Search request queue" placeholder="Search patients" value={query} onChange={(e) => { setQuery(e.target.value); setQueuePage(1); }} className="mb-2 w-full rounded-md border border-input bg-card px-3 py-2 text-sm" />
+            <select aria-label="Filter request queue" value={queueFilter} onChange={(e) => { setQueueFilter(e.target.value); setQueuePage(1); }} className="mb-2 w-full rounded-md border border-input bg-card px-3 py-2 text-sm"><option value="attention">Needs attention</option><option value="all">All requests</option></select>
+            {filtered.slice((currentPage - 1) * 6, currentPage * 6).map((r) => {
               const st = responseStatus(all[r.id] ?? emptyResponse());
               const active = r.id === selected;
               return (
@@ -112,7 +127,7 @@ function RxRequestsPage() {
                 >
                   <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2">
                     <p className="text-base font-semibold text-brand-purple-dark">{r.patient.name}</p>
-                    <span className="rounded-full bg-card px-2 py-0.5 text-xs font-semibold text-brand-purple">To review</span>
+                    <span className="rounded-full bg-card px-2 py-0.5 text-xs font-semibold text-brand-purple">{needsDoctorAction(all[r.id] ?? emptyResponse()) ? "To review" : st}</span>
                   </div>
                   <p className="mt-1 truncate text-sm text-brand-purple-dark/80">
                     {r.kind === "renewal" ? "Renewal" : "New request"} · {r.requestedMedication ?? "Medication not specified"}
@@ -121,6 +136,8 @@ function RxRequestsPage() {
                 </button>
               );
             })}
+            {filtered.length === 0 && <p className="py-5 text-center text-sm text-muted-foreground">No matching requests.</p>}
+            <div className="mt-3 flex items-center justify-between border-t border-border pt-3"><Button variant="ghost" size="sm" disabled={currentPage <= 1} onClick={() => setQueuePage(currentPage - 1)}>Previous</Button><span className="text-xs text-muted-foreground">{currentPage} / {pages}</span><Button variant="ghost" size="sm" disabled={currentPage >= pages} onClick={() => setQueuePage(currentPage + 1)}>Next</Button></div>
           </aside>
           <ReviewPanel key={req.id} req={req} saved={all[req.id]} />
         </div>

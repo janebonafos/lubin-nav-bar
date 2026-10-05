@@ -31,6 +31,8 @@ import {
   Users,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import ChatRxCount from "@/components/profile/ChatRxCount";
+import { useChatRxQueue } from "@/lib/prescription/useChatRxQueue";
 import { useNavigate } from "@tanstack/react-router";
 import lubinMark from "@/assets/lubin-mark.png.asset.json";
 import { ASSESSMENTS, ASSESSMENT_IDS } from "@/lib/patterns/assessments";
@@ -155,6 +157,7 @@ function ProfilePage() {
   const [focusVisitId, setFocusVisitId] = useState<string | undefined>(undefined);
   const [connectionWarning, setConnectionWarning] = useState<string | null>(null);
   const [role, setRole] = useState<Role>("client");
+  const { waitingCount } = useChatRxQueue();
   const [isHydrating, setIsHydrating] = useState<boolean>(true);
   const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
   const [isRoleSwitching, setIsRoleSwitching] = useState<boolean>(false);
@@ -639,6 +642,7 @@ function ProfilePage() {
                       />
                     )}
                   </div>
+                  {role === "provider" && <ChatRxCount count={waitingCount} className="absolute -right-2 -top-2" />}
                   {role === "provider" && (
                     <span
                       aria-hidden
@@ -688,7 +692,7 @@ function ProfilePage() {
                       ? role === "provider"
                         ? UPCOMING_APPOINTMENTS_COUNT
                         : CLIENT_UPCOMING_COUNT
-                      : 0;
+                      : key === "prescriptions" && role === "provider" ? waitingCount : 0;
                   return (
                     <div key={key}>
                       <button
@@ -700,7 +704,7 @@ function ProfilePage() {
                         }`}
                       >
                         <span className="flex-1">{label}</span>
-                        {badgeCount > 0 && (
+                        {key === "prescriptions" && role === "provider" ? <ChatRxCount count={waitingCount} className="ml-2" /> : badgeCount > 0 && (
                           <span
                             className={`ml-2 inline-flex min-w-[20px] items-center justify-center rounded-full px-1.5 py-0.5 text-[11px] font-semibold leading-none ${
                               active
@@ -813,7 +817,7 @@ function ProfilePage() {
             {/* Mobile account + section switcher */}
             <section className="rounded-2xl border border-[#DCD4F0]/50 bg-[#F8F5FF]/85 p-4 shadow-lg shadow-[#3D2E6B]/5 backdrop-blur-xl lg:hidden">
               <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
-                <div className="flex min-w-0 items-center gap-3">
+                <div className="relative flex min-w-0 items-center gap-3">
                   <div
                     className={`flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl text-sm font-semibold text-white ${
                       role === "provider"
@@ -829,6 +833,7 @@ function ProfilePage() {
                       <img src={lubinMark.url} alt="" className="h-5 w-5 object-contain opacity-90" />
                     )}
                   </div>
+                  {role === "provider" && <ChatRxCount count={waitingCount} className="absolute -left-1 -top-2" />}
                   <p className="truncate text-[13.5px] font-bold text-[#3D2E6B]">{displayName}</p>
                 </div>
                 <div className="flex shrink-0 items-center gap-1 rounded-full border border-[#E3DBF5] bg-white/80 p-1">
@@ -863,6 +868,7 @@ function ProfilePage() {
                         }`}
                       >
                         {label}
+                        {key === "prescriptions" && role === "provider" && <ChatRxCount count={waitingCount} className="ml-2" />}
                       </button>
                     );
                   })}

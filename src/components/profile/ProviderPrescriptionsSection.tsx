@@ -24,6 +24,10 @@ import {
   type ChatRxStatus,
 } from "@/lib/prescription/chatRequests";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import ChatRxCount from "@/components/profile/ChatRxCount";
+import { useChatRxQueue } from "@/lib/prescription/useChatRxQueue";
+import { needsDoctorAction } from "@/lib/prescription/chatRequests";
 import {
   CLAIM_STATE_LABEL,
   claimForDocument,
@@ -86,6 +90,7 @@ type PatientGroup = {
  * a signed prescription is immutable.
  */
 export default function ProviderPrescriptionsSection() {
+  const { waitingCount } = useChatRxQueue();
   const [docs, setDocs] = useState<SignedPrescriptionDocument[]>([]);
   const [drafts, setDrafts] = useState<PrescriptionDraft[]>([]);
   const [query, setQuery] = useState("");
@@ -262,9 +267,7 @@ export default function ProviderPrescriptionsSection() {
         >
           <span className="block text-[13px] font-bold">
             Requests from chat
-            <span className={`ml-2 rounded-full px-2 py-0.5 text-[11px] font-semibold ${page === "chat" ? "bg-white/20 text-white" : "bg-[#EDE6FA] text-[#6F5BA0]"}`}>
-              {CHAT_RX_REQUESTS.length} waiting
-            </span>
+            <span className="ml-2 inline-flex items-center gap-1.5"><ChatRxCount count={waitingCount} /> <span>{waitingCount} waiting</span></span>
           </span>
           <span className={`mt-0.5 block text-[12px] ${page === "chat" ? "text-white/75" : "text-[#6F6889]"}`}>
             Prescription and renewal requests clients sent through chat.
@@ -732,65 +735,72 @@ const CHAT_STATUS_STYLE: Record<ChatRxStatus, string> = {
  *  in through the client chat, with its live status, opening the full
  *  review page. Separate from prescriptions written in a session. */
 function ChatRequestsPanel() {
-  const [responses, setResponses] = useState(loadResponses);
-
-  useEffect(() => subscribeResponses(() => setResponses(loadResponses())), []);
+  const { responses, waitingCount } = useChatRxQueue();
+  const [query, setQuery] = useState("");
+  const [filter, setFilter] = useState<"attention" | "all">("attention");
+  const [pageNumber, setPageNumber] = useState(1);
+  const filtered = CHAT_RX_REQUESTS.filter((req) =>
+    (filter === "all" || needsDoctorAction(responses[req.id] ?? emptyResponse())) &&
+    `${req.patient.name} ${req.requestedMedication ?? ""} ${req.kind}`.toLowerCase().includes(query.toLowerCase()),
+  ).sort((a, b) => a.receivedAt - b.receivedAt);
+  const totalPages = Math.max(1, Math.ceil(filtered.length / 5));
+  const currentPage = Math.min(pageNumber, totalPages);
+  const start = (currentPage - 1) * 5;
+  const visible = filtered.slice(start, start + 5);
 
   return (
     <div>
-      <div className="flex flex-wrap items-start justify-between gap-3">
+      <div className="flex flex-wrap items-start justify-between gap-3 border-b border-border pb-4">
         <div>
-          <h3 className="text-[15px] font-bold text-[#3D2E6B]">Prescription requests from chat</h3>
-          <p className="mt-1 text-[13px] text-[#6F6889]">
-            Clients asked for a new prescription or a renewal while chatting with the
-            assistant. Review each request, ask follow-up questions, and decide — nothing
-            is prescribed automatically.
-          </p>
+          <h3 className="text-lg font-bold text-brand-purple-dark">Prescription requests from chat</h3>
+          <p className="mt-1 text-sm text-muted-foreground">Fictional sample requests · Oldest first</p>
         </div>
+        <p className="flex items-center gap-2 rounded-md bg-destructive/10 px-3 py-2 text-sm font-semibold text-destructive" role="status">
+          <ChatRxCount count={waitingCount} /> {waitingCount > 0 ? "Need your attention" : "All caught up"}
+        </p>
       </div>
-
-      <ul className="mt-5 space-y-3">
-        {CHAT_RX_REQUESTS.map((req) => {
+      <div className="mt-4 flex flex-wrap items-center gap-3">
+        <input aria-label="Search prescription requests" placeholder="Search patient or request" value={query}
+          onChange={(event) => { setQuery(event.target.value); setPageNumber(1); }}
+          className="min-w-0 flex-1 rounded-md border border-input bg-card px-3 py-2 text-sm text-foreground" />
+        <select aria-label="Filter prescription requests" value={filter}
+          onChange={(event) => { setFilter(event.target.value === "all" ? "all" : "attention"); setPageNumber(1); }}
+          className="rounded-md border border-input bg-card px-3 py-2 text-sm text-foreground">
+          <option value="attention">Needs attention ({waitingCount})</option>
+          <option value="all">All requests ({CHAT_RX_REQUESTS.length})</option>
+        </select>
+      </div>
+      <ul className="mt-4 divide-y divide-border">
+        {visible.map((req) => {
           const status = responseStatus(responses[req.id] ?? emptyResponse());
           return (
             <li key={req.id}>
-              <Link
-                to="/provider/rx-requests"
-                className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#E3DBF5] bg-white px-5 py-4 transition hover:border-[#C9BCF2] hover:bg-[#F8F6FE] hover:shadow-sm hover:shadow-[#7E6BAF]/10"
-              >
-                <div className="min-w-0">
+              <Link to="/provider/rx-requests" search={{ request: req.id }}
+                className="flex flex-wrap items-center justify-between gap-3 py-4 text-brand-purple-dark transition hover:bg-muted/50">
+                <div className="min-w-0 flex-1 basis-64">
                   <div className="flex flex-wrap items-center gap-2">
-                    <p className="text-[13.5px] font-bold text-[#3D2E6B]">{req.patient.name}</p>
-                    <span className="rounded-full bg-[#F4F1FA] px-2 py-0.5 text-[11px] font-semibold text-[#6F5BA0]">
-                      {req.kind === "renewal" ? "Renewal" : "New prescription"}
-                    </span>
-                    <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${CHAT_STATUS_STYLE[status]}`}>
-                      {status}
-                    </span>
+                    <p className="text-base font-bold">{req.patient.name}</p>
+                    <span className="text-xs text-muted-foreground">{req.kind === "renewal" ? "Renewal" : "New prescription"}</span>
+                    <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-semibold">{status}</span>
                   </div>
-                  <p className="mt-1 truncate text-[12.5px] text-[#6F6889]">
-                    {req.requestedMedication ? `Requested: ${req.requestedMedication} · ` : ""}
-                    {req.chatSummary}
-                  </p>
-                  <p className="mt-1 text-[11.5px] text-[#A89BD0]">
-                    Received {formatDateTime(req.receivedAt)}
-                    {req.patient.verification ? " · Identity verified" : " · Identity not verified"}
-                  </p>
+                  <p className="mt-1 text-sm text-muted-foreground">{req.requestedMedication ?? "Medication not specified"}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">Received {formatDateTime(req.receivedAt)} · {req.patient.verification ? "Identity verified" : "Identity not verified"}</p>
                 </div>
-                <span className="inline-flex items-center gap-1 whitespace-nowrap text-[12.5px] font-semibold text-[#6F5BA0]">
-                  Review request <ChevronRight className="h-4 w-4" />
-                </span>
+                <span className="whitespace-nowrap text-sm font-semibold text-brand-purple">Review request</span>
               </Link>
             </li>
           );
         })}
       </ul>
-
-      <p className="mt-4 rounded-xl border border-[#E3DBF5]/70 bg-[#F8F6FE] px-4 py-3 text-[12px] leading-relaxed text-[#6F6889]">
-        These requests stay separate from prescriptions you write in a session. Signing
-        one here works the same way — your prescriber details and a confirmation are
-        required before anything is delivered to the client.
-      </p>
+      {visible.length === 0 && <p className="py-8 text-center text-sm text-muted-foreground">{query ? "No requests match your search." : "No requests need your attention."}</p>}
+      <div className="mt-3 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-4">
+        <p className="text-xs text-muted-foreground">{filtered.length ? `${start + 1}–${Math.min(start + 5, filtered.length)} of ${filtered.length} requests` : "0 requests"}</p>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" disabled={currentPage <= 1} onClick={() => setPageNumber(currentPage - 1)}>Previous</Button>
+          <span className="text-xs text-muted-foreground">{currentPage} / {totalPages}</span>
+          <Button variant="outline" size="sm" disabled={currentPage >= totalPages} onClick={() => setPageNumber(currentPage + 1)}>Next</Button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -804,7 +814,8 @@ function formatDate(at: number): string {
 }
 
 function formatDateTime(at: number): string {
-  return new Date(at).toLocaleString(undefined, {
+  return new Date(at).toLocaleString("en-PH", {
+    timeZone: "Asia/Manila",
     month: "short",
     day: "numeric",
     year: "numeric",
