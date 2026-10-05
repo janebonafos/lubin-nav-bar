@@ -1,5 +1,7 @@
 # Health Passport patient design
 
+- [ ] Add a larger fictional chat prescription queue, manageable list controls, and synchronized waiting counters on doctor navigation and profile icons.
+
 - [x] Clarify the whole-health purpose at both patient entry points.
 - [x] Add a shared action-first Passport overview.
 - [x] Reuse existing health card, visits, prescriptions, results, patterns, and sharing flows.
