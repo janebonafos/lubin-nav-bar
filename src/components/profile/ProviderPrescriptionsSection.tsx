@@ -267,7 +267,11 @@ export default function ProviderPrescriptionsSection() {
         >
           <span className="block text-[13px] font-bold">
             Requests from chat
-            <span className="ml-2">{waitingCount} waiting</span>
+            {waitingCount > 0 ? (
+              <span className="ml-2 inline-flex items-center rounded-full bg-destructive px-2 py-0.5 text-[11px] font-bold text-white">
+                {waitingCount} waiting
+              </span>
+            ) : null}
           </span>
           <span className={`mt-0.5 block text-[12px] ${page === "chat" ? "text-white/75" : "text-[#6F6889]"}`}>
             Prescription and renewal requests clients sent through chat.
