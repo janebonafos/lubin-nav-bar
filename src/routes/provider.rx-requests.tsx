@@ -73,28 +73,28 @@ function RxRequestsPage() {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <main className="mx-auto max-w-[1240px] px-4 pb-20 pt-24 sm:px-6 lg:px-8">
-        <div className="flex flex-wrap items-end justify-between gap-4">
+      <main className="mx-auto max-w-[1520px] px-4 pb-20 pt-24 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4">
           <div>
             <Link
               to="/provider/appointments"
-              className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase text-brand-purple hover:text-brand-purple-dark"
+              className="inline-flex items-center gap-1.5 text-xs font-bold uppercase text-brand-purple hover:text-brand-purple-dark"
             >
               Lubin for doctors
             </Link>
-            <h1 className="font-display mt-1 text-3xl font-semibold text-brand-purple-dark">Patient requests</h1>
+            <h1 className="font-display mt-1 text-4xl font-semibold text-brand-purple-dark">Patient requests</h1>
           </div>
           <button
             onClick={resetResponses}
-            className="rounded-full border border-border bg-card px-4 py-2 text-xs font-semibold text-brand-purple-dark hover:bg-brand-lavender"
+            className="rounded-full border border-border bg-card px-4 py-2 text-sm font-semibold text-brand-purple-dark hover:bg-brand-lavender"
           >
             Reset demo
           </button>
         </div>
 
-        <div className="mt-6 grid items-start gap-5 lg:grid-cols-[300px_minmax(0,1fr)]">
+        <div className="mt-6 grid items-start gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
           <aside className="rounded-2xl border border-border bg-card p-3 shadow-sm lg:sticky lg:top-24">
-            <p className="px-2 pb-2 pt-1 text-xs font-semibold text-muted-foreground">
+            <p className="px-2 pb-2 pt-1 text-sm font-semibold text-muted-foreground">
               Waiting for you · {CHAT_RX_REQUESTS.length}
             </p>
             {CHAT_RX_REQUESTS.map((r) => {
@@ -104,20 +104,20 @@ function RxRequestsPage() {
                 <button
                   key={r.id}
                   onClick={() => setSelected(r.id)}
-                  className={`w-full rounded-xl px-3 py-3 text-left transition ${
+                  className={`w-full rounded-xl px-3 py-4 text-left transition ${
                     active
                       ? "bg-brand-lavender"
                       : "hover:bg-muted"
                   }`}
                 >
-                  <div className="flex items-start justify-between gap-2">
-                    <p className="text-sm font-semibold text-brand-purple-dark">{r.patient.name}</p>
-                    <span className="rounded-full bg-card px-2 py-0.5 text-[10px] font-semibold text-brand-purple">To review</span>
+                  <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-2">
+                    <p className="text-base font-semibold text-brand-purple-dark">{r.patient.name}</p>
+                    <span className="rounded-full bg-card px-2 py-0.5 text-xs font-semibold text-brand-purple">To review</span>
                   </div>
-                  <p className="mt-1 truncate text-xs text-brand-purple-dark/80">
+                  <p className="mt-1 truncate text-sm text-brand-purple-dark/80">
                     {r.kind === "renewal" ? "Renewal" : "New request"} · {r.requestedMedication ?? "Medication not specified"}
                   </p>
-                  <p className="mt-1 text-[10px] text-muted-foreground">{r.id.toUpperCase()} · {st}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{r.id.toUpperCase()} · {st}</p>
                 </button>
               );
             })}
@@ -138,41 +138,41 @@ function ReviewPanel({ req, saved }: { req: ChatRxRequest; saved?: ChatRxRespons
   const locked = !!r.draft.signedAt;
 
   return (
-    <div className="space-y-5">
-      <section className="rounded-2xl border border-border bg-card px-5 py-4 shadow-sm">
+    <div className="min-w-0 space-y-6">
+      <section className="rounded-2xl border border-border bg-card px-5 py-5 shadow-sm sm:px-6 sm:py-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <p className="text-[10px] font-bold uppercase text-brand-purple">{req.id.toUpperCase()} · Received {fmt(req.receivedAt)}</p>
-            <h2 className="font-display mt-1 text-2xl font-semibold text-brand-purple-dark">{req.patient.name}</h2>
-            <p className="text-xs text-brand-purple-dark/75">Born {req.patient.dob} · {req.patient.ageYears} · {req.patient.sex}</p>
+            <p className="text-xs font-bold uppercase text-brand-purple">{req.id.toUpperCase()} · Received {fmt(req.receivedAt)}</p>
+            <h2 className="font-display mt-1 text-3xl font-semibold text-brand-purple-dark">{req.patient.name}</h2>
+            <p className="text-sm text-brand-purple-dark/75">Born {req.patient.dob} · {req.patient.ageYears} · {req.patient.sex}</p>
           </div>
           {req.patient.verification ? (
-            <p className="rounded-full border border-border bg-muted px-3 py-1.5 text-[10px] font-medium text-brand-purple-dark">
+            <p className="rounded-full border border-border bg-muted px-3 py-1.5 text-xs font-medium text-brand-purple-dark">
               Identity verified · {req.patient.verification.method}
             </p>
           ) : (
-            <p className="rounded-full bg-amber-50 px-3 py-1.5 text-[10px] font-medium text-amber-800">
+            <p className="rounded-full bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-800">
               Identity not verified
             </p>
           )}
         </div>
       </section>
 
-      <div className="grid items-stretch gap-5 md:grid-cols-2">
-        <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-          <h3 className="mb-4 text-[10px] font-bold uppercase text-brand-purple">Patient's answers</h3>
-          <dl className="space-y-3 text-xs">
-            <div className="grid grid-cols-[108px_1fr] gap-3">
+      <div className="grid items-stretch gap-6 xl:grid-cols-2">
+        <section className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
+          <h3 className="mb-4 text-xs font-bold uppercase text-brand-purple">Patient's answers</h3>
+          <dl className="space-y-4 text-base">
+            <div className="grid grid-cols-[minmax(0,0.8fr)_minmax(0,1.6fr)] gap-3">
               <dt className="text-muted-foreground">Reason</dt>
               <dd className="font-medium text-brand-purple-dark">{req.requestedMedication ?? "Medication request"}</dd>
             </div>
             {req.intake.map((x) => (
-              <div key={x.q} className="grid grid-cols-[108px_1fr] gap-3">
+              <div key={x.q} className="grid grid-cols-[minmax(0,0.8fr)_minmax(0,1.6fr)] gap-3">
                 <dt className="text-muted-foreground">{x.q}</dt>
                 <dd className="font-medium text-brand-purple-dark">{x.a}</dd>
               </div>
             ))}
-            <div className="grid grid-cols-[108px_1fr] gap-3">
+            <div className="grid grid-cols-[minmax(0,0.8fr)_minmax(0,1.6fr)] gap-3">
               <dt className="text-muted-foreground">Allergies</dt>
               <dd className="font-medium text-brand-purple-dark">
                 {req.allergyState === "not-documented"
@@ -184,24 +184,24 @@ function ReviewPanel({ req, saved }: { req: ChatRxRequest; saved?: ChatRxRespons
             </div>
           </dl>
           {req.currentMedications.length > 0 && (
-            <div className="mt-4 grid grid-cols-[108px_1fr] gap-3 border-t border-border pt-3 text-xs">
+            <div className="mt-4 grid grid-cols-[minmax(0,0.8fr)_minmax(0,1.6fr)] gap-3 border-t border-border pt-3 text-base">
               <p className="text-muted-foreground">Current medications</p>
               <p className="font-medium text-brand-purple-dark">{req.currentMedications.join(", ")}</p>
             </div>
           )}
           <div className="mt-4 rounded-xl bg-muted p-4">
-            <p className="text-[10px] text-muted-foreground">AI-generated summary · check against the conversation</p>
-            <p className="mt-2 text-xs leading-relaxed text-brand-purple-dark">{req.chatSummary}</p>
+            <p className="text-xs text-muted-foreground">AI-generated summary · check against the conversation</p>
+            <p className="mt-2 text-sm leading-relaxed text-brand-purple-dark">{req.chatSummary}</p>
             {req.allergyState === "not-documented" && (
-              <p className="mt-2 text-xs text-destructive">Not assessed · Allergies must be confirmed</p>
+              <p className="mt-2 text-sm text-destructive">Not assessed · Allergies must be confirmed</p>
             )}
-            <button onClick={() => setShowChat((v) => !v)} className="mt-3 text-[11px] font-semibold text-brand-purple hover:underline">
+            <button onClick={() => setShowChat((v) => !v)} className="mt-3 text-sm font-semibold text-brand-purple hover:underline">
               {showChat ? "Hide conversation" : "View relevant conversation"}
             </button>
             {showChat && (
               <div className="mt-3 space-y-2 border-t border-border pt-3">
                 {req.conversation.map((m, i) => (
-                  <div key={i} className="text-xs leading-relaxed text-brand-purple-dark">
+                  <div key={i} className="text-sm leading-relaxed text-brand-purple-dark">
                     <span className="font-semibold">{m.from === "client" ? req.patient.name : "Lubin assistant"}: </span>{m.text}
                   </div>
                 ))}
@@ -210,20 +210,20 @@ function ReviewPanel({ req, saved }: { req: ChatRxRequest; saved?: ChatRxRespons
           </div>
         </section>
 
-        <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
-          <h3 className="text-[10px] font-bold uppercase text-brand-purple">AI considerations</h3>
-          <p className="mt-3 text-xs text-brand-purple-dark">Review these points as part of your clinical assessment.</p>
+        <section className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
+          <h3 className="text-xs font-bold uppercase text-brand-purple">AI considerations</h3>
+          <p className="mt-3 text-sm text-brand-purple-dark">Review these points as part of your clinical assessment.</p>
           <div className="mt-4 rounded-xl border border-border bg-muted/40 p-4">
-            <p className="text-[10px] text-muted-foreground">General guidance</p>
+            <p className="text-xs text-muted-foreground">General guidance</p>
             <p className="mt-1 text-base font-semibold text-brand-purple-dark">
               {req.kind === "renewal" ? `Review ${req.requestedMedication ?? "the current medicine"}` : "Assess before prescribing"}
             </p>
-            <p className="mt-3 text-[10px] text-muted-foreground">Why it was suggested</p>
-            <ul className="mt-1 space-y-1 text-xs leading-relaxed text-brand-purple-dark">
+            <p className="mt-3 text-xs text-muted-foreground">Why it was suggested</p>
+            <ul className="mt-1 space-y-1 text-sm leading-relaxed text-brand-purple-dark">
               {req.ai.reasoning.map((x) => <li key={x}>{x}</li>)}
             </ul>
-            <p className="mt-4 text-[10px] text-muted-foreground">Still needs your check</p>
-            <ul className="mt-1 space-y-1 text-xs leading-relaxed text-brand-purple-dark">
+            <p className="mt-4 text-xs text-muted-foreground">Still needs your check</p>
+            <ul className="mt-1 space-y-1 text-sm leading-relaxed text-brand-purple-dark">
               {req.ai.missing.map((x) => <li key={x}>• {x}</li>)}
             </ul>
           </div>
@@ -231,17 +231,17 @@ function ReviewPanel({ req, saved }: { req: ChatRxRequest; saved?: ChatRxRespons
       </div>
 
       {/* Response */}
-      <section className="rounded-2xl border border-border bg-card p-5 shadow-sm">
+      <section className="rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
         <div className="flex items-center justify-between gap-3">
-          <h3 className="text-[10px] font-bold uppercase text-brand-purple">Response to patient</h3>
-          <span className={`rounded-full px-3 py-1 text-[10px] font-semibold ${STATUS_STYLE[status]}`}>{status === "New" ? "Draft · not sent" : status}</span>
+          <h3 className="text-xs font-bold uppercase text-brand-purple">Response to patient</h3>
+          <span className={`rounded-full px-3 py-1 text-xs font-semibold ${STATUS_STYLE[status]}`}>{status === "New" ? "Draft · not sent" : status}</span>
         </div>
         <div className="mt-4 space-y-3">
           <QuestionsSection req={req} r={r} update={update} locked={locked} />
           <DraftSection req={req} r={r} update={update} />
           <AdviceAndNextStepsSection r={r} update={update} locked={locked} />
         </div>
-        <p className="mt-4 border-t border-border pt-4 text-[11px] text-muted-foreground">Add questions, a prescription or advice to respond.</p>
+        <p className="mt-4 border-t border-border pt-4 text-sm text-muted-foreground">Add questions, a prescription or advice to respond.</p>
       </section>
     </div>
   );
@@ -266,11 +266,11 @@ function Section({
 }) {
   return (
     <div className="rounded-xl border border-border bg-card">
-      <div className="flex items-center justify-between gap-2 px-4 py-3">
-        <div className="flex items-center gap-2 text-sm font-semibold text-brand-purple-dark">
+      <div className="flex items-center justify-between gap-3 px-4 py-4">
+        <div className="flex items-center gap-2 text-base font-semibold text-brand-purple-dark">
           {title} {badge}
         </div>
-        <button onClick={onToggle} className="text-xs font-semibold text-brand-purple hover:underline">
+        <button onClick={onToggle} className="text-sm font-semibold text-brand-purple hover:underline">
           {open ? "Close" : addLabel}
         </button>
       </div>
@@ -280,12 +280,12 @@ function Section({
 }
 
 const Pill_ = ({ children, cls }: { children: React.ReactNode; cls: string }) => (
-  <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${cls}`}>{children}</span>
+  <span className={`rounded-full px-2 py-0.5 text-sm font-semibold ${cls}`}>{children}</span>
 );
-const btn = "inline-flex items-center gap-1.5 rounded-[10px] px-4 py-2 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-50";
+const btn = "inline-flex items-center gap-1.5 rounded-[10px] px-4 py-2 text-base font-semibold transition disabled:cursor-not-allowed disabled:opacity-50";
 const primary = `${btn} bg-[#3D2E6B] text-white hover:bg-[#2E2254]`;
 const secondary = `${btn} border border-[#D8C7F0] bg-white text-[#3D2E6B] hover:bg-[#FBF9FF]`;
-const input = "w-full rounded-[10px] border border-[#D8C7F0] bg-white px-3 py-2 text-sm text-[#3D2E6B] focus:border-[#3D2E6B] focus:outline-none disabled:bg-[#F7F4FC]";
+const input = "w-full rounded-[10px] border border-[#D8C7F0] bg-white px-3 py-2 text-base text-[#3D2E6B] focus:border-[#3D2E6B] focus:outline-none disabled:bg-[#F7F4FC]";
 
 function QuestionsSection({ req, r, update, locked }: { req: ChatRxRequest; r: ChatRxResponse; update: Upd; locked: boolean }) {
   const q = r.questions;
@@ -311,11 +311,11 @@ function QuestionsSection({ req, r, update, locked }: { req: ChatRxRequest; r: C
         className={input}
       />
       {q.sentAt ? (
-        <div className="mt-3 space-y-2 text-sm">
-          <p className="text-xs text-[#7E6BAF]">Sent {fmt(q.sentAt)} · replies return to this review.</p>
+        <div className="mt-3 space-y-2 text-base">
+          <p className="text-sm text-[#7E6BAF]">Sent {fmt(q.sentAt)} · replies return to this review.</p>
           {q.reply ? (
             <div className="rounded-xl bg-[#F4F1FA] p-3">
-              <p className="text-[10px] font-semibold uppercase text-[#7E6BAF]">{req.patient.name} · {fmt(q.reply.at)}</p>
+              <p className="text-xs font-semibold uppercase text-[#7E6BAF]">{req.patient.name} · {fmt(q.reply.at)}</p>
               <p className="text-[#3D2E6B]">{q.reply.text}</p>
             </div>
           ) : (
@@ -424,13 +424,13 @@ function DraftSection({ req, r, update }: { req: ChatRxRequest; r: ChatRxRespons
       addLabel={badge ? "Open" : "Add prescription"}
     >
       {!signed && req.suggestion && (sugFill.length > 0 || d.aiFilled) && (
-        <div className="mb-4 rounded-xl border border-[#C9B8EA] bg-[#F7F3FE] p-3 text-sm">
+        <div className="mb-4 rounded-xl border border-[#C9B8EA] bg-[#F7F3FE] p-3 text-base">
           <p className="font-semibold text-[#3D2E6B]">
             AI suggestion: {req.suggestion.medicine} {req.suggestion.strength}
           </p>
           {sugFill.length > 0 ? (
             <>
-              <p className="mt-1 text-xs text-[#7E6BAF]">
+              <p className="mt-1 text-sm text-[#7E6BAF]">
                 Will fill only empty fields: {sugFill.map((k) => DRAFT_FIELD_LABELS[k]).join(", ")}. Nothing you typed is overwritten.
               </p>
               <button className={`${secondary} mt-2`} onClick={applySuggestion}>
@@ -438,11 +438,11 @@ function DraftSection({ req, r, update }: { req: ChatRxRequest; r: ChatRxRespons
               </button>
             </>
           ) : (
-            <p className="mt-1 text-xs text-[#7E6BAF]">Added to: {d.aiFilled!.fields.map((k) => DRAFT_FIELD_LABELS[k]).join(", ")}.</p>
+            <p className="mt-1 text-sm text-[#7E6BAF]">Added to: {d.aiFilled!.fields.map((k) => DRAFT_FIELD_LABELS[k]).join(", ")}.</p>
           )}
           {d.aiFilled && (
             <button
-              className="mt-2 ml-2 text-xs font-semibold text-[#3D2E6B] hover:underline"
+              className="mt-2 ml-2 text-sm font-semibold text-[#3D2E6B] hover:underline"
               onClick={() => update((x) => ({ ...x, draft: { ...x.draft, fields: x.draft.aiFilled!.before, aiFilled: undefined } }))}
             >
               Undo
@@ -486,10 +486,10 @@ function DraftSection({ req, r, update }: { req: ChatRxRequest; r: ChatRxRespons
       {!signed && (
         <div className="mt-4 space-y-2">
           {missing.length > 0 && (
-            <p className="text-xs text-[#7A5410]">Still needed to sign: {missing.map((k) => DRAFT_FIELD_LABELS[k]).join(", ")}</p>
+            <p className="text-sm text-[#7A5410]">Still needed to sign: {missing.map((k) => DRAFT_FIELD_LABELS[k]).join(", ")}</p>
           )}
           {unsentQuestions && (
-            <p className="text-xs text-[#7A5410]">You have unsent questions. Send or remove them before signing.</p>
+            <p className="text-sm text-[#7A5410]">You have unsent questions. Send or remove them before signing.</p>
           )}
           <button className={primary} disabled={missing.length > 0 || unsentQuestions} onClick={() => setConfirming(true)}>
             Review and sign
@@ -513,7 +513,7 @@ function DraftSection({ req, r, update }: { req: ChatRxRequest; r: ChatRxRespons
       )}
 
       {signed && (
-        <div className="mt-4 space-y-2 rounded-xl bg-[#F4F9F5] p-3 text-sm">
+        <div className="mt-4 space-y-2 rounded-xl bg-[#F4F9F5] p-3 text-base">
           <p className="font-semibold text-[#1F6B3A]">Signed {fmt(d.signedAt!)}</p>
           {d.delivery === "delivered" ? (
             <p className="text-[#1F6B3A]">Delivered to {req.patient.name} {fmt(d.deliveredAt!)}</p>
@@ -538,7 +538,7 @@ function DraftSection({ req, r, update }: { req: ChatRxRequest; r: ChatRxRespons
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <span className="mb-1 block text-xs font-medium text-[#7E6BAF]">{label}</span>
+      <span className="mb-1 block text-sm font-medium text-[#7E6BAF]">{label}</span>
       {children}
     </label>
   );
@@ -568,28 +568,28 @@ function SignConfirm({
       <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6">
         <div className="flex items-center justify-between">
           <h4 className="text-lg font-bold text-[#3D2E6B]">Confirm and sign</h4>
-          <button onClick={onCancel} className="text-xs font-semibold text-[#7E6BAF] hover:underline">
+          <button onClick={onCancel} className="text-sm font-semibold text-[#7E6BAF] hover:underline">
             Close
           </button>
         </div>
-        <div className="mt-4 rounded-xl border border-[#E2D6F5] p-4 text-sm text-[#3D2E6B]">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-[#7E6BAF]">Prescription preview · from chat request</p>
+        <div className="mt-4 rounded-xl border border-[#E2D6F5] p-4 text-base text-[#3D2E6B]">
+          <p className="text-xs font-semibold uppercase tracking-wider text-[#7E6BAF]">Prescription preview · from chat request</p>
           <p className="mt-2 font-semibold">{prescriber || empty}</p>
-          <p className="text-xs">{req.country === "PH" ? "PRC no." : "Licence no."} {licence || empty}</p>
-          <p className="text-xs">{clinic || empty}</p>
+          <p className="text-sm">{req.country === "PH" ? "PRC no." : "Licence no."} {licence || empty}</p>
+          <p className="text-sm">{clinic || empty}</p>
           <hr className="my-3 border-[#EFE8FA]" />
           <p>Patient: {req.patient.name} · {req.patient.ageYears} yrs · {req.patient.sex}</p>
           <p className="mt-2 font-semibold">{f.medicine} {f.strength}</p>
           <p>{f.dose}, {f.route}, {f.frequency} for {f.duration} · Qty {f.quantity}</p>
-          <p className="mt-2 text-xs text-[#7E6BAF]">Assessment: {f.assessment}</p>
-          <p className="text-xs text-[#7E6BAF]">Follow-up: {f.followUp}</p>
+          <p className="mt-2 text-sm text-[#7E6BAF]">Assessment: {f.assessment}</p>
+          <p className="text-sm text-[#7E6BAF]">Follow-up: {f.followUp}</p>
         </div>
         {(!prescriber || !licence) && (
-          <p className="mt-3 text-xs text-[#9B2C2C]">
+          <p className="mt-3 text-sm text-[#9B2C2C]">
             Your prescriber details are incomplete. Add them in prescribing verification before signing.
           </p>
         )}
-        <label className="mt-4 flex items-start gap-2 text-sm text-[#3D2E6B]">
+        <label className="mt-4 flex items-start gap-2 text-base text-[#3D2E6B]">
           <input type="checkbox" checked={ok} onChange={(e) => setOk(e.target.checked)} className="mt-1" />
           I reviewed this request and the patient's information, and I take responsibility for this prescription.
         </label>
@@ -626,7 +626,7 @@ function AdviceAndNextStepsSection({ r, update, locked }: { r: ChatRxResponse; u
     >
       <div className="space-y-5">
         <div>
-          <p className="mb-2 text-xs font-semibold text-brand-purple-dark">Advice to the patient</p>
+          <p className="mb-2 text-sm font-semibold text-brand-purple-dark">Advice to the patient</p>
           <textarea
             rows={3}
             disabled={!!a.sentAt}
@@ -636,7 +636,7 @@ function AdviceAndNextStepsSection({ r, update, locked }: { r: ChatRxResponse; u
             className={input}
           />
           {a.sentAt ? (
-            <p className="mt-2 text-xs text-muted-foreground">Sent {fmt(a.sentAt)}</p>
+            <p className="mt-2 text-sm text-muted-foreground">Sent {fmt(a.sentAt)}</p>
           ) : (
             <button
               className={`${primary} mt-3`}
@@ -649,15 +649,15 @@ function AdviceAndNextStepsSection({ r, update, locked }: { r: ChatRxResponse; u
         </div>
 
         <div className="border-t border-border pt-4">
-          <p className="mb-2 text-xs font-semibold text-brand-purple-dark">Recommend another next step</p>
-          <p className="mb-3 text-xs text-muted-foreground">A non-prescribing path. The patient is told no prescription was issued.</p>
+          <p className="mb-2 text-sm font-semibold text-brand-purple-dark">Recommend another next step</p>
+          <p className="mb-3 text-sm text-muted-foreground">A non-prescribing path. The patient is told no prescription was issued.</p>
           <div className="flex flex-wrap gap-2">
             {(Object.keys(NEXT) as NextStepKind[]).map((k) => (
               <button
                 key={k}
                 disabled={!!n.sentAt}
                 onClick={() => update((x) => ({ ...x, nextStep: { ...x.nextStep, kind: k } }))}
-                className={`rounded-full border px-3 py-1.5 text-xs font-semibold ${
+                className={`rounded-full border px-3 py-1.5 text-sm font-semibold ${
                   n.kind === k ? "border-brand-purple-dark bg-brand-purple-dark text-primary-foreground" : "border-border text-brand-purple-dark"
                 }`}
               >
@@ -674,9 +674,9 @@ function AdviceAndNextStepsSection({ r, update, locked }: { r: ChatRxResponse; u
             className={`${input} mt-3`}
           />
           {n.sentAt ? (
-            <p className="mt-2 text-xs text-muted-foreground">Sent {fmt(n.sentAt)} · {NEXT[n.kind]}</p>
+            <p className="mt-2 text-sm text-muted-foreground">Sent {fmt(n.sentAt)} · {NEXT[n.kind]}</p>
           ) : locked ? (
-            <p className="mt-2 text-xs text-muted-foreground">A prescription was already signed for this request.</p>
+            <p className="mt-2 text-sm text-muted-foreground">A prescription was already signed for this request.</p>
           ) : (
             <button
               className={`${primary} mt-3`}

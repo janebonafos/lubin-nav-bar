@@ -7,6 +7,7 @@ import {
   useRouterState,
   HeadContent,
   Scripts,
+  type ErrorComponentProps,
 } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 
@@ -40,7 +41,7 @@ function NotFoundComponent() {
   );
 }
 
-function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
+function ErrorComponent({ error, reset }: ErrorComponentProps) {
   console.error(error);
   const router = useRouter();
 
@@ -149,7 +150,7 @@ function RootComponent() {
 
 function RouteProgressBar() {
   const isLoading = useRouterState({
-    select: (s) => s.status === "pending" || s.isLoading || s.isTransitioning,
+    select: (s) => s.status === "pending" || s.isLoading,
   });
   const [visible, setVisible] = useState(false);
   const [progress, setProgress] = useState(0);
