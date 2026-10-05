@@ -681,8 +681,8 @@ function ProfilePage() {
                         {r === "client" ? "Personal" : "Professional"}
                         {r === "provider" && (
                           <ChatRxCount
-                            count={waitingCount}
-                            label={`${waitingCount} prescription requests need your attention`}
+                            count={waitingCount + UPCOMING_APPOINTMENTS_COUNT}
+                            label={`${waitingCount + UPCOMING_APPOINTMENTS_COUNT} items need your attention`}
                             ringClassName={role === r ? "ring-[#7E6BAF]" : "ring-card"}
                           />
                         )}
