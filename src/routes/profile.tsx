@@ -677,20 +677,20 @@ function ProfilePage() {
                           : "text-[#7E6BAF] hover:bg-[#7E6BAF]/10"
                       }`}
                     >
-                      {r === "client" ? "Personal" : "Professional"}
+                      <span className="inline-flex items-center justify-center gap-1.5">
+                        {r === "client" ? "Personal" : "Professional"}
+                        {r === "provider" && waitingCount > 0 && (
+                          <span
+                            className="inline-flex items-center justify-center whitespace-nowrap rounded-full bg-destructive px-1.5 py-0.5 text-[10px] font-bold leading-none text-destructive-foreground"
+                            aria-label={`${waitingCount} prescription requests need your attention`}
+                          >
+                            {waitingCount}
+                          </span>
+                        )}
+                      </span>
                     </button>
                   ))}
                 </div>
-                {role === "provider" && waitingCount > 0 && (
-                  <div className="mt-1.5 grid grid-cols-2">
-                    <div />
-                    <div className="flex justify-center">
-                      <span className="inline-flex items-center whitespace-nowrap rounded-full bg-destructive px-2.5 py-1 text-[10px] font-bold leading-none text-destructive-foreground shadow-sm">
-                        {waitingCount}
-                      </span>
-                    </div>
-                  </div>
-                )}
               </div>
 
               <div className="border-t border-[#EEE9F8]" />
