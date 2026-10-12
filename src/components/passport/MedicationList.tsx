@@ -29,6 +29,8 @@ import { ensureSamplePrescriptionRecord } from "@/lib/prescription/sampleRecord"
  * than the official prescription document cards below it.
  * Demo data comes from src/lib/passport/medications.ts.
  */
+const PAGE_SIZE = 4;
+
 export default function MedicationList({
   onOpenPrescription,
 }: {
