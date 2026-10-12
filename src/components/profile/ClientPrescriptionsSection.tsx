@@ -111,15 +111,8 @@ export default function ClientPrescriptionsSection({
         </p>
       </div>
 
-      <MedicationList
-        onOpenPrescription={(id) => {
-          const doc = sorted.find((d) => d.id === id);
-          if (doc) window.open(prescriptionHref(doc), "_blank", "noopener,noreferrer");
-        }}
-      />
-
-      <div className="mt-12 mb-6">
-        <h4 className="text-xl font-bold text-[#3D2E6B]">
+      <div className="mt-2 mb-6">
+        <h4 className="font-display text-xl font-semibold text-[#3D2E6B]">
           Official prescription copies
         </h4>
         <p className="mt-1 text-sm text-[#6F6889]">
@@ -201,7 +194,7 @@ export default function ClientPrescriptionsSection({
           </button>
         </div>
       ) : (
-        <ul className="grid grid-cols-1 gap-5 md:grid-cols-2">
+        <ul className="divide-y divide-[#F3F1FB] overflow-hidden rounded-2xl border border-[#EAE7F5] bg-white shadow-sm">
           {filtered.slice(0, visible).map((doc) => {
             const medNames = doc.medications
               .map((m) => m.genericName || m.name)
@@ -215,65 +208,55 @@ export default function ClientPrescriptionsSection({
             return (
               <li
                 key={doc.id}
-                className="relative rounded-2xl border-2 border-dashed border-[#A89BD0]/40 bg-[#EAE7F5]/30 p-6"
+                className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 p-5 transition-colors hover:bg-[#F8F7FC] sm:px-6"
               >
-                <span className="absolute right-6 top-6 rounded border border-[#A89BD0]/20 bg-white px-2 py-1 font-mono text-[10px] font-bold text-[#3D2E6B]">
-                  {doc.number}
-                </span>
-                <h5 className="mb-1 pr-24 text-lg font-bold text-[#3D2E6B]">
-                  Prescription document
-                </h5>
-                <p className="mb-6 text-xs font-semibold uppercase tracking-wider text-[#7E6BAF]">
-                  Issued {formatDate(doc.signedAt)}
-                </p>
-
-                <div className="mb-6 space-y-3">
-                  <div className="flex justify-between gap-3 text-sm">
-                    <span className="text-[#6F6889]">Prescriber</span>
-                    <span className="text-right font-medium text-[#3D2E6B]">
-                      {doc.identity?.fullName || "Not recorded"}
+                <div className="min-w-0 flex-1">
+                  <div className="mb-1 flex flex-wrap items-center gap-2">
+                    <h5 className="font-display text-[17px] font-semibold text-[#3D2E6B]">
+                      Prescription document
+                    </h5>
+                    <span className="rounded border border-[#A89BD0]/20 bg-white px-2 py-0.5 font-mono text-[10px] font-bold text-[#3D2E6B]">
+                      {doc.number}
                     </span>
-                  </div>
-                  <div className="flex justify-between gap-3 text-sm">
-                    <span className="text-[#6F6889]">
-                      {doc.validityLabel || "Valid until"}
-                    </span>
-                    <span className="text-right font-medium text-[#3D2E6B]">
-                      {doc.validUntil ? formatDate(doc.validUntil) : "—"}
-                    </span>
-                  </div>
-                  <div className="flex justify-between gap-3 text-sm">
-                    <span className="text-[#6F6889]">Includes</span>
-                    <span className="text-right font-medium text-[#3D2E6B]">
-                      {includes}
-                    </span>
-                  </div>
-                </div>
-
-                {(doc.voided || doc.controlled) && (
-                  <div className="mb-4 flex flex-wrap gap-2">
-                    {doc.voided && (
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-white/80 px-2.5 py-1 text-[11px] font-semibold text-[#5B4B8A]">
-                        <Ban className="h-3.5 w-3.5" /> Voided — not dispensable
+                    {doc.voided ? (
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F3F0FA] px-2.5 py-0.5 text-[11px] font-semibold text-[#5B4B8A]">
+                        <Ban className="h-3 w-3" /> Voided
                       </span>
-                    )}
-                    {doc.controlled && (
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FDF6E7] px-2.5 py-1 text-[11px] font-semibold text-[#6B4E10]">
-                        <ShieldAlert className="h-3.5 w-3.5" />
+                    ) : null}
+                    {doc.controlled ? (
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FDF6E7] px-2.5 py-0.5 text-[11px] font-semibold text-[#6B4E10]">
+                        <ShieldAlert className="h-3 w-3" />
                         {doc.country === "PH"
                           ? "Dangerous drug"
                           : "Controlled substance"}
                       </span>
-                    )}
+                    ) : null}
                   </div>
-                )}
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
+                    Issued {formatDate(doc.signedAt)}
+                  </p>
+                  <p className="mt-1.5 text-sm text-[#6F6889]">
+                    Prescriber{" "}
+                    <span className="font-medium text-[#3D2E6B]">
+                      {doc.identity?.fullName || "Not recorded"}
+                    </span>
+                    {" · "}
+                    {doc.validityLabel || "Valid until"}{" "}
+                    <span className="font-medium text-[#3D2E6B]">
+                      {doc.validUntil ? formatDate(doc.validUntil) : "—"}
+                    </span>
+                    {" · "}
+                    Includes{" "}
+                    <span className="font-medium text-[#3D2E6B]">{includes}</span>
+                  </p>
+                </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="flex shrink-0 gap-2">
                   <a
                     href={prescriptionHref(doc)}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center rounded-xl border border-[#A89BD0] bg-white px-4 py-2.5 text-sm font-bold text-[#3D2E6B] transition-colors hover:bg-[#EAE7F5]"
+                    className="inline-flex items-center justify-center rounded-xl border border-[#A89BD0] bg-white px-4 py-2 text-sm font-bold text-[#3D2E6B] transition-colors hover:bg-[#EAE7F5]"
                   >
                     View record
                   </a>
@@ -281,7 +264,7 @@ export default function ClientPrescriptionsSection({
                     href={prescriptionHref(doc, { download: true })}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center rounded-xl bg-[#7E6BAF] px-4 py-2.5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-[#3D2E6B]"
+                    className="inline-flex items-center justify-center rounded-xl bg-[#7E6BAF] px-4 py-2 text-sm font-bold text-white shadow-sm transition-colors hover:bg-[#3D2E6B]"
                   >
                     Download PDF
                   </a>
@@ -318,6 +301,15 @@ export default function ClientPrescriptionsSection({
           </button>
         </div>
       )}
+
+      <div className="mt-12">
+        <MedicationList
+          onOpenPrescription={(id) => {
+            const doc = sorted.find((d) => d.id === id);
+            if (doc) window.open(prescriptionHref(doc), "_blank", "noopener,noreferrer");
+          }}
+        />
+      </div>
     </section>
   );
 }
