@@ -491,7 +491,7 @@ function ProfilePage() {
           { key: "appointments", label: "Appointments", icon: <CalendarClock className="h-5 w-5" /> },
           { key: "passport", label: "Health Passport", icon: <HeartPulse className="h-5 w-5" /> },
           { key: "visits", label: "Visits", icon: <CalendarDays className="h-5 w-5" /> },
-          { key: "prescriptions", label: "Medications", icon: <Pill className="h-5 w-5" /> },
+          { key: "prescriptions", label: "My Prescription", icon: <Pill className="h-5 w-5" /> },
           { key: "records", label: "Records", icon: <ClipboardList className="h-5 w-5" /> },
           { key: "wellbeing", label: "Wellbeing", icon: <HeartPulse className="h-5 w-5" /> },
           { key: "discovery", label: "Self Discovery", icon: <Compass className="h-5 w-5" /> },
@@ -528,7 +528,7 @@ function ProfilePage() {
       subtitle: "Track earnings and manage where your payouts land",
     },
     prescriptions: {
-      title: role === "provider" ? "Prescriptions & Medications" : "Medications",
+      title: role === "provider" ? "Prescriptions & Medications" : "My Prescription",
       subtitle:
         role === "provider"
           ? "Patients you have issued prescriptions to"

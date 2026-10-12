@@ -9,122 +9,52 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as TermsRouteImport } from './routes/terms'
-import { Route as SelfDiscoveryRouteImport } from './routes/self-discovery'
-import { Route as ResourcesRouteImport } from './routes/resources'
-import { Route as ProviderOnboardingRouteImport } from './routes/provider-onboarding'
-import { Route as ProfileRouteImport } from './routes/profile'
-import { Route as PrivacyRouteImport } from './routes/privacy'
-import { Route as PrescribingVerificationRouteImport } from './routes/prescribing-verification'
-import { Route as PaymentSuccessRouteImport } from './routes/payment-success'
-import { Route as PaymentFailedRouteImport } from './routes/payment-failed'
-import { Route as MyHealthPassportRouteImport } from './routes/my-health-passport'
-import { Route as FindProviderRouteImport } from './routes/find-provider'
-import { Route as FaqsRouteImport } from './routes/faqs'
-import { Route as EmailPreviewRouteImport } from './routes/email-preview'
-import { Route as CheckoutRouteImport } from './routes/checkout'
-import { Route as CheckInRouteImport } from './routes/check-in'
-import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as SharePreviewRouteImport } from './routes/share.preview'
-import { Route as ShareTokenRouteImport } from './routes/share.$token'
-import { Route as SelfDiscoverySlugRouteImport } from './routes/self-discovery_.$slug'
-import { Route as RxClaimClaimIdRouteImport } from './routes/rx-claim.$claimId'
-import { Route as ResultTokenRouteImport } from './routes/result.$token'
-import { Route as ProviderRxRequestsRouteImport } from './routes/provider.rx-requests'
-import { Route as ProviderAppointmentsRouteImport } from './routes/provider.appointments'
-import { Route as ProviderIdRouteImport } from './routes/provider.$id'
-import { Route as ProfilePreviewRouteImport } from './routes/profile.preview'
-import { Route as PreviewPsychiatristSessionRouteImport } from './routes/preview.psychiatrist-session'
-import { Route as PreviewPrescriberDemosRouteImport } from './routes/preview.prescriber-demos'
-import { Route as EPrescriptionViewIdRouteImport } from './routes/e-prescription_.$viewId'
-import { Route as AppointmentRescheduleRouteImport } from './routes/appointment.reschedule'
-import { Route as AppointmentDetailsRouteImport } from './routes/appointment.details'
-import { Route as AppointmentCancelRouteImport } from './routes/appointment.cancel'
-import { Route as ApiResultInsightRouteImport } from './routes/api/result-insight'
-import { Route as ApiMedicationReferenceRouteImport } from './routes/api/medication-reference'
-import { Route as ApiGenerateVisitSummaryRouteImport } from './routes/api/generate-visit-summary'
-import { Route as ApiGenerateSoapRouteImport } from './routes/api/generate-soap'
-import { Route as ApiGenerateProviderBriefRouteImport } from './routes/api/generate-provider-brief'
-import { Route as ApiGeneratePrescriptionRouteImport } from './routes/api/generate-prescription'
-import { Route as ApiEnhanceProfileRouteImport } from './routes/api/enhance-profile'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as CheckInRouteImport } from './routes/check-in'
+import { Route as CheckoutRouteImport } from './routes/checkout'
+import { Route as EmailPreviewRouteImport } from './routes/email-preview'
+import { Route as FaqsRouteImport } from './routes/faqs'
+import { Route as FindProviderRouteImport } from './routes/find-provider'
+import { Route as MyHealthPassportRouteImport } from './routes/my-health-passport'
+import { Route as PaymentFailedRouteImport } from './routes/payment-failed'
+import { Route as PaymentSuccessRouteImport } from './routes/payment-success'
+import { Route as PrescribingVerificationRouteImport } from './routes/prescribing-verification'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as ProviderOnboardingRouteImport } from './routes/provider-onboarding'
+import { Route as ResourcesRouteImport } from './routes/resources'
+import { Route as SelfDiscoveryRouteImport } from './routes/self-discovery'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as ApiChatRouteImport } from './routes/api/chat'
-import { Route as ApiPublicEmailPreviewRouteImport } from './routes/api/public/email-preview'
+import { Route as ApiEnhanceProfileRouteImport } from './routes/api/enhance-profile'
+import { Route as ApiGeneratePrescriptionRouteImport } from './routes/api/generate-prescription'
+import { Route as ApiGenerateProviderBriefRouteImport } from './routes/api/generate-provider-brief'
+import { Route as ApiGenerateSoapRouteImport } from './routes/api/generate-soap'
+import { Route as ApiGenerateVisitSummaryRouteImport } from './routes/api/generate-visit-summary'
+import { Route as ApiMedicationReferenceRouteImport } from './routes/api/medication-reference'
+import { Route as ApiResultInsightRouteImport } from './routes/api/result-insight'
+import { Route as AppointmentCancelRouteImport } from './routes/appointment.cancel'
+import { Route as AppointmentDetailsRouteImport } from './routes/appointment.details'
+import { Route as AppointmentRescheduleRouteImport } from './routes/appointment.reschedule'
+import { Route as EPrescriptionViewIdRouteImport } from './routes/e-prescription_.$viewId'
+import { Route as PreviewPrescriberDemosRouteImport } from './routes/preview.prescriber-demos'
+import { Route as PreviewPsychiatristSessionRouteImport } from './routes/preview.psychiatrist-session'
+import { Route as ProfilePreviewRouteImport } from './routes/profile.preview'
+import { Route as ProviderIdRouteImport } from './routes/provider.$id'
+import { Route as ProviderAppointmentsRouteImport } from './routes/provider.appointments'
+import { Route as ProviderRxRequestsRouteImport } from './routes/provider.rx-requests'
+import { Route as ResultTokenRouteImport } from './routes/result.$token'
+import { Route as RxClaimClaimIdRouteImport } from './routes/rx-claim.$claimId'
+import { Route as SelfDiscoverySlugRouteImport } from './routes/self-discovery_.$slug'
+import { Route as ShareTokenRouteImport } from './routes/share.$token'
+import { Route as SharePreviewRouteImport } from './routes/share.preview'
 import { Route as ApiPublicAppointmentMessageInboundRouteImport } from './routes/api/public/appointment-message-inbound'
+import { Route as ApiPublicEmailPreviewRouteImport } from './routes/api/public/email-preview'
 
-const TermsRoute = TermsRouteImport.update({
-  id: '/terms',
-  path: '/terms',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SelfDiscoveryRoute = SelfDiscoveryRouteImport.update({
-  id: '/self-discovery',
-  path: '/self-discovery',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ResourcesRoute = ResourcesRouteImport.update({
-  id: '/resources',
-  path: '/resources',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProviderOnboardingRoute = ProviderOnboardingRouteImport.update({
-  id: '/provider-onboarding',
-  path: '/provider-onboarding',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProfileRoute = ProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrivacyRoute = PrivacyRouteImport.update({
-  id: '/privacy',
-  path: '/privacy',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrescribingVerificationRoute = PrescribingVerificationRouteImport.update({
-  id: '/prescribing-verification',
-  path: '/prescribing-verification',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PaymentSuccessRoute = PaymentSuccessRouteImport.update({
-  id: '/payment-success',
-  path: '/payment-success',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PaymentFailedRoute = PaymentFailedRouteImport.update({
-  id: '/payment-failed',
-  path: '/payment-failed',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MyHealthPassportRoute = MyHealthPassportRouteImport.update({
-  id: '/my-health-passport',
-  path: '/my-health-passport',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FindProviderRoute = FindProviderRouteImport.update({
-  id: '/find-provider',
-  path: '/find-provider',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FaqsRoute = FaqsRouteImport.update({
-  id: '/faqs',
-  path: '/faqs',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EmailPreviewRoute = EmailPreviewRouteImport.update({
-  id: '/email-preview',
-  path: '/email-preview',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CheckoutRoute = CheckoutRouteImport.update({
-  id: '/checkout',
-  path: '/checkout',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CheckInRoute = CheckInRouteImport.update({
-  id: '/check-in',
-  path: '/check-in',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -132,105 +62,94 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const CheckInRoute = CheckInRouteImport.update({
+  id: '/check-in',
+  path: '/check-in',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SharePreviewRoute = SharePreviewRouteImport.update({
-  id: '/share/preview',
-  path: '/share/preview',
+const CheckoutRoute = CheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ShareTokenRoute = ShareTokenRouteImport.update({
-  id: '/share/$token',
-  path: '/share/$token',
+const EmailPreviewRoute = EmailPreviewRouteImport.update({
+  id: '/email-preview',
+  path: '/email-preview',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SelfDiscoverySlugRoute = SelfDiscoverySlugRouteImport.update({
-  id: '/self-discovery_/$slug',
-  path: '/self-discovery/$slug',
+const FaqsRoute = FaqsRouteImport.update({
+  id: '/faqs',
+  path: '/faqs',
   getParentRoute: () => rootRouteImport,
 } as any)
-const RxClaimClaimIdRoute = RxClaimClaimIdRouteImport.update({
-  id: '/rx-claim/$claimId',
-  path: '/rx-claim/$claimId',
+const FindProviderRoute = FindProviderRouteImport.update({
+  id: '/find-provider',
+  path: '/find-provider',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ResultTokenRoute = ResultTokenRouteImport.update({
-  id: '/result/$token',
-  path: '/result/$token',
+const MyHealthPassportRoute = MyHealthPassportRouteImport.update({
+  id: '/my-health-passport',
+  path: '/my-health-passport',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProviderRxRequestsRoute = ProviderRxRequestsRouteImport.update({
-  id: '/provider/rx-requests',
-  path: '/provider/rx-requests',
+const PaymentFailedRoute = PaymentFailedRouteImport.update({
+  id: '/payment-failed',
+  path: '/payment-failed',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProviderAppointmentsRoute = ProviderAppointmentsRouteImport.update({
-  id: '/provider/appointments',
-  path: '/provider/appointments',
+const PaymentSuccessRoute = PaymentSuccessRouteImport.update({
+  id: '/payment-success',
+  path: '/payment-success',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProviderIdRoute = ProviderIdRouteImport.update({
-  id: '/provider/$id',
-  path: '/provider/$id',
+const PrescribingVerificationRoute = PrescribingVerificationRouteImport.update({
+  id: '/prescribing-verification',
+  path: '/prescribing-verification',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProfilePreviewRoute = ProfilePreviewRouteImport.update({
-  id: '/preview',
-  path: '/preview',
-  getParentRoute: () => ProfileRoute,
-} as any)
-const PreviewPsychiatristSessionRoute =
-  PreviewPsychiatristSessionRouteImport.update({
-    id: '/preview/psychiatrist-session',
-    path: '/preview/psychiatrist-session',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const PreviewPrescriberDemosRoute = PreviewPrescriberDemosRouteImport.update({
-  id: '/preview/prescriber-demos',
-  path: '/preview/prescriber-demos',
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
-const EPrescriptionViewIdRoute = EPrescriptionViewIdRouteImport.update({
-  id: '/e-prescription_/$viewId',
-  path: '/e-prescription/$viewId',
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppointmentRescheduleRoute = AppointmentRescheduleRouteImport.update({
-  id: '/appointment/reschedule',
-  path: '/appointment/reschedule',
+const ProviderOnboardingRoute = ProviderOnboardingRouteImport.update({
+  id: '/provider-onboarding',
+  path: '/provider-onboarding',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppointmentDetailsRoute = AppointmentDetailsRouteImport.update({
-  id: '/appointment/details',
-  path: '/appointment/details',
+const ResourcesRoute = ResourcesRouteImport.update({
+  id: '/resources',
+  path: '/resources',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppointmentCancelRoute = AppointmentCancelRouteImport.update({
-  id: '/appointment/cancel',
-  path: '/appointment/cancel',
+const SelfDiscoveryRoute = SelfDiscoveryRouteImport.update({
+  id: '/self-discovery',
+  path: '/self-discovery',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiResultInsightRoute = ApiResultInsightRouteImport.update({
-  id: '/api/result-insight',
-  path: '/api/result-insight',
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiMedicationReferenceRoute = ApiMedicationReferenceRouteImport.update({
-  id: '/api/medication-reference',
-  path: '/api/medication-reference',
+const ApiChatRoute = ApiChatRouteImport.update({
+  id: '/api/chat',
+  path: '/api/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiGenerateVisitSummaryRoute = ApiGenerateVisitSummaryRouteImport.update({
-  id: '/api/generate-visit-summary',
-  path: '/api/generate-visit-summary',
+const ApiEnhanceProfileRoute = ApiEnhanceProfileRouteImport.update({
+  id: '/api/enhance-profile',
+  path: '/api/enhance-profile',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiGenerateSoapRoute = ApiGenerateSoapRouteImport.update({
-  id: '/api/generate-soap',
-  path: '/api/generate-soap',
+const ApiGeneratePrescriptionRoute = ApiGeneratePrescriptionRouteImport.update({
+  id: '/api/generate-prescription',
+  path: '/api/generate-prescription',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiGenerateProviderBriefRoute =
@@ -239,24 +158,100 @@ const ApiGenerateProviderBriefRoute =
     path: '/api/generate-provider-brief',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiGeneratePrescriptionRoute = ApiGeneratePrescriptionRouteImport.update({
-  id: '/api/generate-prescription',
-  path: '/api/generate-prescription',
+const ApiGenerateSoapRoute = ApiGenerateSoapRouteImport.update({
+  id: '/api/generate-soap',
+  path: '/api/generate-soap',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiEnhanceProfileRoute = ApiEnhanceProfileRouteImport.update({
-  id: '/api/enhance-profile',
-  path: '/api/enhance-profile',
+const ApiGenerateVisitSummaryRoute = ApiGenerateVisitSummaryRouteImport.update({
+  id: '/api/generate-visit-summary',
+  path: '/api/generate-visit-summary',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiChatRoute = ApiChatRouteImport.update({
-  id: '/api/chat',
-  path: '/api/chat',
+const ApiMedicationReferenceRoute = ApiMedicationReferenceRouteImport.update({
+  id: '/api/medication-reference',
+  path: '/api/medication-reference',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ApiPublicEmailPreviewRoute = ApiPublicEmailPreviewRouteImport.update({
-  id: '/api/public/email-preview',
-  path: '/api/public/email-preview',
+const ApiResultInsightRoute = ApiResultInsightRouteImport.update({
+  id: '/api/result-insight',
+  path: '/api/result-insight',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppointmentCancelRoute = AppointmentCancelRouteImport.update({
+  id: '/appointment/cancel',
+  path: '/appointment/cancel',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppointmentDetailsRoute = AppointmentDetailsRouteImport.update({
+  id: '/appointment/details',
+  path: '/appointment/details',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppointmentRescheduleRoute = AppointmentRescheduleRouteImport.update({
+  id: '/appointment/reschedule',
+  path: '/appointment/reschedule',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EPrescriptionViewIdRoute = EPrescriptionViewIdRouteImport.update({
+  id: '/e-prescription_/$viewId',
+  path: '/e-prescription/$viewId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PreviewPrescriberDemosRoute = PreviewPrescriberDemosRouteImport.update({
+  id: '/preview/prescriber-demos',
+  path: '/preview/prescriber-demos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PreviewPsychiatristSessionRoute =
+  PreviewPsychiatristSessionRouteImport.update({
+    id: '/preview/psychiatrist-session',
+    path: '/preview/psychiatrist-session',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ProfilePreviewRoute = ProfilePreviewRouteImport.update({
+  id: '/preview',
+  path: '/preview',
+  getParentRoute: () => ProfileRoute,
+} as any)
+const ProviderIdRoute = ProviderIdRouteImport.update({
+  id: '/provider/$id',
+  path: '/provider/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProviderAppointmentsRoute = ProviderAppointmentsRouteImport.update({
+  id: '/provider/appointments',
+  path: '/provider/appointments',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProviderRxRequestsRoute = ProviderRxRequestsRouteImport.update({
+  id: '/provider/rx-requests',
+  path: '/provider/rx-requests',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResultTokenRoute = ResultTokenRouteImport.update({
+  id: '/result/$token',
+  path: '/result/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RxClaimClaimIdRoute = RxClaimClaimIdRouteImport.update({
+  id: '/rx-claim/$claimId',
+  path: '/rx-claim/$claimId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SelfDiscoverySlugRoute = SelfDiscoverySlugRouteImport.update({
+  id: '/self-discovery_/$slug',
+  path: '/self-discovery/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShareTokenRoute = ShareTokenRouteImport.update({
+  id: '/share/$token',
+  path: '/share/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SharePreviewRoute = SharePreviewRouteImport.update({
+  id: '/share/preview',
+  path: '/share/preview',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicAppointmentMessageInboundRoute =
@@ -265,6 +260,11 @@ const ApiPublicAppointmentMessageInboundRoute =
     path: '/api/public/appointment-message-inbound',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicEmailPreviewRoute = ApiPublicEmailPreviewRouteImport.update({
+  id: '/api/public/email-preview',
+  path: '/api/public/email-preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -580,109 +580,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/terms': {
-      id: '/terms'
-      path: '/terms'
-      fullPath: '/terms'
-      preLoaderRoute: typeof TermsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/self-discovery': {
-      id: '/self-discovery'
-      path: '/self-discovery'
-      fullPath: '/self-discovery'
-      preLoaderRoute: typeof SelfDiscoveryRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/resources': {
-      id: '/resources'
-      path: '/resources'
-      fullPath: '/resources'
-      preLoaderRoute: typeof ResourcesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/provider-onboarding': {
-      id: '/provider-onboarding'
-      path: '/provider-onboarding'
-      fullPath: '/provider-onboarding'
-      preLoaderRoute: typeof ProviderOnboardingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/profile': {
-      id: '/profile'
-      path: '/profile'
-      fullPath: '/profile'
-      preLoaderRoute: typeof ProfileRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/privacy': {
-      id: '/privacy'
-      path: '/privacy'
-      fullPath: '/privacy'
-      preLoaderRoute: typeof PrivacyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/prescribing-verification': {
-      id: '/prescribing-verification'
-      path: '/prescribing-verification'
-      fullPath: '/prescribing-verification'
-      preLoaderRoute: typeof PrescribingVerificationRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/payment-success': {
-      id: '/payment-success'
-      path: '/payment-success'
-      fullPath: '/payment-success'
-      preLoaderRoute: typeof PaymentSuccessRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/payment-failed': {
-      id: '/payment-failed'
-      path: '/payment-failed'
-      fullPath: '/payment-failed'
-      preLoaderRoute: typeof PaymentFailedRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/my-health-passport': {
-      id: '/my-health-passport'
-      path: '/my-health-passport'
-      fullPath: '/my-health-passport'
-      preLoaderRoute: typeof MyHealthPassportRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/find-provider': {
-      id: '/find-provider'
-      path: '/find-provider'
-      fullPath: '/find-provider'
-      preLoaderRoute: typeof FindProviderRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/faqs': {
-      id: '/faqs'
-      path: '/faqs'
-      fullPath: '/faqs'
-      preLoaderRoute: typeof FaqsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/email-preview': {
-      id: '/email-preview'
-      path: '/email-preview'
-      fullPath: '/email-preview'
-      preLoaderRoute: typeof EmailPreviewRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/checkout': {
-      id: '/checkout'
-      path: '/checkout'
-      fullPath: '/checkout'
-      preLoaderRoute: typeof CheckoutRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/check-in': {
-      id: '/check-in'
-      path: '/check-in'
-      fullPath: '/check-in'
-      preLoaderRoute: typeof CheckInRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -692,165 +594,109 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/check-in': {
+      id: '/check-in'
+      path: '/check-in'
+      fullPath: '/check-in'
+      preLoaderRoute: typeof CheckInRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/share/preview': {
-      id: '/share/preview'
-      path: '/share/preview'
-      fullPath: '/share/preview'
-      preLoaderRoute: typeof SharePreviewRouteImport
+    '/checkout': {
+      id: '/checkout'
+      path: '/checkout'
+      fullPath: '/checkout'
+      preLoaderRoute: typeof CheckoutRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/share/$token': {
-      id: '/share/$token'
-      path: '/share/$token'
-      fullPath: '/share/$token'
-      preLoaderRoute: typeof ShareTokenRouteImport
+    '/email-preview': {
+      id: '/email-preview'
+      path: '/email-preview'
+      fullPath: '/email-preview'
+      preLoaderRoute: typeof EmailPreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/self-discovery_/$slug': {
-      id: '/self-discovery_/$slug'
-      path: '/self-discovery/$slug'
-      fullPath: '/self-discovery/$slug'
-      preLoaderRoute: typeof SelfDiscoverySlugRouteImport
+    '/faqs': {
+      id: '/faqs'
+      path: '/faqs'
+      fullPath: '/faqs'
+      preLoaderRoute: typeof FaqsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/rx-claim/$claimId': {
-      id: '/rx-claim/$claimId'
-      path: '/rx-claim/$claimId'
-      fullPath: '/rx-claim/$claimId'
-      preLoaderRoute: typeof RxClaimClaimIdRouteImport
+    '/find-provider': {
+      id: '/find-provider'
+      path: '/find-provider'
+      fullPath: '/find-provider'
+      preLoaderRoute: typeof FindProviderRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/result/$token': {
-      id: '/result/$token'
-      path: '/result/$token'
-      fullPath: '/result/$token'
-      preLoaderRoute: typeof ResultTokenRouteImport
+    '/my-health-passport': {
+      id: '/my-health-passport'
+      path: '/my-health-passport'
+      fullPath: '/my-health-passport'
+      preLoaderRoute: typeof MyHealthPassportRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/provider/rx-requests': {
-      id: '/provider/rx-requests'
-      path: '/provider/rx-requests'
-      fullPath: '/provider/rx-requests'
-      preLoaderRoute: typeof ProviderRxRequestsRouteImport
+    '/payment-failed': {
+      id: '/payment-failed'
+      path: '/payment-failed'
+      fullPath: '/payment-failed'
+      preLoaderRoute: typeof PaymentFailedRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/provider/appointments': {
-      id: '/provider/appointments'
-      path: '/provider/appointments'
-      fullPath: '/provider/appointments'
-      preLoaderRoute: typeof ProviderAppointmentsRouteImport
+    '/payment-success': {
+      id: '/payment-success'
+      path: '/payment-success'
+      fullPath: '/payment-success'
+      preLoaderRoute: typeof PaymentSuccessRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/provider/$id': {
-      id: '/provider/$id'
-      path: '/provider/$id'
-      fullPath: '/provider/$id'
-      preLoaderRoute: typeof ProviderIdRouteImport
+    '/prescribing-verification': {
+      id: '/prescribing-verification'
+      path: '/prescribing-verification'
+      fullPath: '/prescribing-verification'
+      preLoaderRoute: typeof PrescribingVerificationRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/profile/preview': {
-      id: '/profile/preview'
-      path: '/preview'
-      fullPath: '/profile/preview'
-      preLoaderRoute: typeof ProfilePreviewRouteImport
-      parentRoute: typeof ProfileRoute
-    }
-    '/preview/psychiatrist-session': {
-      id: '/preview/psychiatrist-session'
-      path: '/preview/psychiatrist-session'
-      fullPath: '/preview/psychiatrist-session'
-      preLoaderRoute: typeof PreviewPsychiatristSessionRouteImport
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/preview/prescriber-demos': {
-      id: '/preview/prescriber-demos'
-      path: '/preview/prescriber-demos'
-      fullPath: '/preview/prescriber-demos'
-      preLoaderRoute: typeof PreviewPrescriberDemosRouteImport
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/e-prescription_/$viewId': {
-      id: '/e-prescription_/$viewId'
-      path: '/e-prescription/$viewId'
-      fullPath: '/e-prescription/$viewId'
-      preLoaderRoute: typeof EPrescriptionViewIdRouteImport
+    '/provider-onboarding': {
+      id: '/provider-onboarding'
+      path: '/provider-onboarding'
+      fullPath: '/provider-onboarding'
+      preLoaderRoute: typeof ProviderOnboardingRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/appointment/reschedule': {
-      id: '/appointment/reschedule'
-      path: '/appointment/reschedule'
-      fullPath: '/appointment/reschedule'
-      preLoaderRoute: typeof AppointmentRescheduleRouteImport
+    '/resources': {
+      id: '/resources'
+      path: '/resources'
+      fullPath: '/resources'
+      preLoaderRoute: typeof ResourcesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/appointment/details': {
-      id: '/appointment/details'
-      path: '/appointment/details'
-      fullPath: '/appointment/details'
-      preLoaderRoute: typeof AppointmentDetailsRouteImport
+    '/self-discovery': {
+      id: '/self-discovery'
+      path: '/self-discovery'
+      fullPath: '/self-discovery'
+      preLoaderRoute: typeof SelfDiscoveryRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/appointment/cancel': {
-      id: '/appointment/cancel'
-      path: '/appointment/cancel'
-      fullPath: '/appointment/cancel'
-      preLoaderRoute: typeof AppointmentCancelRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/result-insight': {
-      id: '/api/result-insight'
-      path: '/api/result-insight'
-      fullPath: '/api/result-insight'
-      preLoaderRoute: typeof ApiResultInsightRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/medication-reference': {
-      id: '/api/medication-reference'
-      path: '/api/medication-reference'
-      fullPath: '/api/medication-reference'
-      preLoaderRoute: typeof ApiMedicationReferenceRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/generate-visit-summary': {
-      id: '/api/generate-visit-summary'
-      path: '/api/generate-visit-summary'
-      fullPath: '/api/generate-visit-summary'
-      preLoaderRoute: typeof ApiGenerateVisitSummaryRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/generate-soap': {
-      id: '/api/generate-soap'
-      path: '/api/generate-soap'
-      fullPath: '/api/generate-soap'
-      preLoaderRoute: typeof ApiGenerateSoapRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/generate-provider-brief': {
-      id: '/api/generate-provider-brief'
-      path: '/api/generate-provider-brief'
-      fullPath: '/api/generate-provider-brief'
-      preLoaderRoute: typeof ApiGenerateProviderBriefRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/generate-prescription': {
-      id: '/api/generate-prescription'
-      path: '/api/generate-prescription'
-      fullPath: '/api/generate-prescription'
-      preLoaderRoute: typeof ApiGeneratePrescriptionRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/enhance-profile': {
-      id: '/api/enhance-profile'
-      path: '/api/enhance-profile'
-      fullPath: '/api/enhance-profile'
-      preLoaderRoute: typeof ApiEnhanceProfileRouteImport
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/chat': {
@@ -860,11 +706,158 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/email-preview': {
-      id: '/api/public/email-preview'
-      path: '/api/public/email-preview'
-      fullPath: '/api/public/email-preview'
-      preLoaderRoute: typeof ApiPublicEmailPreviewRouteImport
+    '/api/enhance-profile': {
+      id: '/api/enhance-profile'
+      path: '/api/enhance-profile'
+      fullPath: '/api/enhance-profile'
+      preLoaderRoute: typeof ApiEnhanceProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/generate-prescription': {
+      id: '/api/generate-prescription'
+      path: '/api/generate-prescription'
+      fullPath: '/api/generate-prescription'
+      preLoaderRoute: typeof ApiGeneratePrescriptionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/generate-provider-brief': {
+      id: '/api/generate-provider-brief'
+      path: '/api/generate-provider-brief'
+      fullPath: '/api/generate-provider-brief'
+      preLoaderRoute: typeof ApiGenerateProviderBriefRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/generate-soap': {
+      id: '/api/generate-soap'
+      path: '/api/generate-soap'
+      fullPath: '/api/generate-soap'
+      preLoaderRoute: typeof ApiGenerateSoapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/generate-visit-summary': {
+      id: '/api/generate-visit-summary'
+      path: '/api/generate-visit-summary'
+      fullPath: '/api/generate-visit-summary'
+      preLoaderRoute: typeof ApiGenerateVisitSummaryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/medication-reference': {
+      id: '/api/medication-reference'
+      path: '/api/medication-reference'
+      fullPath: '/api/medication-reference'
+      preLoaderRoute: typeof ApiMedicationReferenceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/result-insight': {
+      id: '/api/result-insight'
+      path: '/api/result-insight'
+      fullPath: '/api/result-insight'
+      preLoaderRoute: typeof ApiResultInsightRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/appointment/cancel': {
+      id: '/appointment/cancel'
+      path: '/appointment/cancel'
+      fullPath: '/appointment/cancel'
+      preLoaderRoute: typeof AppointmentCancelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/appointment/details': {
+      id: '/appointment/details'
+      path: '/appointment/details'
+      fullPath: '/appointment/details'
+      preLoaderRoute: typeof AppointmentDetailsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/appointment/reschedule': {
+      id: '/appointment/reschedule'
+      path: '/appointment/reschedule'
+      fullPath: '/appointment/reschedule'
+      preLoaderRoute: typeof AppointmentRescheduleRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/e-prescription_/$viewId': {
+      id: '/e-prescription_/$viewId'
+      path: '/e-prescription/$viewId'
+      fullPath: '/e-prescription/$viewId'
+      preLoaderRoute: typeof EPrescriptionViewIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/preview/prescriber-demos': {
+      id: '/preview/prescriber-demos'
+      path: '/preview/prescriber-demos'
+      fullPath: '/preview/prescriber-demos'
+      preLoaderRoute: typeof PreviewPrescriberDemosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/preview/psychiatrist-session': {
+      id: '/preview/psychiatrist-session'
+      path: '/preview/psychiatrist-session'
+      fullPath: '/preview/psychiatrist-session'
+      preLoaderRoute: typeof PreviewPsychiatristSessionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile/preview': {
+      id: '/profile/preview'
+      path: '/preview'
+      fullPath: '/profile/preview'
+      preLoaderRoute: typeof ProfilePreviewRouteImport
+      parentRoute: typeof ProfileRoute
+    }
+    '/provider/$id': {
+      id: '/provider/$id'
+      path: '/provider/$id'
+      fullPath: '/provider/$id'
+      preLoaderRoute: typeof ProviderIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/provider/appointments': {
+      id: '/provider/appointments'
+      path: '/provider/appointments'
+      fullPath: '/provider/appointments'
+      preLoaderRoute: typeof ProviderAppointmentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/provider/rx-requests': {
+      id: '/provider/rx-requests'
+      path: '/provider/rx-requests'
+      fullPath: '/provider/rx-requests'
+      preLoaderRoute: typeof ProviderRxRequestsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/result/$token': {
+      id: '/result/$token'
+      path: '/result/$token'
+      fullPath: '/result/$token'
+      preLoaderRoute: typeof ResultTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rx-claim/$claimId': {
+      id: '/rx-claim/$claimId'
+      path: '/rx-claim/$claimId'
+      fullPath: '/rx-claim/$claimId'
+      preLoaderRoute: typeof RxClaimClaimIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/self-discovery_/$slug': {
+      id: '/self-discovery_/$slug'
+      path: '/self-discovery/$slug'
+      fullPath: '/self-discovery/$slug'
+      preLoaderRoute: typeof SelfDiscoverySlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/share/$token': {
+      id: '/share/$token'
+      path: '/share/$token'
+      fullPath: '/share/$token'
+      preLoaderRoute: typeof ShareTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/share/preview': {
+      id: '/share/preview'
+      path: '/share/preview'
+      fullPath: '/share/preview'
+      preLoaderRoute: typeof SharePreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/appointment-message-inbound': {
@@ -872,6 +865,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/appointment-message-inbound'
       fullPath: '/api/public/appointment-message-inbound'
       preLoaderRoute: typeof ApiPublicAppointmentMessageInboundRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/email-preview': {
+      id: '/api/public/email-preview'
+      path: '/api/public/email-preview'
+      fullPath: '/api/public/email-preview'
+      preLoaderRoute: typeof ApiPublicEmailPreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
