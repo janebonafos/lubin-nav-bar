@@ -111,15 +111,8 @@ export default function ClientPrescriptionsSection({
         </p>
       </div>
 
-      <MedicationList
-        onOpenPrescription={(id) => {
-          const doc = sorted.find((d) => d.id === id);
-          if (doc) window.open(prescriptionHref(doc), "_blank", "noopener,noreferrer");
-        }}
-      />
-
-      <div className="mt-12 mb-6">
-        <h4 className="text-xl font-bold text-[#3D2E6B]">
+      <div className="mt-2 mb-6">
+        <h4 className="font-display text-xl font-semibold text-[#3D2E6B]">
           Official prescription copies
         </h4>
         <p className="mt-1 text-sm text-[#6F6889]">
@@ -318,6 +311,15 @@ export default function ClientPrescriptionsSection({
           </button>
         </div>
       )}
+
+      <div className="mt-12">
+        <MedicationList
+          onOpenPrescription={(id) => {
+            const doc = sorted.find((d) => d.id === id);
+            if (doc) window.open(prescriptionHref(doc), "_blank", "noopener,noreferrer");
+          }}
+        />
+      </div>
     </section>
   );
 }

@@ -54,7 +54,7 @@ export default function MedicationList({
   return (
     <section aria-label="Medication list">
       <div className="mb-4">
-        <h3 className="text-xl font-bold text-[#3D2E6B]">
+        <h3 className="font-display text-xl font-semibold text-[#3D2E6B]">
           Current medication list
         </h3>
         <p className="text-sm text-[#6F6889]">
