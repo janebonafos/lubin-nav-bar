@@ -1,6 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { ShieldAlert, Ban } from "lucide-react";
-import rxIcon from "@/assets/rx-icon.png.asset.json";
 import PassportEmptyState from "@/components/passport/PassportEmptyState";
 import {
   listSignedPrescriptions,
@@ -9,86 +7,142 @@ import {
 } from "@/lib/prescription/documents";
 import { ensureSamplePrescriptionRecord } from "@/lib/prescription/sampleRecord";
 import { prescriptionViewHref } from "@/lib/prescription/viewHandoff";
+import {
+  FEE_LABEL,
+  buildDemoPaymentRows,
+  loadPayments,
+  markPaid,
+  resetPayments,
+  subscribePayments,
+  type PaymentRecord,
+  type PaymentState,
+} from "@/lib/prescription/payment";
 import MedicationList from "@/components/passport/MedicationList";
+import PrescriptionPaySheet from "./PrescriptionPaySheet";
 
 const PAGE_SIZE = 4;
+const DAY = 24 * 60 * 60 * 1000;
 
 const STATUS_FILTERS = [
   { key: "all", label: "All" },
+  { key: "awaiting", label: "Awaiting payment" },
   { key: "valid", label: "Still valid" },
   { key: "expired", label: "Expired" },
   { key: "voided", label: "Voided" },
 ] as const;
+type StatusKey = (typeof STATUS_FILTERS)[number]["key"];
 
-/** Opens the document behind an opaque id — no patient, medication or
- *  prescription data ever appears in the URL. */
-function prescriptionHref(
-  doc: SignedPrescriptionDocument,
-  opts?: { download?: boolean },
-): string {
-  return prescriptionViewHref({
-    appointmentId: doc.appointmentId,
-    country: doc.country,
-    clientName: doc.patientName,
-    providerName: doc.identity?.fullName,
-    docId: doc.id,
-    document: doc,
-  }, opts);
+type RowStatus = "awaiting" | "valid" | "expired-paid" | "expired-unpaid" | "voided";
+
+type Row = {
+  doc: SignedPrescriptionDocument;
+  payment: PaymentState;
+  payBy?: number;
+  requestNote?: string;
+  status: RowStatus;
+};
+
+function prescriptionHref(doc: SignedPrescriptionDocument, opts?: { download?: boolean }): string {
+  return prescriptionViewHref(
+    {
+      appointmentId: doc.appointmentId,
+      country: doc.country,
+      clientName: doc.patientName,
+      providerName: doc.identity?.fullName,
+      docId: doc.id,
+      document: doc,
+    },
+    opts,
+  );
 }
 
+function deriveStatus(doc: SignedPrescriptionDocument, payment: PaymentState, payBy: number | undefined, now: number): RowStatus {
+  if (doc.voided) return "voided";
+  if (payment === "awaiting") return payBy && payBy < now ? "expired-unpaid" : "awaiting";
+  if (doc.validUntil && doc.validUntil < now) return "expired-paid";
+  return "valid";
+}
+
+const matchesFilter = (s: RowStatus, f: StatusKey) =>
+  f === "all" ||
+  (f === "awaiting" && s === "awaiting") ||
+  (f === "valid" && s === "valid") ||
+  (f === "expired" && (s === "expired-paid" || s === "expired-unpaid")) ||
+  (f === "voided" && s === "voided");
+
 /**
- * Client-facing prescription record: every prescription issued to them,
- * newest first, so they never need to open an appointment to view or
- * download a prescription.
+ * Client-facing prescription record. Prescriptions issued after a chat
+ * request need a fee before they can be viewed or downloaded (design-only;
+ * real pricing and payment come from the production system).
  */
-export default function ClientPrescriptionsSection({
-  forceEmpty = false,
-}: {
-  forceEmpty?: boolean;
-}) {
+export default function ClientPrescriptionsSection({ forceEmpty = false }: { forceEmpty?: boolean }) {
   const [docs, setDocs] = useState<SignedPrescriptionDocument[]>([]);
+  const [payments, setPayments] = useState<Record<string, PaymentRecord>>({});
   const [query, setQuery] = useState("");
-  const [status, setStatus] = useState<"all" | "valid" | "expired" | "voided">("all");
+  const [status, setStatus] = useState<StatusKey>("all");
   const [order, setOrder] = useState<"newest" | "oldest">("newest");
   const [visible, setVisible] = useState(PAGE_SIZE);
+  const [paying, setPaying] = useState<Row | null>(null);
+  const [openRequest, setOpenRequest] = useState<string | null>(null);
+  const [requestedAgain, setRequestedAgain] = useState<Record<string, boolean>>({});
+  const [now, setNow] = useState(0);
 
   useEffect(() => {
     ensureSamplePrescriptionRecord();
     const read = () => setDocs(listSignedPrescriptions());
+    const readPay = () => setPayments(loadPayments());
     read();
-    return subscribePrescriptionDocuments(read);
+    readPay();
+    setNow(Date.now());
+    const a = subscribePrescriptionDocuments(read);
+    const b = subscribePayments(readPay);
+    return () => {
+      a();
+      b();
+    };
   }, []);
 
-  const sorted = useMemo(
-    () => [...docs].sort((a, b) => b.signedAt - a.signedAt),
-    [docs],
-  );
+  const rows = useMemo<Row[]>(() => {
+    const t = now || Date.now();
+    const sorted = [...docs].sort((a, b) => b.signedAt - a.signedAt);
+    const real: Row[] = sorted.map((doc) => ({
+      doc,
+      payment: "paid",
+      status: deriveStatus(doc, "paid", undefined, t),
+    }));
+    const demo: Row[] = buildDemoPaymentRows(sorted[0]).map((d) => {
+      const payment = payments[d.doc.id]?.state ?? d.initial;
+      return {
+        doc: d.doc,
+        payment,
+        payBy: d.payBy,
+        requestNote: d.requestNote,
+        status: deriveStatus(d.doc, payment, d.payBy, t),
+      };
+    });
+    return [...real, ...demo].sort((a, b) => b.doc.signedAt - a.doc.signedAt);
+  }, [docs, payments, now]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
-    const now = Date.now();
-    const list = sorted.filter((doc) => {
-      const expired = !!doc.validUntil && doc.validUntil < now;
-      if (status === "voided" && !doc.voided) return false;
-      if (status === "expired" && (doc.voided || !expired)) return false;
-      if (status === "valid" && (doc.voided || expired)) return false;
+    const list = rows.filter((r) => {
+      if (!matchesFilter(r.status, status)) return false;
       if (!q) return true;
-      const haystack = [
-        doc.number,
-        doc.identity?.fullName,
-        ...doc.medications.map((m) => `${m.name ?? ""} ${m.genericName ?? ""}`),
+      const locked = r.status === "awaiting" || r.status === "expired-unpaid";
+      return [
+        r.doc.number,
+        r.doc.identity?.fullName,
+        ...(locked ? [] : r.doc.medications.map((m) => `${m.name ?? ""} ${m.genericName ?? ""}`)),
       ]
         .filter(Boolean)
         .join(" ")
-        .toLowerCase();
-      return haystack.includes(q);
+        .toLowerCase()
+        .includes(q);
     });
     return order === "newest" ? list : [...list].reverse();
-  }, [sorted, query, status, order]);
+  }, [rows, query, status, order]);
 
-  useEffect(() => {
-    setVisible(PAGE_SIZE);
-  }, [query, status, order]);
+  useEffect(() => setVisible(PAGE_SIZE), [query, status, order]);
 
   if (forceEmpty) {
     return (
@@ -96,14 +150,16 @@ export default function ClientPrescriptionsSection({
         <PassportEmptyState
           eyebrow="My prescriptions"
           title="No prescriptions yet"
-          description="When a prescriber issues a prescription after a session, it appears here with the medication details and a copy you can download. You can also add medications you're currently taking to keep your daily list in one place."
+          description="No prescriptions yet. Start in chat to request one."
         />
       </section>
     );
   }
 
+  const awaitingCount = rows.filter((r) => r.status === "awaiting").length;
+
   return (
-    <section className="rounded-2xl border border-[#E3DBF5]/60 bg-[#FBF9FF]/90 p-6 shadow-md shadow-[#3D2E6B]/5 backdrop-blur-xl sm:p-8">
+    <section className="rounded-2xl border border-[#E3DBF5]/60 bg-[#FBF9FF]/90 p-5 shadow-md shadow-[#3D2E6B]/5 backdrop-blur-xl sm:p-8">
       <div className="mb-8">
         <h3 className="font-display text-2xl font-semibold text-[#3D2E6B]">My prescriptions</h3>
         <p className="mt-1 text-[15px] text-[#7E6BAF]">
@@ -111,17 +167,24 @@ export default function ClientPrescriptionsSection({
         </p>
       </div>
 
-      <div className="mt-2 mb-6">
-        <h4 className="font-display text-xl font-semibold text-[#3D2E6B]">
-          Official prescription copies
-        </h4>
-        <p className="mt-1 text-sm text-[#6F6889]">
-          Formal records issued by your prescribers — view or download one any
-          time, without finding the appointment first.
-        </p>
+      <div className="mt-2 mb-6 flex flex-wrap items-end justify-between gap-3">
+        <div className="min-w-0">
+          <h4 className="font-display text-xl font-semibold text-[#3D2E6B]">Official prescription copies</h4>
+          <p className="mt-1 text-sm text-[#6F6889]">
+            Formal records issued by your prescribers — view or download one any time, without finding
+            the appointment first.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={resetPayments}
+          className="shrink-0 text-[12px] font-semibold text-[#7E6BAF] underline-offset-2 hover:underline"
+        >
+          Reset demo payments
+        </button>
       </div>
 
-      {sorted.length > 0 && (
+      {rows.length > 0 && (
         <div className="mb-6 space-y-3">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             <input
@@ -146,132 +209,68 @@ export default function ClientPrescriptionsSection({
                 key={f.key}
                 type="button"
                 onClick={() => setStatus(f.key)}
-                className={`rounded-[12px] px-3.5 py-1.5 text-[13px] font-semibold transition-colors ${
+                className={`inline-flex items-center gap-1.5 rounded-[12px] px-3.5 py-1.5 text-[13px] font-semibold transition-colors ${
                   status === f.key
                     ? "bg-[#7E6BAF] text-white"
                     : "border border-[#DCD4F0] bg-white text-[#5B4B8A] hover:bg-[#EAE7F5]"
                 }`}
               >
                 {f.label}
+                {f.key === "awaiting" && awaitingCount > 0 && (
+                  <span
+                    className={`rounded-full px-1.5 text-[11px] font-bold ${
+                      status === f.key ? "bg-white/25 text-white" : "bg-amber-100 text-amber-800"
+                    }`}
+                  >
+                    {awaitingCount}
+                  </span>
+                )}
               </button>
             ))}
             <span className="ml-auto text-[12.5px] text-[#6F6889]">
-              {filtered.length} of {sorted.length} records
+              {filtered.length} of {rows.length} records
             </span>
           </div>
         </div>
       )}
 
-      {sorted.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-[#DCD4F0] bg-white/70 px-5 py-8 text-center">
-          <img src={rxIcon.url} alt="Rx" className="mx-auto h-8 w-8" />
-          <p className="mt-2 text-[13.5px] font-semibold text-[#3D2E6B]">
-            No prescriptions yet
-          </p>
-          <p className="mt-1 text-[12.5px] text-[#6F6889]">
-            If a prescriber issues a prescription after a session, it appears
-            here with the medication details and a copy you can download.
-          </p>
-        </div>
+      {rows.length === 0 ? (
+        <EmptyBox title="No prescriptions yet." body="Start in chat to request one." />
       ) : filtered.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-[#DCD4F0] bg-white/70 px-5 py-8 text-center">
-          <p className="text-[13.5px] font-semibold text-[#3D2E6B]">
-            No prescriptions match your search
-          </p>
-          <p className="mt-1 text-[12.5px] text-[#6F6889]">
-            Try a different medication, prescriber or record number, or clear
-            the filters.
-          </p>
-          <button
-            type="button"
-            onClick={() => {
-              setQuery("");
-              setStatus("all");
-            }}
-            className="mt-3 rounded-[12px] border border-[#A89BD0] bg-white px-4 py-2 text-[13px] font-semibold text-[#3D2E6B] hover:bg-[#EAE7F5]"
-          >
-            Clear filters
-          </button>
-        </div>
+        status === "awaiting" && !query ? (
+          <EmptyBox title="Nothing to pay." body="Prescriptions that need a fee will show up here." />
+        ) : (
+          <EmptyBox
+            title="No prescriptions match your search"
+            body="Try a different medication, prescriber or record number, or clear the filters."
+            action={
+              <button
+                type="button"
+                onClick={() => {
+                  setQuery("");
+                  setStatus("all");
+                }}
+                className="mt-3 rounded-[12px] border border-[#A89BD0] bg-white px-4 py-2 text-[13px] font-semibold text-[#3D2E6B] hover:bg-[#EAE7F5]"
+              >
+                Clear filters
+              </button>
+            }
+          />
+        )
       ) : (
         <ul className="divide-y divide-[#F3F1FB] overflow-hidden rounded-2xl border border-[#EAE7F5] bg-white shadow-sm">
-          {filtered.slice(0, visible).map((doc) => {
-            const medNames = doc.medications
-              .map((m) => m.genericName || m.name)
-              .filter(Boolean);
-            const includes =
-              medNames.length === 0
-                ? "No medication recorded"
-                : medNames.length === 1
-                  ? medNames[0]
-                  : `${medNames[0]}, ${medNames.length - 1} other${medNames.length - 1 === 1 ? "" : "s"}`;
-            return (
-              <li
-                key={doc.id}
-                className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 p-5 transition-colors hover:bg-[#F8F7FC] sm:px-6"
-              >
-                <div className="min-w-0 flex-1">
-                  <div className="mb-1 flex flex-wrap items-center gap-2">
-                    <h5 className="font-display text-[17px] font-semibold text-[#3D2E6B]">
-                      Prescription document
-                    </h5>
-                    <span className="rounded border border-[#A89BD0]/20 bg-white px-2 py-0.5 font-mono text-[10px] font-bold text-[#3D2E6B]">
-                      {doc.number}
-                    </span>
-                    {doc.voided ? (
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F3F0FA] px-2.5 py-0.5 text-[11px] font-semibold text-[#5B4B8A]">
-                        <Ban className="h-3 w-3" /> Voided
-                      </span>
-                    ) : null}
-                    {doc.controlled ? (
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-[#FDF6E7] px-2.5 py-0.5 text-[11px] font-semibold text-[#6B4E10]">
-                        <ShieldAlert className="h-3 w-3" />
-                        {doc.country === "PH"
-                          ? "Dangerous drug"
-                          : "Controlled substance"}
-                      </span>
-                    ) : null}
-                  </div>
-                  <p className="text-[11px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
-                    Issued {formatDate(doc.signedAt)}
-                  </p>
-                  <p className="mt-1.5 text-sm text-[#6F6889]">
-                    Prescriber{" "}
-                    <span className="font-medium text-[#3D2E6B]">
-                      {doc.identity?.fullName || "Not recorded"}
-                    </span>
-                    {" · "}
-                    {doc.validityLabel || "Valid until"}{" "}
-                    <span className="font-medium text-[#3D2E6B]">
-                      {doc.validUntil ? formatDate(doc.validUntil) : "—"}
-                    </span>
-                    {" · "}
-                    Includes{" "}
-                    <span className="font-medium text-[#3D2E6B]">{includes}</span>
-                  </p>
-                </div>
-
-                <div className="flex shrink-0 gap-2">
-                  <a
-                    href={prescriptionHref(doc)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center rounded-xl border border-[#A89BD0] bg-white px-4 py-2 text-sm font-bold text-[#3D2E6B] transition-colors hover:bg-[#EAE7F5]"
-                  >
-                    View prescription
-                  </a>
-                  <a
-                    href={prescriptionHref(doc, { download: true })}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center rounded-xl bg-[#7E6BAF] px-4 py-2 text-sm font-bold text-white shadow-sm transition-colors hover:bg-[#3D2E6B]"
-                  >
-                    Download prescription
-                  </a>
-                </div>
-              </li>
-            );
-          })}
+          {filtered.slice(0, visible).map((row) => (
+            <PrescriptionRow
+              key={row.doc.id}
+              row={row}
+              now={now || Date.now()}
+              requestOpen={openRequest === row.doc.id}
+              onToggleRequest={() => setOpenRequest((v) => (v === row.doc.id ? null : row.doc.id))}
+              requestedAgain={!!requestedAgain[row.doc.id]}
+              onRequestAgain={() => setRequestedAgain((v) => ({ ...v, [row.doc.id]: true }))}
+              onPay={() => setPaying(row)}
+            />
+          ))}
         </ul>
       )}
 
@@ -305,29 +304,208 @@ export default function ClientPrescriptionsSection({
       <div className="mt-12">
         <MedicationList
           onOpenPrescription={(id) => {
-            const doc = sorted.find((d) => d.id === id);
+            const doc = docs.find((d) => d.id === id);
             if (doc) window.open(prescriptionHref(doc), "_blank", "noopener,noreferrer");
           }}
         />
       </div>
+
+      <PrescriptionPaySheet
+        open={!!paying}
+        reference={paying?.doc.number ?? ""}
+        downloadHref={paying ? prescriptionHref(paying.doc, { download: true }) : "#"}
+        onClose={() => setPaying(null)}
+        onPaid={(promo) => paying && markPaid(paying.doc.id, promo)}
+      />
     </section>
   );
 }
 
-function formatDate(at: number): string {
-  return new Date(at).toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+function PrescriptionRow({
+  row,
+  now,
+  requestOpen,
+  onToggleRequest,
+  requestedAgain,
+  onRequestAgain,
+  onPay,
+}: {
+  row: Row;
+  now: number;
+  requestOpen: boolean;
+  onToggleRequest: () => void;
+  requestedAgain: boolean;
+  onRequestAgain: () => void;
+  onPay: () => void;
+}) {
+  const { doc, status, payment } = row;
+  const locked = status === "awaiting" || status === "expired-unpaid";
+  const medNames = doc.medications.map((m) => m.genericName || m.name).filter(Boolean);
+  const medCount = `${doc.medications.length} medicine${doc.medications.length === 1 ? "" : "s"}`;
+  const includes = locked
+    ? medCount
+    : medNames.length === 0
+      ? "No medication recorded"
+      : medNames.length === 1
+        ? medNames[0]
+        : `${medNames[0]}, ${medNames.length - 1} other${medNames.length - 1 === 1 ? "" : "s"}`;
+  const prescriber = doc.identity?.fullName ? `Dr. ${doc.identity.fullName}` : "Not recorded";
+  const msLeft = (row.payBy ?? 0) - now;
+  const soon = status === "awaiting" && msLeft <= DAY;
+
+  const outline =
+    "inline-flex w-full items-center justify-center rounded-xl border border-[#A89BD0] bg-white px-4 py-2 text-sm font-bold text-[#3D2E6B] transition-colors hover:bg-[#EAE7F5] sm:w-auto";
+  const filled =
+    "inline-flex w-full items-center justify-center rounded-xl bg-[#7E6BAF] px-4 py-2 text-sm font-bold text-white shadow-sm transition-colors hover:bg-[#3D2E6B] sm:w-auto";
+
+  return (
+    <li className="p-5 transition-colors hover:bg-[#F8F7FC] sm:px-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-6">
+        <div className="min-w-0 flex-1">
+          <div className="mb-1 flex flex-wrap items-center gap-2">
+            <h5 className="font-display text-[17px] font-semibold text-[#3D2E6B]">Prescription document</h5>
+            <span className="rounded border border-[#A89BD0]/20 bg-white px-2 py-0.5 font-mono text-[10px] font-bold text-[#3D2E6B]">
+              {doc.number}
+            </span>
+            <StatusChip status={status} payment={payment} />
+            {doc.controlled && !locked ? (
+              <span className="rounded-full bg-[#FDF6E7] px-2.5 py-0.5 text-[11px] font-semibold text-[#6B4E10]">
+                {doc.country === "PH" ? "Dangerous drug" : "Controlled substance"}
+              </span>
+            ) : null}
+          </div>
+
+          {status === "voided" ? (
+            <>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
+                Signed {formatDate(doc.signedAt)} · Prescriber {prescriber}
+              </p>
+              <p className="mt-1.5 text-sm text-[#6F6889]">
+                This prescription was cancelled and can't be used.
+              </p>
+            </>
+          ) : status === "awaiting" ? (
+            <>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
+                Signed {formatDate(doc.signedAt)} · Prescriber {prescriber}
+              </p>
+              <p className="mt-1.5 text-sm text-[#6F6889]">
+                Pay {FEE_LABEL} to view and download ·{" "}
+                <span className={soon ? "font-semibold text-amber-800" : "font-medium text-[#3D2E6B]"}>
+                  {soon ? "Expires tomorrow" : `Expires ${formatShort(row.payBy!)}`}
+                </span>
+                {" · "}
+                <span className="font-medium text-[#3D2E6B]">{includes}</span>
+              </p>
+            </>
+          ) : status === "expired-unpaid" ? (
+            <>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
+                Signed {formatDate(doc.signedAt)} · Prescriber {prescriber}
+              </p>
+              <p className="mt-1.5 text-sm text-[#6F6889]">
+                Expired, not paid · No charge · <span className="font-medium text-[#3D2E6B]">{includes}</span>
+              </p>
+              {requestedAgain && (
+                <p className="mt-1.5 text-[13px] font-semibold text-[#2F6B4A]">
+                  Open chat to start a new request.
+                </p>
+              )}
+            </>
+          ) : (
+            <>
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-[#7E6BAF]">
+                Issued {formatDate(doc.signedAt)}
+              </p>
+              <p className="mt-1.5 text-sm text-[#6F6889]">
+                Prescriber <span className="font-medium text-[#3D2E6B]">{prescriber}</span>
+                {" · "}
+                {doc.validityLabel || "Valid until"}{" "}
+                <span className="font-medium text-[#3D2E6B]">
+                  {doc.validUntil ? formatDate(doc.validUntil) : "—"}
+                </span>
+                {" · "}
+                Includes <span className="font-medium text-[#3D2E6B]">{includes}</span>
+              </p>
+            </>
+          )}
+        </div>
+
+        <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
+          {status === "awaiting" ? (
+            <>
+              <button type="button" onClick={onToggleRequest} className={outline}>
+                {requestOpen ? "Hide request" : "View request"}
+              </button>
+              <button type="button" onClick={onPay} className={filled}>
+                Pay {FEE_LABEL}
+              </button>
+            </>
+          ) : status === "expired-unpaid" ? (
+            <button type="button" onClick={onRequestAgain} disabled={requestedAgain} className={`${outline} disabled:opacity-50`}>
+              Request again
+            </button>
+          ) : (
+            <>
+              <a href={prescriptionHref(doc)} target="_blank" rel="noopener noreferrer" className={outline}>
+                View prescription
+              </a>
+              {status !== "voided" && (
+                <a
+                  href={prescriptionHref(doc, { download: true })}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={filled}
+                >
+                  Download prescription
+                </a>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+
+      {status === "awaiting" && requestOpen && (
+        <div className="mt-4 rounded-xl border border-[#EAE7F5] bg-[#FBF9FF] px-4 py-3 text-[13px] text-[#6F6889]">
+          <p className="font-semibold text-[#3D2E6B]">Your request</p>
+          <p className="mt-1">{row.requestNote}</p>
+          <p className="mt-1">
+            Medicine details stay hidden until the fee is paid. If it isn't paid by{" "}
+            {formatShort(row.payBy!)}, it expires at no charge.
+          </p>
+        </div>
+      )}
+    </li>
+  );
 }
 
-function formatDateTime(at: number): string {
-  return new Date(at).toLocaleString(undefined, {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
+function StatusChip({ status, payment }: { status: RowStatus; payment: PaymentState }) {
+  const base = "rounded-full px-2.5 py-0.5 text-[11px] font-semibold";
+  if (status === "awaiting") return <span className={`${base} bg-amber-50 text-amber-800`}>Awaiting payment</span>;
+  if (status === "voided") return <span className={`${base} bg-[#F1F0F4] text-[#5F5C6B]`}>Voided</span>;
+  if (status === "expired-paid" || status === "expired-unpaid")
+    return <span className={`${base} bg-[#F1F0F4] text-[#5F5C6B]`}>Expired</span>;
+  return (
+    <span className={`${base} bg-[#E7F4EC] text-[#2F6B4A]`}>
+      {payment === "promo" ? "Paid (promo)" : "Paid"}
+    </span>
+  );
+}
+
+function EmptyBox({ title, body, action }: { title: string; body: string; action?: React.ReactNode }) {
+  return (
+    <div className="rounded-2xl border border-dashed border-[#DCD4F0] bg-white/70 px-5 py-8 text-center">
+      <p className="text-[13.5px] font-semibold text-[#3D2E6B]">{title}</p>
+      <p className="mt-1 text-[12.5px] text-[#6F6889]">{body}</p>
+      {action}
+    </div>
+  );
+}
+
+function formatDate(at: number): string {
+  return new Date(at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+}
+
+function formatShort(at: number): string {
+  return new Date(at).toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
