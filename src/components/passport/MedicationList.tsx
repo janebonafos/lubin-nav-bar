@@ -29,13 +29,15 @@ import { ensureSamplePrescriptionRecord } from "@/lib/prescription/sampleRecord"
  * than the official prescription document cards below it.
  * Demo data comes from src/lib/passport/medications.ts.
  */
+const PAGE_SIZE = 4;
+
 export default function MedicationList({
   onOpenPrescription,
 }: {
   onOpenPrescription?: (prescriptionId: string) => void;
 }) {
   const [entries, setEntries] = useState<MedicationEntry[]>([]);
-  const [showHistory, setShowHistory] = useState(false);
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     ensureSamplePrescriptionRecord();
@@ -51,6 +53,12 @@ export default function MedicationList({
 
   const { current, past } = groupMedications(entries);
 
+  // One continuous list: current medications first, then history.
+  const ordered = [...current, ...past];
+  const pageCount = Math.max(1, Math.ceil(ordered.length / PAGE_SIZE));
+  const safePage = Math.min(page, pageCount);
+  const visible = ordered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+
   return (
     <section aria-label="Medication list">
       <div className="mb-4">
@@ -64,9 +72,9 @@ export default function MedicationList({
       </div>
 
       <div className="overflow-hidden rounded-2xl border border-[#EAE7F5] bg-white shadow-sm">
-        {current.length ? (
+        {visible.length ? (
           <ul className="divide-y divide-[#F3F1FB]">
-            {current.map((entry) => (
+            {visible.map((entry) => (
               <MedicationRow
                 key={entry.id}
                 entry={entry}
@@ -80,30 +88,29 @@ export default function MedicationList({
           </p>
         )}
 
-        {past.length > 0 && (
-          <>
+        {pageCount > 1 && (
+          <div className="flex items-center justify-between border-t border-[#F3F1FB] px-4 py-3 sm:px-5">
             <button
               type="button"
-              onClick={() => setShowHistory((v) => !v)}
-              aria-expanded={showHistory}
-              className="w-full border-t border-[#F3F1FB] py-4 text-[13px] font-bold uppercase tracking-wide text-[#7E6BAF] transition-colors hover:bg-[#F8F7FC]"
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={safePage === 1}
+              className="rounded-[12px] px-3 py-1.5 text-[13px] font-semibold text-[#5B4B8A] transition-colors hover:bg-[#F8F7FC] disabled:cursor-not-allowed disabled:opacity-40"
             >
-              {showHistory
-                ? "Hide previous medications"
-                : `Show ${past.length} previous medication${past.length === 1 ? "" : "s"}`}
+              Previous
             </button>
-            {showHistory && (
-              <ul className="divide-y divide-[#F3F1FB] border-t border-[#F3F1FB]">
-                {past.map((entry) => (
-                  <MedicationRow
-                    key={entry.id}
-                    entry={entry}
-                    onOpenPrescription={onOpenPrescription}
-                  />
-                ))}
-              </ul>
-            )}
-          </>
+            <p className="text-[12.5px] text-[#6F6889]">
+              Page {safePage} of {pageCount} · {ordered.length} medication
+              {ordered.length === 1 ? "" : "s"}
+            </p>
+            <button
+              type="button"
+              onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
+              disabled={safePage === pageCount}
+              className="rounded-[12px] px-3 py-1.5 text-[13px] font-semibold text-[#5B4B8A] transition-colors hover:bg-[#F8F7FC] disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Next
+            </button>
+          </div>
         )}
       </div>
     </section>
