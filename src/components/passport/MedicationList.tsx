@@ -2,6 +2,13 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+import {
   formatMedDate,
   groupMedications,
   markMedicationNotTaking,
@@ -165,38 +172,40 @@ function MedicationRow({
         ) : null}
       </div>
 
-      <div className="flex shrink-0 flex-wrap items-center gap-x-5 gap-y-2">
+      <div className="flex shrink-0 items-center gap-3">
         <span
           className={`rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${statusTone(entry.status)}`}
         >
           {statusLabel(entry.status)}
         </span>
-        {canOpen ? (
-          <button
-            type="button"
-            onClick={() => onOpenPrescription!(entry.prescriptionId!)}
-            className="text-sm font-semibold text-[#7E6BAF] transition-colors hover:text-[#3D2E6B]"
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            aria-label={`Actions for ${entry.name}`}
+            className="flex h-8 w-8 items-center justify-center rounded-full text-lg font-bold leading-none text-[#A89BD0] transition-colors hover:bg-[#F3F0FA] hover:text-[#3D2E6B] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#D8C7F0]"
           >
-            View details
-          </button>
-        ) : null}
-        {entry.status === "current" ? (
-          <button
-            type="button"
-            onClick={handleNotTaking}
-            className="text-sm font-semibold text-[#7E6BAF] transition-colors hover:text-[#3D2E6B]"
-          >
-            Mark as no longer taking
-          </button>
-        ) : null}
-        <button
-          type="button"
-          onClick={handleRemove}
-          aria-label={`Remove ${entry.name} as an incorrect entry`}
-          className="text-sm font-semibold text-[#B9B0CF] transition-colors hover:text-[#A14343]"
-        >
-          Remove incorrect entry
-        </button>
+            ⋯
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            {canOpen ? (
+              <DropdownMenuItem
+                onClick={() => onOpenPrescription!(entry.prescriptionId!)}
+              >
+                View details
+              </DropdownMenuItem>
+            ) : null}
+            {entry.status === "current" ? (
+              <DropdownMenuItem onClick={handleNotTaking}>
+                Mark as no longer taking
+              </DropdownMenuItem>
+            ) : null}
+            <DropdownMenuItem
+              onClick={handleRemove}
+              className="text-[#A14343] focus:text-[#A14343]"
+            >
+              Remove incorrect entry
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </li>
   );
