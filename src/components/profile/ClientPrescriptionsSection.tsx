@@ -258,7 +258,7 @@ export default function ClientPrescriptionsSection({
                     rel="noopener noreferrer"
                     className="inline-flex items-center justify-center rounded-xl border border-[#A89BD0] bg-white px-4 py-2 text-sm font-bold text-[#3D2E6B] transition-colors hover:bg-[#EAE7F5]"
                   >
-                    View record
+                    View prescription
                   </a>
                   <a
                     href={prescriptionHref(doc, { download: true })}
@@ -266,7 +266,7 @@ export default function ClientPrescriptionsSection({
                     rel="noopener noreferrer"
                     className="inline-flex items-center justify-center rounded-xl bg-[#7E6BAF] px-4 py-2 text-sm font-bold text-white shadow-sm transition-colors hover:bg-[#3D2E6B]"
                   >
-                    Download PDF
+                    Download prescription
                   </a>
                 </div>
               </li>
