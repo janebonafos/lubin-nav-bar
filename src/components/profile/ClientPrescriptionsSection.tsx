@@ -160,12 +160,6 @@ export default function ClientPrescriptionsSection({ forceEmpty = false }: { for
 
   return (
     <section className="rounded-2xl border border-[#E3DBF5]/60 bg-[#FBF9FF]/90 p-5 shadow-md shadow-[#3D2E6B]/5 backdrop-blur-xl sm:p-8">
-      <div className="mb-8">
-        <h3 className="font-display text-2xl font-semibold text-[#3D2E6B]">My prescriptions</h3>
-        <p className="mt-1 text-[15px] text-[#7E6BAF]">
-          Manage your daily medications and access official issued records.
-        </p>
-      </div>
 
       <div className="mt-2 mb-6 flex flex-wrap items-end justify-between gap-3">
         <div className="min-w-0">

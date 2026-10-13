@@ -532,7 +532,7 @@ function ProfilePage() {
       subtitle:
         role === "provider"
           ? "Patients you have issued prescriptions to"
-          : "View or download the prescriptions issued to you",
+          : "The prescriptions issued to you and the medications you're taking",
     },
     clients: {
       title: "Clients",
