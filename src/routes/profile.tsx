@@ -614,7 +614,7 @@ function ProfilePage() {
 
         {/* Page header — spans both columns so the sidebar and section container start together */}
         {activeSection !== "chat" && activeSection !== "share" && (
-          <header className="px-1">
+          <header className="mb-6 px-1">
             <h1 className="text-2xl font-bold text-[#3D2E6B] sm:text-3xl">
               {meta.title}
             </h1>
