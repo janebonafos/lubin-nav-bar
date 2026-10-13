@@ -1013,15 +1013,6 @@ function ProfilePage() {
                 </div>
               </div>
             )}
-            {/* Page header */}
-            {activeSection !== "chat" && activeSection !== "share" && (
-              <header className="px-1">
-                <h1 className="text-2xl font-bold text-[#3D2E6B] sm:text-3xl">
-                  {meta.title}
-                </h1>
-                <p className="mt-1.5 text-sm text-[#7E6BAF]">{meta.subtitle}</p>
-              </header>
-            )}
 
             {activeSection === "profile" && (
               <>
