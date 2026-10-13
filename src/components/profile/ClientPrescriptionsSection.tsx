@@ -86,6 +86,7 @@ export default function ClientPrescriptionsSection({ forceEmpty = false }: { for
   const [openRequest, setOpenRequest] = useState<string | null>(null);
   const [requestedAgain, setRequestedAgain] = useState<Record<string, boolean>>({});
   const [now, setNow] = useState(0);
+  const [tab, setTab] = useState<"prescriptions" | "medication">("prescriptions");
 
   useEffect(() => {
     ensureSamplePrescriptionRecord();
@@ -161,22 +162,59 @@ export default function ClientPrescriptionsSection({ forceEmpty = false }: { for
   return (
     <section className="rounded-2xl border border-[#E3DBF5]/60 bg-[#FBF9FF]/90 p-5 shadow-md shadow-[#3D2E6B]/5 backdrop-blur-xl sm:p-8">
 
-      <div className="mt-2 mb-6 flex flex-wrap items-end justify-between gap-3">
-        <div className="min-w-0">
-          <h4 className="font-display text-xl font-semibold text-[#3D2E6B]">Official prescription copies</h4>
-          <p className="mt-1 text-sm text-[#6F6889]">
-            Formal records issued by your prescribers — view or download one any time, without finding
-            the appointment first.
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={resetPayments}
-          className="shrink-0 text-[12px] font-semibold text-[#7E6BAF] underline-offset-2 hover:underline"
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <div
+          role="tablist"
+          aria-label="My Prescription sections"
+          className="inline-flex rounded-[14px] border border-[#DCD4F0] bg-white p-1 shadow-sm"
         >
-          Reset demo payments
-        </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={tab === "prescriptions"}
+            onClick={() => setTab("prescriptions")}
+            className={`rounded-[10px] px-5 py-2 font-display text-[15px] font-semibold transition-colors ${
+              tab === "prescriptions"
+                ? "bg-[#7E6BAF] text-white shadow-sm"
+                : "text-[#5B4B8A] hover:bg-[#F3F0FA]"
+            }`}
+          >
+            My prescriptions
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={tab === "medication"}
+            onClick={() => setTab("medication")}
+            className={`rounded-[10px] px-5 py-2 font-display text-[15px] font-semibold transition-colors ${
+              tab === "medication"
+                ? "bg-[#7E6BAF] text-white shadow-sm"
+                : "text-[#5B4B8A] hover:bg-[#F3F0FA]"
+            }`}
+          >
+            My medication
+          </button>
+        </div>
+        {tab === "prescriptions" && (
+          <button
+            type="button"
+            onClick={resetPayments}
+            className="shrink-0 text-[12px] font-semibold text-[#7E6BAF] underline-offset-2 hover:underline"
+          >
+            Reset demo payments
+          </button>
+        )}
       </div>
+
+      {tab === "prescriptions" && (
+        <>
+          <div className="mb-6">
+            <h4 className="font-display text-xl font-semibold text-[#3D2E6B]">Official prescription copies</h4>
+            <p className="mt-1 text-sm text-[#6F6889]">
+              Formal records issued by your prescribers — view or download one any time, without finding
+              the appointment first.
+            </p>
+          </div>
 
       {rows.length > 0 && (
         <div className="mb-6 space-y-3">
@@ -295,14 +333,17 @@ export default function ClientPrescriptionsSection({ forceEmpty = false }: { for
         </div>
       )}
 
-      <div className="mt-12">
+        </>
+      )}
+
+      {tab === "medication" && (
         <MedicationList
           onOpenPrescription={(id) => {
             const doc = docs.find((d) => d.id === id);
             if (doc) window.open(prescriptionHref(doc), "_blank", "noopener,noreferrer");
           }}
         />
-      </div>
+      )}
 
       <PrescriptionPaySheet
         open={!!paying}
