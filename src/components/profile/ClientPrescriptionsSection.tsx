@@ -81,7 +81,7 @@ export default function ClientPrescriptionsSection({ forceEmpty = false }: { for
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<StatusKey>("all");
   const [order, setOrder] = useState<"newest" | "oldest">("newest");
-  const [visible, setVisible] = useState(PAGE_SIZE);
+  const [page, setPage] = useState(1);
   const [paying, setPaying] = useState<Row | null>(null);
   const [openRequest, setOpenRequest] = useState<string | null>(null);
   const [requestedAgain, setRequestedAgain] = useState<Record<string, boolean>>({});
@@ -143,7 +143,7 @@ export default function ClientPrescriptionsSection({ forceEmpty = false }: { for
     return order === "newest" ? list : [...list].reverse();
   }, [rows, query, status, order]);
 
-  useEffect(() => setVisible(PAGE_SIZE), [query, status, order]);
+  useEffect(() => setPage(1), [query, status, order]);
 
   if (forceEmpty) {
     return (
@@ -158,6 +158,8 @@ export default function ClientPrescriptionsSection({ forceEmpty = false }: { for
   }
 
   const awaitingCount = rows.filter((r) => r.status === "awaiting").length;
+  const pageCount = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage = Math.min(page, pageCount);
 
   return (
     <section className="rounded-2xl border border-[#E3DBF5]/60 bg-[#FBF9FF]/90 p-5 shadow-md shadow-[#3D2E6B]/5 backdrop-blur-xl sm:p-8">
@@ -290,46 +292,46 @@ export default function ClientPrescriptionsSection({ forceEmpty = false }: { for
           />
         )
       ) : (
-        <ul className="divide-y divide-[#F3F1FB] overflow-hidden rounded-2xl border border-[#EAE7F5] bg-white shadow-sm">
-          {filtered.slice(0, visible).map((row) => (
-            <PrescriptionRow
-              key={row.doc.id}
-              row={row}
-              now={now || Date.now()}
-              requestOpen={openRequest === row.doc.id}
-              onToggleRequest={() => setOpenRequest((v) => (v === row.doc.id ? null : row.doc.id))}
-              requestedAgain={!!requestedAgain[row.doc.id]}
-              onRequestAgain={() => setRequestedAgain((v) => ({ ...v, [row.doc.id]: true }))}
-              onPay={() => setPaying(row)}
-            />
-          ))}
-        </ul>
-      )}
+        <div className="overflow-hidden rounded-2xl border border-[#EAE7F5] bg-white shadow-sm">
+          <ul className="divide-y divide-[#F3F1FB]">
+            {filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE).map((row) => (
+              <PrescriptionRow
+                key={row.doc.id}
+                row={row}
+                now={now || Date.now()}
+                requestOpen={openRequest === row.doc.id}
+                onToggleRequest={() => setOpenRequest((v) => (v === row.doc.id ? null : row.doc.id))}
+                requestedAgain={!!requestedAgain[row.doc.id]}
+                onRequestAgain={() => setRequestedAgain((v) => ({ ...v, [row.doc.id]: true }))}
+                onPay={() => setPaying(row)}
+              />
+            ))}
+          </ul>
 
-      {filtered.length > visible && (
-        <div className="mt-6 flex flex-col items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setVisible((v) => v + PAGE_SIZE)}
-            className="rounded-[12px] border border-[#A89BD0] bg-white px-5 py-2.5 text-sm font-bold text-[#3D2E6B] transition-colors hover:bg-[#EAE7F5]"
-          >
-            Show {Math.min(PAGE_SIZE, filtered.length - visible)} more
-          </button>
-          <p className="text-[12px] text-[#6F6889]">
-            Showing {visible} of {filtered.length} records
-          </p>
-        </div>
-      )}
-
-      {visible > PAGE_SIZE && filtered.length <= visible && (
-        <div className="mt-6 flex justify-center">
-          <button
-            type="button"
-            onClick={() => setVisible(PAGE_SIZE)}
-            className="rounded-[12px] border border-[#DCD4F0] bg-white px-5 py-2.5 text-sm font-semibold text-[#5B4B8A] transition-colors hover:bg-[#EAE7F5]"
-          >
-            Show fewer
-          </button>
+          {pageCount > 1 && (
+            <div className="flex items-center justify-between border-t border-[#F3F1FB] px-4 py-3 sm:px-5">
+              <button
+                type="button"
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={safePage === 1}
+                className="rounded-[12px] px-3 py-1.5 text-[13px] font-semibold text-[#5B4B8A] transition-colors hover:bg-[#F8F7FC] disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Previous
+              </button>
+              <p className="text-[12.5px] text-[#6F6889]">
+                Page {safePage} of {pageCount} · {filtered.length} record
+                {filtered.length === 1 ? "" : "s"}
+              </p>
+              <button
+                type="button"
+                onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
+                disabled={safePage === pageCount}
+                className="rounded-[12px] px-3 py-1.5 text-[13px] font-semibold text-[#5B4B8A] transition-colors hover:bg-[#F8F7FC] disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Next
+              </button>
+            </div>
+          )}
         </div>
       )}
 
