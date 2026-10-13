@@ -60,7 +60,7 @@ export default function MedicationList({
   const visible = ordered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
   return (
-    <section aria-label="Medication list">
+    <section aria-label="Medication list" className="font-body">
       <div className="mb-4">
         <h3 className="font-display text-xl font-semibold text-[#3D2E6B]">
           Current medication list
@@ -154,7 +154,7 @@ function MedicationRow({
     <li className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 p-5 transition-colors hover:bg-[#F8F7FC] sm:p-6">
       <div className="min-w-0 flex-1">
         <div className="mb-1 flex flex-wrap items-center gap-2">
-          <h4 className="text-[15px] font-bold text-[#3D2E6B]">
+          <h4 className="font-display text-[17px] font-semibold text-brand-purple-dark">
             {entry.name}
             {entry.strength ? (
               <span className="font-semibold"> · {entry.strength}</span>
