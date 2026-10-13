@@ -612,6 +612,16 @@ function ProfilePage() {
           </div>
         )}
 
+        {/* Page header — spans both columns so the sidebar and section container start together */}
+        {activeSection !== "chat" && activeSection !== "share" && (
+          <header className="px-1">
+            <h1 className="text-2xl font-bold text-[#3D2E6B] sm:text-3xl">
+              {meta.title}
+            </h1>
+            <p className="mt-1.5 text-sm text-[#7E6BAF]">{meta.subtitle}</p>
+          </header>
+        )}
+
         <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-4">
           {/* Sidebar — desktop only; mobile uses the compact tab strip below */}
           <aside className="hidden lg:col-span-1 lg:block">
@@ -1002,15 +1012,6 @@ function ProfilePage() {
                   </div>
                 </div>
               </div>
-            )}
-            {/* Page header */}
-            {activeSection !== "chat" && activeSection !== "share" && (
-              <header className="px-1">
-                <h1 className="text-2xl font-bold text-[#3D2E6B] sm:text-3xl">
-                  {meta.title}
-                </h1>
-                <p className="mt-1.5 text-sm text-[#7E6BAF]">{meta.subtitle}</p>
-              </header>
             )}
 
             {activeSection === "profile" && (
