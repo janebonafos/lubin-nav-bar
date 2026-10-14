@@ -134,7 +134,7 @@ export default function PrescriptionPaySheet({
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0">
                 <h3 className="font-display text-2xl font-semibold text-[#3D2E6B]">Prescription fee</h3>
-                <p className="mt-0.5 font-mono text-[11px] text-[#7E6BAF]">{reference}</p>
+                <p className="mt-0.5 font-body text-[11px] font-semibold tracking-wide text-[#7E6BAF] tabular-nums">{reference}</p>
               </div>
               <button
                 type="button"
