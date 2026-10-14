@@ -401,7 +401,7 @@ function PrescriptionRow({
         <div className="min-w-0 flex-1">
           <div className="mb-1 flex flex-wrap items-center gap-2">
             <h5 className="font-display text-[17px] font-semibold text-[#3D2E6B]">Prescription document</h5>
-            <span className="rounded border border-[#A89BD0]/20 bg-white px-2 py-0.5 font-mono text-[10px] font-bold text-[#3D2E6B]">
+            <span className="rounded border border-[#A89BD0]/20 bg-white px-2 py-0.5 font-body text-[10.5px] font-bold tracking-wide text-[#3D2E6B] tabular-nums">
               {doc.number}
             </span>
             <StatusChip status={status} payment={payment} />
