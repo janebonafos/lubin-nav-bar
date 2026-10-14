@@ -175,7 +175,7 @@ export default function ClientPrescriptionsSection({ forceEmpty = false }: { for
             role="tab"
             aria-selected={tab === "prescriptions"}
             onClick={() => setTab("prescriptions")}
-            className={`rounded-[10px] px-5 py-2 font-display text-[15px] font-semibold transition-colors ${
+            className={`rounded-[10px] px-5 py-2 font-body text-[15px] font-semibold transition-colors ${
               tab === "prescriptions"
                 ? "bg-[#7E6BAF] text-white shadow-sm"
                 : "text-[#5B4B8A] hover:bg-[#F3F0FA]"
@@ -188,7 +188,7 @@ export default function ClientPrescriptionsSection({ forceEmpty = false }: { for
             role="tab"
             aria-selected={tab === "medication"}
             onClick={() => setTab("medication")}
-            className={`rounded-[10px] px-5 py-2 font-display text-[15px] font-semibold transition-colors ${
+            className={`rounded-[10px] px-5 py-2 font-body text-[15px] font-semibold transition-colors ${
               tab === "medication"
                 ? "bg-[#7E6BAF] text-white shadow-sm"
                 : "text-[#5B4B8A] hover:bg-[#F3F0FA]"
@@ -211,7 +211,7 @@ export default function ClientPrescriptionsSection({ forceEmpty = false }: { for
       {tab === "prescriptions" && (
         <>
           <div className="mb-6">
-            <h4 className="font-display text-xl font-semibold text-[#3D2E6B]">Official prescription copies</h4>
+            <h4 className="font-body text-xl font-semibold text-[#3D2E6B]">Official prescription copies</h4>
             <p className="mt-1 text-sm text-[#6F6889]">
               Formal records issued by your prescribers — view or download one any time, without finding
               the appointment first.
