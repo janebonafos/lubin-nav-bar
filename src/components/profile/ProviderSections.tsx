@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
 import { FollowUpBookingButton, ProviderFollowUps } from "@/components/appointment/FollowUpBooking";
 import { ProviderFollowUpCalendar } from "@/components/appointment/ProviderFollowUpCalendar";
 import { Link } from "@tanstack/react-router";
@@ -871,78 +872,63 @@ export function CalendarAvailabilitySection() {
 
   return (
     <div className="space-y-8">
-      {/* Calendar Connections — slim strip */}
-      <section className="rounded-xl border border-[#EAE7F5] bg-white px-5 py-4 shadow-sm sm:px-6">
+      {/* Calendar connections */}
+      <section aria-labelledby="calendar-connections-heading" className="overflow-hidden rounded-xl border border-brand-lavender bg-card shadow-sm">
+        <div className="flex items-center justify-between gap-4 border-b border-brand-lavender px-5 py-3.5 sm:px-6">
+          <h2 id="calendar-connections-heading" className="text-sm font-semibold text-brand-purple-dark">Calendar connections</h2>
+          <span className="shrink-0 text-xs font-medium text-muted-foreground">Demo only</span>
+        </div>
         {syncError && (
-          <div className="mb-3 flex items-start justify-between gap-3 rounded-xl border border-red-100 bg-red-50/70 px-4 py-2.5">
-            <p className="text-xs font-medium text-red-700">{syncError}</p>
-            <button
-              onClick={handleConnect}
-              className="shrink-0 text-xs font-semibold text-red-700 underline-offset-2 hover:underline"
-            >
-              Retry
-            </button>
+          <div role="alert" className="mx-5 mt-4 flex items-start justify-between gap-3 rounded-md border border-destructive/20 bg-destructive/5 px-4 py-2.5 sm:mx-6">
+            <p className="text-xs font-medium text-destructive">{syncError}</p>
+            <Button variant="link" size="sm" onClick={handleConnect} className="h-auto p-0 text-destructive">Retry</Button>
           </div>
         )}
-        <div className="flex flex-wrap items-center justify-between gap-x-5 gap-y-3">
-          <div className="flex flex-wrap items-center gap-3">
-            <h2 className="text-sm font-semibold text-[#3D2E6B]">Calendar connections</h2>
-            <div className="flex items-center gap-2.5 rounded-full border border-[#E3DBF5]/60 bg-[#F0EAFB]/30 py-1.5 pl-2.5 pr-4">
-              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-[#EAE7F5]">
+        <div className="grid items-center gap-4 px-5 py-4 sm:px-6 min-[1100px]:grid-cols-[minmax(0,1fr)_auto] min-[1100px]:gap-6">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-brand-lavender bg-card">
                 <svg viewBox="0 0 48 48" className="h-4 w-4" aria-hidden="true">
                   <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.6-6 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.8 1.1 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.2-.1-2.3-.4-3.5z"/>
                   <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16 19 13 24 13c3 0 5.8 1.1 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.6 8.3 6.3 14.7z"/>
                   <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.3 35 26.8 36 24 36c-5.3 0-9.7-3.4-11.3-8l-6.6 5.1C9.5 39.7 16.2 44 24 44z"/>
                   <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.1 5.6l6.2 5.2c-.4.4 6.6-4.8 6.6-14.8 0-1.2-.1-2.3-.4-3.5z"/>
                 </svg>
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
+                <span className="text-sm font-semibold text-brand-purple-dark">Google Calendar</span>
+                <span className="inline-flex items-center gap-1 text-xs text-brand-purple">
+                  {provider === "google" && <Check className="h-3.5 w-3.5" />}
+                  {provider === "google" ? "Connected" : "Not connected"}
+                </span>
               </div>
-              <span className="text-[12.5px] font-semibold text-[#3D2E6B]">Google Calendar</span>
-              <span className="text-[12px] text-[#7E6BAF]">{provider === "google" ? `Connected · ${account}` : "Not connected"}</span>
-              {provider === "google" ? (
-                <button
-                  onClick={() => setProvider(null)}
-                  className="text-[12px] font-semibold text-[#A89BD0] hover:text-rose-500"
-                >
-                  Disconnect
-                </button>
-              ) : (
-                <button
-                  onClick={handleConnect}
-                  disabled={connecting}
-                  className="inline-flex items-center gap-1 text-[12px] font-semibold text-[#7E6BAF] hover:text-[#3D2E6B] disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  <RefreshCw className={`h-3 w-3 ${connecting ? "animate-spin" : ""}`} />
-                  {connecting ? "Connecting…" : "Connect"}
-                </button>
-              )}
+              {provider === "google" && <p className="mt-1 break-all text-xs leading-relaxed text-muted-foreground">{account}</p>}
             </div>
-            <div className="flex items-center gap-2.5 rounded-full border border-dashed border-[#D8CFEC] px-4 py-1.5">
-              <CalendarDays className="h-4 w-4 text-[#A89BD0]" />
-              <span className="text-[12.5px] font-medium text-[#7E6BAF]">Outlook & iCloud</span>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">Coming soon</span>
-            </div>
+            {provider === "google" ? (
+              <Button variant="ghost" size="sm" onClick={() => setProvider(null)} className="shrink-0 text-brand-purple hover:text-destructive">Disconnect</Button>
+            ) : (
+              <Button variant="outline" size="sm" onClick={handleConnect} disabled={connecting} className="shrink-0 border-brand-lavender bg-card text-brand-purple-dark">
+                <RefreshCw className={connecting ? "animate-spin" : ""} />
+                {connecting ? "Connecting…" : "Connect"}
+              </Button>
+            )}
           </div>
-          {provider ? (
-            <span className="shrink-0 rounded-full bg-[#3D2E6B] px-3.5 py-1.5 text-xs font-semibold text-primary-foreground">
-              Demo connection
-            </span>
-          ) : (
-            <span className="shrink-0 rounded-full border border-[#E0D8F0] bg-white px-3.5 py-1.5 text-xs font-semibold text-[#6B6480]">
-              Not connected
-            </span>
+          <div className="flex items-center gap-2 border-t border-brand-lavender pt-3 text-xs text-muted-foreground min-[1100px]:border-l min-[1100px]:border-t-0 min-[1100px]:pl-6 min-[1100px]:pt-0">
+            <CalendarDays className="h-4 w-4 shrink-0" />
+            <span>Outlook &amp; iCloud</span>
+            <span className="text-brand-purple-accent">·</span>
+            <span className="whitespace-nowrap">Coming soon</span>
+          </div>
+        </div>
+        <div className="border-t border-brand-lavender bg-brand-lavender/20 px-5 py-3 sm:px-6">
+          <p className="text-xs leading-relaxed text-muted-foreground">Follow-ups appear in your Lubin demo calendar below. No external calendar is synced.</p>
+          {!provider && (
+            <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+              If you don't connect a calendar, your profile and availability won't be visible to clients.{" "}
+              <Link to="/faqs" className="font-semibold text-brand-purple underline-offset-2 hover:underline">Learn more</Link>
+            </p>
           )}
         </div>
-        <p className="mt-2.5 text-[11.5px] leading-relaxed text-[#6B6480]">
-          Demo connection only · Follow-ups appear in your Lubin demo calendar below. Reconnecting to a different calendar won't carry previously synced bookings over.{" "}
-          {!provider && (
-            <>
-              If you don't connect a calendar, your profile and availability won't be visible to clients.{" "}
-              <Link to="/faqs" className="font-semibold text-[#5E4A8C] underline-offset-2 hover:underline">
-                Learn more
-              </Link>
-            </>
-          )}
-        </p>
       </section>
 
       <ProviderFollowUpCalendar />
