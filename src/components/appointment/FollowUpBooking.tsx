@@ -36,7 +36,6 @@ function BookingForm({ sourceId, client, provider }: { sourceId: string; client:
   const week = useAvailabilityStore(s => s.week);
   const existing = useFollowUps();
   const unavailableDates = dates.filter(d => followUpSlotState(d, time, duration, week, existing, provider) !== 'available');
-  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' });
   if (created) return <>
     <DialogTitle className="text-2xl text-brand-purple-dark">{created.seriesId ? `${created.seriesCount} follow-ups scheduled` : created.status === 'confirmed' ? 'Follow-up confirmed' : 'Booking sent to client'}</DialogTitle>
     <DialogDescription>{created.status === 'confirmed' ? `${client} doesn’t need to book or pay.` : `${client} can confirm this appointment by paying in Lubin.`}</DialogDescription>
@@ -58,7 +57,7 @@ function BookingForm({ sourceId, client, provider }: { sourceId: string; client:
       saveFollowUpSeries(bookings); setCreated(bookings[0] ?? booking);
     }}>
       <label className="block text-sm font-medium">Appointment type<input className={field} value={service} onChange={e => setService(e.target.value)} required /></label>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3"><label className="text-sm font-medium">Date<input type="date" min={today} value={date} onChange={e => setDate(e.target.value)} className={field} required /></label><label className="text-sm font-medium">Time · Manila<input type="time" value={time} onChange={e => setTime(e.target.value)} className={field} required /></label><label className="text-sm font-medium">Duration<select value={duration} onChange={e => setDuration(Number(e.target.value))} className={field}><option value={30}>30 minutes</option><option value={50}>50 minutes</option><option value={60}>60 minutes</option></select></label></div>
+      <label className="block text-sm font-medium">Duration<select value={duration} onChange={e => setDuration(Number(e.target.value))} className={field}><option value={30}>30 minutes</option><option value={50}>50 minutes</option><option value={60}>60 minutes</option></select></label>
       <FollowUpAvailabilityPicker date={date} time={time} duration={duration} week={week} bookings={existing} provider={provider} onSelect={(d, t) => { setDate(d); setTime(t); setError(''); }} />
       {unavailableDates.length > 0 && <p role="alert" className="text-sm text-destructive">Unavailable at {time}: {unavailableDates.join(', ')}. Choose another date or time{repeat !== 'once' ? ' for the series' : ''}.</p>}
       <div className="grid gap-4 sm:grid-cols-2"><label className="text-sm font-medium">Repeat<select className={field} value={repeat} onChange={e => setRepeat(e.target.value as RepeatFrequency)}>{Object.entries(REPEAT_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>{repeat !== 'once' && <label className="text-sm font-medium">Number of visits<select className={field} value={visits} onChange={e => setVisits(Number(e.target.value))}>{Array.from({ length: 11 }, (_, i) => i + 2).map(n => <option key={n} value={n}>{n} visits</option>)}</select></label>}</div>
