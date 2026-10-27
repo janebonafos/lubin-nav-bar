@@ -83,6 +83,7 @@ export default function FollowUpBookedEmail({
   const isProvider = recipientRole === "provider";
   const confirmed = status === "confirmed";
   const providerClientConfirmed = isProvider && confirmed && confirmationSource === "client";
+  const multiVisit = !!visitList && visitList.length > 1;
 
   const previewText = isProvider
     ? confirmed
@@ -219,8 +220,18 @@ export default function FollowUpBookedEmail({
                 <Text style={{ ...value, fontWeight: 700 }}>{serviceName ?? "—"}</Text>
               </div>
               <div style={{ marginBottom: 14 }}>
-                <Text style={label}>Date & time</Text>
-                <Text style={{ ...value, fontWeight: 700 }}>{dateTime ?? "—"}</Text>
+                <Text style={label}>
+                  {multiVisit ? `Dates & times${seriesLabel ? ` · ${seriesLabel}` : ""}` : "Date & time"}
+                </Text>
+                {multiVisit ? (
+                  visitList!.map((visit) => (
+                    <Text key={visit} style={{ ...value, fontWeight: 700 }}>
+                      {visit}
+                    </Text>
+                  ))
+                ) : (
+                  <Text style={{ ...value, fontWeight: 700 }}>{dateTime ?? "—"}</Text>
+                )}
                 {(duration || timezone) && (
                   <Text style={{ margin: "4px 0 0", color: colors.textMuted, fontSize: 13 }}>
                     {[duration, timezone].filter(Boolean).join(" · ")}
@@ -238,7 +249,7 @@ export default function FollowUpBookedEmail({
               </div>
             </Section>
 
-            {seriesLabel && (
+            {seriesLabel && !multiVisit && (
               <Text
                 style={{
                   margin: "0 0 10px",
@@ -250,7 +261,7 @@ export default function FollowUpBookedEmail({
                 {seriesLabel}
               </Text>
             )}
-            {visitList && visitList.length > 0 && (
+            {false && visitList && (
               <Section
                 style={{
                   border: `1px solid ${colors.lavenderBorder}`,
