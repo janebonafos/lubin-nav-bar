@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { addMonths, eachDayOfInterval, endOfMonth, format, getDay, startOfMonth } from 'date-fns';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Video } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useFollowUps } from '@/lib/appointments/followUp';
+import { useFollowUps, type FollowUpBooking } from '@/lib/appointments/followUp';
 
 type Sortable = { date: string; time: string };
 const byTime = (a: Sortable, b: Sortable) => `${a.date}T${a.time}`.localeCompare(`${b.date}T${b.time}`);
@@ -162,7 +162,72 @@ export function ProviderFollowUpCalendar() {
             )}
           </div>
         </div>
+        )}
       </div>
     </section>
+  );
+}
+
+// Call opens 10 minutes before start and closes when the visit ends (Manila time).
+function joinState(b: FollowUpBooking, now = Date.now()): 'unpaid' | 'early' | 'open' | 'ended' {
+  if (b.status !== 'confirmed') return 'unpaid';
+  const start = new Date(`${b.date}T${b.time}:00+08:00`).getTime();
+  if (now < start - 10 * 60_000) return 'early';
+  if (now > start + b.duration * 60_000) return 'ended';
+  return 'open';
+}
+
+function VisitDetails({ booking: b, inCall, onJoin, onLeave, onBack }: { booking: FollowUpBooking; inCall: boolean; onJoin: () => void; onLeave: () => void; onBack: () => void }) {
+  const state = joinState(b);
+  const rows: [string, string][] = [
+    ['Client', b.client],
+    ['Service', b.service],
+    ['When', `${format(new Date(`${b.date}T00:00:00`), 'EEEE, MMMM d')} · ${b.time} (Manila)`],
+    ['Length', `${b.duration} min`],
+    ['Fee', b.fee ? `₱${b.fee.toLocaleString()}` : 'Free'],
+    ...(b.seriesId ? [['Series', `Visit ${b.occurrence} of ${b.seriesCount}`] as [string, string]] : []),
+  ];
+  const hint = {
+    unpaid: 'The call unlocks once the client pays for this visit.',
+    early: 'You can join from 10 minutes before the start time.',
+    open: 'The call is open. Your client can join from their Passport.',
+    ended: 'This visit has ended.',
+  }[state];
+  return (
+    <div className="flex h-full flex-col rounded-xl border border-border bg-card p-4 shadow-sm sm:p-5">
+      <button type="button" onClick={onBack} className="inline-flex w-fit items-center gap-1 text-xs font-semibold text-brand-purple-dark hover:underline">
+        <ChevronLeft className="h-3.5 w-3.5" /> Back to day
+      </button>
+      <div className="mt-3 flex items-start justify-between gap-3">
+        <h3 className="text-lg font-semibold text-brand-purple-dark">{b.client}</h3>
+        <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${b.status === 'confirmed' ? 'bg-brand-purple-dark text-primary-foreground' : 'bg-secondary text-foreground'}`}>
+          {b.status === 'confirmed' ? 'Confirmed' : 'Awaiting payment'}
+        </span>
+      </div>
+      <dl className="mt-4 divide-y divide-border rounded-lg border border-border">
+        {rows.map(([k, v]) => (
+          <div key={k} className="flex justify-between gap-4 px-3 py-2.5 text-sm">
+            <dt className="text-[#5B5470]">{k}</dt><dd className="text-right font-medium text-brand-purple-dark">{v}</dd>
+          </div>
+        ))}
+      </dl>
+      {b.note && <p className="mt-3 rounded-lg bg-brand-lavender px-3 py-2 text-sm text-brand-purple-dark"><span className="font-semibold">Note: </span>{b.note}</p>}
+      <div className="mt-auto pt-5">
+        {inCall ? (
+          <div className="rounded-xl bg-brand-purple-dark p-4 text-primary-foreground">
+            <p className="text-sm font-semibold">You're in the call with {b.client}</p>
+            <p className="mt-1 text-xs opacity-80">Demo call only · no audio or video is connected.</p>
+            <Button variant="secondary" size="sm" className="mt-3" onClick={onLeave}>Leave call</Button>
+          </div>
+        ) : (
+          <>
+            <Button className="w-full" disabled={state !== 'open'} onClick={onJoin}>
+              <Video className="mr-1.5 h-4 w-4" /> Join call
+            </Button>
+            <p className="mt-2 text-center text-xs text-[#5B5470]">{hint}</p>
+          </>
+        )}
+      </div>
+    </div>
   );
 }
