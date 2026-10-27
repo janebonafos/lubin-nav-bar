@@ -22,7 +22,7 @@ export function FollowUpAvailabilityPicker({ date, time, duration, week, booking
     setMonth(format(next, 'yyyy-MM'));
     onSelect('', time);
   }
-  return <section className="space-y-3 border-y border-border py-4" aria-label="Provider availability">
+  return <section className="space-y-3 rounded-xl border border-border bg-background p-4" aria-label="Provider availability">
     <div className="flex flex-wrap items-center justify-between gap-2"><div><h3 className="text-sm font-semibold text-brand-purple-dark">Provider availability</h3><p className="mt-1 text-xs text-muted-foreground">Demo · Weekly hours and saved follow-ups · Manila</p></div><div className="flex items-center gap-1"><Button type="button" variant="ghost" size="icon" aria-label="Previous availability month" onClick={() => move(-1)}><ChevronLeft /></Button><span className="w-32 text-center text-sm font-semibold">{format(shown, 'MMMM yyyy')}</span><Button type="button" variant="ghost" size="icon" aria-label="Next availability month" onClick={() => move(1)}><ChevronRight /></Button></div></div>
     <div className="flex flex-wrap gap-4 text-xs"><span className="font-semibold text-brand-purple-dark">Available</span><span className="text-muted-foreground">Unavailable / past</span></div>
     <div className="grid grid-cols-7 gap-1">
