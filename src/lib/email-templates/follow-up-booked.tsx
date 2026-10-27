@@ -270,7 +270,7 @@ export default function FollowUpBookedEmail({
                   marginBottom: 24,
                 }}
               >
-                {visitList.map((visit, index) => (
+                {visitList!.map((visit, index) => (
                   <Text
                     key={visit}
                     style={{
