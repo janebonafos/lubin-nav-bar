@@ -2,10 +2,23 @@ import { useState } from 'react';
 import { addMonths, eachDayOfInterval, endOfMonth, format, getDay, startOfMonth } from 'date-fns';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { bookingDate, useFollowUps } from '@/lib/appointments/followUp';
+import { useFollowUps } from '@/lib/appointments/followUp';
 
 type Sortable = { date: string; time: string };
 const byTime = (a: Sortable, b: Sortable) => `${a.date}T${a.time}`.localeCompare(`${b.date}T${b.time}`);
+
+// The day rail spans the provider's working day; it widens if a visit falls outside.
+const RAIL_START = 8;
+const RAIL_END = 17;
+const hourOf = (time: string) => Number(time.slice(0, 2));
+
+function railHours(entries: Sortable[]) {
+  const hours = entries.map(b => hourOf(b.time));
+  const start = hours.length ? Math.min(RAIL_START, ...hours) : RAIL_START;
+  const end = hours.length ? Math.max(RAIL_END, ...hours) : RAIL_END;
+  return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+}
+const hourLabel = (h: number) => `${String(h).padStart(2, '0')}:00`;
 
 export function ProviderFollowUpCalendar() {
   const bookings = useFollowUps();
@@ -13,57 +26,73 @@ export function ProviderFollowUpCalendar() {
   const [selected, setSelected] = useState('');
   const days = eachDayOfInterval({ start: month, end: endOfMonth(month) });
   const prefix = format(month, 'yyyy-MM');
+  const rows = Math.ceil((getDay(month) + days.length) / 7);
 
   const monthBookings = bookings.filter(b => b.date.startsWith(prefix)).sort(byTime);
   // Focus day: the picked day, else the first day this month with visits, else today.
   const focusDate = selected || monthBookings[0]?.date || format(new Date(), 'yyyy-MM-dd');
   const focusEntries = bookings.filter(b => b.date === focusDate).sort(byTime);
+  const hours = railHours(focusEntries);
   const navigate = (offset: number) => { setMonth(addMonths(month, offset)); setSelected(''); };
+  const jumpToday = () => { setMonth(startOfMonth(new Date())); setSelected(format(new Date(), 'yyyy-MM-dd')); };
 
   return (
     <section className="space-y-4 font-body text-foreground" aria-label="Provider follow-up calendar">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h2 className="text-lg font-semibold text-brand-purple-dark">Your follow-up calendar</h2>
-          <p className="mt-1 text-sm text-muted-foreground">Manila (GMT+8) · Demo calendar only · No external calendar sync</p>
+          <p className="mt-1 text-sm text-[#6B6480]">Manila (GMT+8) · Demo calendar only · No external calendar sync</p>
         </div>
       </div>
-      <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
+      <div className="grid items-stretch gap-4 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
         {/* Left — month grid */}
-        <div className="rounded-xl border border-border bg-card p-4 shadow-sm sm:p-5">
-          <div className="mb-3 flex items-center justify-between px-1">
+        <div className="flex h-full flex-col rounded-xl border border-border bg-card p-4 shadow-sm sm:p-5">
+          <div className="mb-3 flex items-center justify-between gap-2 px-1">
             <h3 className="text-base font-semibold text-brand-purple-dark">{format(month, 'MMMM yyyy')}</h3>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="icon" aria-label="Previous month" onClick={() => navigate(-1)}><ChevronLeft /></Button>
-              <Button variant="outline" size="icon" aria-label="Next month" onClick={() => navigate(1)}><ChevronRight /></Button>
+            <div className="flex items-center gap-1.5">
+              <Button variant="ghost" size="sm" className="h-8 px-3 text-xs text-brand-purple-dark" onClick={jumpToday}>Today</Button>
+              <Button variant="outline" size="icon" className="h-8 w-8" aria-label="Previous month" onClick={() => navigate(-1)}><ChevronLeft /></Button>
+              <Button variant="outline" size="icon" className="h-8 w-8" aria-label="Next month" onClick={() => navigate(1)}><ChevronRight /></Button>
             </div>
           </div>
           <div className="grid grid-cols-7 gap-1">
             {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-              <div key={day} className="pb-1 text-center text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">{day}</div>
+              <div key={day} className="pb-1 text-center text-[11px] font-semibold uppercase tracking-wide text-brand-purple-dark/70">{day}</div>
             ))}
+          </div>
+          <div
+            className="grid min-h-0 flex-1 grid-cols-7 gap-1"
+            style={{ gridTemplateRows: `repeat(${rows}, minmax(0, 1fr))` }}
+          >
             {Array.from({ length: getDay(month) }, (_, i) => <div key={`blank-${i}`} />)}
             {days.map(day => {
               const date = format(day, 'yyyy-MM-dd');
-              const entries = bookings.filter(b => b.date === date);
+              const entries = bookings.filter(b => b.date === date).sort(byTime);
               const isFocus = date === focusDate;
+              const isToday = date === format(new Date(), 'yyyy-MM-dd');
               return (
                 <button
                   key={date}
                   onClick={() => setSelected(isFocus ? '' : date)}
                   aria-label={`${format(day, 'MMMM d, yyyy')}, ${entries.length} follow-ups`}
                   aria-pressed={isFocus}
-                  className={`flex h-16 min-w-0 flex-col items-start gap-1 rounded-lg border p-1.5 text-left transition-colors sm:h-20 ${isFocus ? 'border-brand-purple-dark bg-brand-lavender' : 'border-transparent hover:bg-muted'}`}
+                  className={`flex min-h-[56px] min-w-0 flex-col items-start gap-1 rounded-lg border p-1.5 text-left transition-colors ${
+                    isFocus
+                      ? 'border-brand-purple-dark bg-brand-lavender'
+                      : isToday
+                        ? 'border-brand-purple-accent bg-card hover:bg-muted'
+                        : 'border-transparent hover:bg-muted'
+                  }`}
                 >
                   <span className={`text-xs font-semibold ${isFocus ? 'text-brand-purple-dark' : 'text-foreground'}`}>{format(day, 'd')}</span>
                   <div className="flex w-full flex-col gap-0.5">
                     {entries.slice(0, 2).map(b => (
-                      <span key={b.id} className={`w-full truncate rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${b.status === 'confirmed' ? 'bg-brand-purple-dark text-primary-foreground' : 'bg-brand-lavender text-brand-purple-dark'}`}>
+                      <span key={b.id} className={`w-full truncate rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${b.status === 'confirmed' ? 'bg-brand-purple-dark text-primary-foreground' : 'bg-brand-purple-accent/35 text-brand-purple-dark'}`}>
                         {b.time}
                       </span>
                     ))}
                     {entries.length > 2 && (
-                      <span className="px-1 text-[10px] font-medium text-muted-foreground">+{entries.length - 2} more</span>
+                      <span className="px-1 text-[10px] font-medium text-[#5B5470]">+{entries.length - 2} more</span>
                     )}
                   </div>
                 </button>
@@ -71,42 +100,54 @@ export function ProviderFollowUpCalendar() {
             })}
           </div>
         </div>
-        {/* Right — selected day detail */}
-        <div className="rounded-xl border border-border bg-card p-4 shadow-sm sm:p-5">
+        {/* Right — day rail */}
+        <div className="flex h-full flex-col rounded-xl border border-border bg-card p-4 shadow-sm sm:p-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h3 className="text-lg font-semibold text-brand-purple-dark">{format(new Date(`${focusDate}T00:00:00`), 'MMMM d')}</h3>
-            <span className="text-xs text-muted-foreground">{format(new Date(`${focusDate}T00:00:00`), 'EEEE, MMMM d, yyyy')}</span>
+            <h3 className="text-lg font-semibold text-brand-purple-dark">{format(new Date(`${focusDate}T00:00:00`), 'EEEE, MMMM d')}</h3>
+            <span className="text-xs font-medium text-[#5B5470]">{focusEntries.length} follow-up{focusEntries.length === 1 ? '' : 's'}</span>
           </div>
           <div className="mt-3 flex flex-wrap gap-2">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-lavender px-2.5 py-1 text-[11px] font-medium text-brand-purple-dark">
               <span className="h-1.5 w-1.5 rounded-full bg-brand-purple-dark" /> Confirmed · Client is booked
             </span>
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
-              <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/40" /> Awaiting payment · Time reserved in demo
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-[#6B6480]">
+              <span className="h-1.5 w-1.5 rounded-full bg-brand-purple-accent" /> Awaiting payment · Time reserved in demo
             </span>
           </div>
-          <div className="mt-4 space-y-2.5">
-            {focusEntries.length ? focusEntries.map(b => (
-              <div key={b.id} className="rounded-xl border border-border bg-background p-3.5">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div>
-                    <p className="text-sm font-semibold">{b.client} · {b.service}</p>
-                    <p className="mt-1 text-xs text-muted-foreground">{bookingDate(b)} · {b.duration} min</p>
-                    {b.seriesId && <p className="mt-1 text-xs text-muted-foreground">Recurring visit {b.occurrence} of {b.seriesCount}</p>}
+          {!focusEntries.length && (
+            <p className="mt-4 rounded-xl border border-dashed border-border px-4 py-3 text-center text-sm text-[#5B5470]">
+              No follow-ups on this day.
+            </p>
+          )}
+          <div className="mt-4 flex min-h-0 flex-1 flex-col">
+            {hours.map(h => {
+              const bucket = focusEntries.filter(b => hourOf(b.time) === h);
+              return (
+                <div key={h} className={`flex min-h-10 gap-3 ${bucket.length ? '' : 'flex-1'}`}>
+                  <span className="w-11 shrink-0 pt-1 text-right text-[11px] font-semibold tabular-nums text-brand-purple-dark/70">{hourLabel(h)}</span>
+                  <div className="flex-1 space-y-2 border-t border-dashed border-border px-0 pb-2 pt-1.5">
+                    {bucket.map(b => (
+                      <div key={b.id} className={`rounded-lg border px-3 py-2 ${b.status === 'confirmed' ? 'border-brand-purple-dark/25 bg-brand-lavender' : 'border-border bg-background'}`}>
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="text-[13px] font-semibold leading-snug text-brand-purple-dark">{b.client} · {b.service}</p>
+                            <p className="mt-0.5 text-[11px] text-[#5B5470]">
+                              {b.time} · {b.duration} min{b.seriesId ? ` · visit ${b.occurrence} of ${b.seriesCount}` : ''}
+                            </p>
+                          </div>
+                          <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${b.status === 'confirmed' ? 'bg-brand-purple-dark text-primary-foreground' : 'bg-secondary text-foreground'}`}>
+                            {b.status === 'confirmed' ? 'Confirmed' : 'Awaiting payment'}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
                   </div>
-                  <span className={`rounded-full px-3 py-1 text-xs font-semibold ${b.status === 'confirmed' ? 'bg-brand-lavender text-brand-purple-dark' : 'bg-secondary text-foreground'}`}>
-                    {b.status === 'confirmed' ? 'Confirmed' : 'Reserved · Awaiting payment'}
-                  </span>
                 </div>
-              </div>
-            )) : (
-              <p className="rounded-xl border border-dashed border-border px-4 py-6 text-center text-sm text-muted-foreground">
-                No follow-ups on this day.
-              </p>
-            )}
+              );
+            })}
           </div>
           <div className="mt-4 flex items-center justify-between gap-3 border-t border-border pt-3">
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs font-medium text-[#6B6480]">
               {selected ? format(new Date(`${selected}T00:00:00`), 'MMMM d') : 'This month'} · {monthBookings.length} follow-up{monthBookings.length === 1 ? '' : 's'}
             </p>
             {selected && (
