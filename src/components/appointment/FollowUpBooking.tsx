@@ -15,7 +15,7 @@ const cta = 'bg-brand-purple-dark text-primary-foreground hover:bg-brand-purple'
 export function FollowUpBookingButton({ sourceId, client, provider = 'Maria Santos' }: { sourceId: string; client: string; provider?: string }) {
   const [open, setOpen] = useState(false);
   return <><Button variant="outline" className="font-body text-brand-purple-dark" onClick={() => setOpen(true)}><CalendarDays />Book follow-up</Button>
-    <Dialog open={open} onOpenChange={setOpen}><DialogContent className="max-h-[90dvh] w-[calc(100%-2rem)] max-w-2xl overflow-y-auto bg-card font-body sm:p-8">
+    <Dialog open={open} onOpenChange={setOpen}><DialogContent className="max-h-[92dvh] w-[calc(100%-2rem)] max-w-4xl overflow-y-auto bg-card font-body sm:p-10">
       <BookingForm sourceId={sourceId} client={client} provider={provider} />
     </DialogContent></Dialog></>;
 }
@@ -46,7 +46,7 @@ function BookingForm({ sourceId, client, provider }: { sourceId: string; client:
   return <>
     <div><p className="mb-2 text-xs font-semibold uppercase text-brand-purple">AFTER THE APPOINTMENT</p><DialogTitle className="text-2xl text-brand-purple-dark">Book a follow-up</DialogTitle><DialogDescription className="mt-2">Schedule the next visit for {client}.</DialogDescription></div>
     <div className="flex items-center justify-between border-y border-border py-4"><div><p className="font-semibold text-brand-purple-dark">{client}</p><p className="mt-1 text-sm text-muted-foreground">With {provider} · Online</p></div><span className="rounded-full bg-brand-lavender px-3 py-1 text-xs text-brand-purple-dark">Same provider</span></div>
-    <form className="space-y-5" onSubmit={e => {
+    <form className="space-y-6" onSubmit={e => {
       e.preventDefault();
       const amount = kind === 'free' ? 0 : Number(fee);
       if (!date || !service.trim() || !Number.isFinite(amount) || amount < 0 || (kind === 'paid' && amount === 0) || new Date(`${date}T${time}:00+08:00`).getTime() <= Date.now()) { setError('Choose a future appointment and a valid fee, or select Free.'); return; }
@@ -56,15 +56,20 @@ function BookingForm({ sourceId, client, provider }: { sourceId: string; client:
       const bookings = dates.map((d, i) => ({ ...booking, id: i === 0 ? booking.id : `followup-${crypto.randomUUID()}`, date: d, seriesId, occurrence: i + 1, seriesCount: dates.length, repeat }));
       saveFollowUpSeries(bookings); setCreated(bookings[0] ?? booking);
     }}>
-      <label className="block text-sm font-medium">Appointment type<input className={field} value={service} onChange={e => setService(e.target.value)} required /></label>
-      <label className="block text-sm font-medium">Duration<select value={duration} onChange={e => setDuration(Number(e.target.value))} className={field}><option value={30}>30 minutes</option><option value={50}>50 minutes</option><option value={60}>60 minutes</option></select></label>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <label className="block text-sm font-medium">Appointment type<input className={field} value={service} onChange={e => setService(e.target.value)} required /></label>
+        <label className="block text-sm font-medium">Duration<select value={duration} onChange={e => setDuration(Number(e.target.value))} className={field}><option value={30}>30 minutes</option><option value={50}>50 minutes</option><option value={60}>60 minutes</option></select></label>
+      </div>
       <FollowUpAvailabilityPicker date={date} time={time} duration={duration} week={week} bookings={existing} provider={provider} onSelect={(d, t) => { setDate(d); setTime(t); setError(''); }} />
       {unavailableDates.length > 0 && <p role="alert" className="text-sm text-destructive">Unavailable at {time}: {unavailableDates.join(', ')}. Choose another date or time{repeat !== 'once' ? ' for the series' : ''}.</p>}
       <div className="grid gap-4 sm:grid-cols-2"><label className="text-sm font-medium">Repeat<select className={field} value={repeat} onChange={e => setRepeat(e.target.value as RepeatFrequency)}>{Object.entries(REPEAT_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>{repeat !== 'once' && <label className="text-sm font-medium">Number of visits<select className={field} value={visits} onChange={e => setVisits(Number(e.target.value))}>{Array.from({ length: 11 }, (_, i) => i + 2).map(n => <option key={n} value={n}>{n} visits</option>)}</select></label>}</div>
       {repeat !== 'once' && <div className="border-y border-border py-4"><p className="text-sm font-semibold text-brand-purple-dark">{dates.length ? `${dates.length} visits · ${REPEAT_LABELS[repeat].toLowerCase()}` : 'Choose the first visit date'}</p>{dates.length > 0 && <ol className="mt-3 grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">{dates.map((d, i) => <li key={d}>{i + 1}. {bookingDate({ date: d, time } as FollowUpBooking)}</li>)}</ol>}<p className="mt-3 text-xs text-muted-foreground">Same time, duration and provider for every visit. {kind === 'paid' ? 'Fee and promos apply to each visit separately.' : 'Every visit confirms automatically.'}</p></div>}
       <fieldset><legend className="mb-3 text-sm font-semibold">Payment</legend><div className="grid grid-cols-2 gap-3">{['paid', 'free'].map(value => <label key={value} className={`flex cursor-pointer items-center gap-3 rounded-md border p-4 ${kind === value ? 'border-brand-purple bg-brand-lavender' : 'border-border'}`}><input type="radio" name="follow-up-fee" value={value} checked={kind === value} onChange={() => setKind(value)} className="accent-brand-purple" /><span className="text-sm font-medium">{value === 'paid' ? 'Client pays' : 'Free follow-up'}</span></label>)}</div></fieldset>
-       {kind === 'paid' ? <><label className="block text-sm font-medium">{repeat === 'once' ? 'Appointment fee (₱)' : 'Fee per visit (₱)'}<input type="number" min={1} value={fee} onChange={e => setFee(e.target.value)} className={field} required /></label><p className="text-sm leading-relaxed text-muted-foreground">Awaiting payment until the client pays. Available offers and a promo-code field appear at checkout.</p></> : <p className="text-sm leading-relaxed text-muted-foreground">Confirmed automatically. The client receives their appointment details without a payment step.</p>}
-      <label className="block text-sm font-medium">Note to client <span className="font-normal text-muted-foreground">(optional)</span><textarea rows={2} value={note} onChange={e => setNote(e.target.value)} className={field} /></label>
+      <div className="grid gap-4 sm:grid-cols-2">
+        {kind === 'paid' ? <label className="block text-sm font-medium">{repeat === 'once' ? 'Appointment fee (₱)' : 'Fee per visit (₱)'}<input type="number" min={1} value={fee} onChange={e => setFee(e.target.value)} className={field} required /></label> : <p className="self-center text-sm leading-relaxed text-muted-foreground">Confirmed automatically. The client receives their appointment details without a payment step.</p>}
+        <label className="block text-sm font-medium">Note to client <span className="font-normal text-muted-foreground">(optional)</span><textarea rows={2} value={note} onChange={e => setNote(e.target.value)} className={field} /></label>
+      </div>
+      {kind === 'paid' && <p className="text-sm leading-relaxed text-muted-foreground">Awaiting payment until the client pays. Available offers and a promo-code field appear at checkout.</p>}
       <div className="border-t border-border pt-4 text-sm text-muted-foreground"><p>Your demo calendar: {kind === 'free' ? 'Added as confirmed' : 'Time reserved until the client pays'}{repeat !== 'once' ? ' for every visit' : ''}.</p><p className="mt-2">Client receives: Lubin notification · Email from {provider} · Calendar option</p><p className="mt-2 text-xs">Demo only · no real payment, email sending or external calendar sync. Sample fee and promos.</p></div>
       {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
       <Button type="submit" className={`w-full ${cta}`}>{repeat !== 'once' ? kind === 'free' ? `Confirm ${dates.length || visits} free visits` : `Send ${dates.length || visits} bookings to client` : kind === 'free' ? 'Confirm free appointment' : 'Send booking to client'}<ArrowRight /></Button>
