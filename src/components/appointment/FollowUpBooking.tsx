@@ -16,11 +16,11 @@ export function FollowUpBookingButton({ sourceId, client, provider = 'Maria Sant
   const [open, setOpen] = useState(false);
   return <><Button variant="outline" className="font-body text-brand-purple-dark" onClick={() => setOpen(true)}><CalendarDays />Book follow-up</Button>
     <Dialog open={open} onOpenChange={setOpen}><DialogContent className="max-h-[92dvh] w-[calc(100%-2rem)] max-w-5xl overflow-y-auto bg-card font-body sm:p-10">
-      <BookingForm sourceId={sourceId} client={client} provider={provider} />
+      <BookingForm sourceId={sourceId} client={client} provider={provider} onDone={() => setOpen(false)} />
     </DialogContent></Dialog></>;
 }
 
-function BookingForm({ sourceId, client, provider }: { sourceId: string; client: string; provider: string }) {
+function BookingForm({ sourceId, client, provider, onDone }: { sourceId: string; client: string; provider: string; onDone: () => void }) {
   const [date, setDate] = useState('');
   const [time, setTime] = useState('10:00');
   const [duration, setDuration] = useState(30);
