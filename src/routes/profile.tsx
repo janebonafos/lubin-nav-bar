@@ -158,6 +158,8 @@ function ProfilePage() {
   const [focusVisitId, setFocusVisitId] = useState<string | undefined>(undefined);
   const [connectionWarning, setConnectionWarning] = useState<string | null>(null);
   const [role, setRole] = useState<Role>("client");
+  /** True once the stored role has been read, so mount-time writes can't clobber it. */
+  const roleSyncReady = useRef(false);
   const { waitingCount } = useChatRxQueue();
   const [isHydrating, setIsHydrating] = useState<boolean>(true);
   const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
