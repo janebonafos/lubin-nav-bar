@@ -27,6 +27,8 @@ const colors = {
 export interface FollowUpBookedProps {
   recipientRole?: "client" | "provider";
   status?: "awaiting-payment" | "confirmed";
+  /** For provider + confirmed: whether the visit was free or the client paid. */
+  confirmationSource?: "free" | "client";
   clientName?: string;
   providerName?: string;
   serviceName?: string;
@@ -62,6 +64,7 @@ const value = {
 export default function FollowUpBookedEmail({
   recipientRole = "client",
   status = "awaiting-payment",
+  confirmationSource,
   clientName,
   providerName,
   serviceName,
@@ -79,10 +82,13 @@ export default function FollowUpBookedEmail({
 }: FollowUpBookedProps) {
   const isProvider = recipientRole === "provider";
   const confirmed = status === "confirmed";
+  const providerClientConfirmed = isProvider && confirmed && confirmationSource === "client";
 
   const previewText = isProvider
     ? confirmed
-      ? `Free follow-up confirmed — ${clientName ?? "your client"} needs no payment.`
+      ? providerClientConfirmed
+        ? `${clientName ?? "Your client"} paid and confirmed your follow-up.`
+        : `Free follow-up confirmed — ${clientName ?? "your client"} needs no payment.`
       : `Copy of the follow-up booking you sent to ${clientName ?? "your client"}.`
     : confirmed
       ? `Your follow-up with ${providerName ?? "your provider"} is confirmed.`
@@ -90,7 +96,9 @@ export default function FollowUpBookedEmail({
 
   const heading = isProvider
     ? confirmed
-      ? "Free follow-up confirmed"
+      ? providerClientConfirmed
+        ? "Follow-up confirmed"
+        : "Free follow-up confirmed"
       : "Booking sent to your client"
     : confirmed
       ? "Your follow-up is confirmed"
@@ -119,7 +127,11 @@ export default function FollowUpBookedEmail({
             }}
           >
             <Text style={{ ...label, letterSpacing: 1.5, fontSize: 12 }}>
-              {isProvider ? "Your booking receipt" : "Follow-up booked"}
+              {isProvider
+                ? providerClientConfirmed
+                  ? "Booking confirmation"
+                  : "Your booking receipt"
+                : "Follow-up booked"}
             </Text>
           </Section>
 
@@ -157,10 +169,17 @@ export default function FollowUpBookedEmail({
             >
               {isProvider ? (
                 confirmed ? (
-                  <>
-                    You confirmed a free follow-up for {clientName ?? "your client"}. No payment is
-                    needed, so the visit is already on both of your calendars.
-                  </>
+                  providerClientConfirmed ? (
+                    <>
+                      {clientName ?? "Your client"} paid and confirmed the follow-up you sent. The
+                      visit is now on both of your calendars.
+                    </>
+                  ) : (
+                    <>
+                      You confirmed a free follow-up for {clientName ?? "your client"}. No payment
+                      is needed, so the visit is already on both of your calendars.
+                    </>
+                  )
                 ) : (
                   <>
                     Here is a copy of the follow-up booking you sent to{" "}
@@ -338,7 +357,9 @@ export default function FollowUpBookedEmail({
             <Text style={{ margin: 0, color: colors.textMuted, fontSize: 14, lineHeight: "1.6" }}>
               {isProvider
                 ? confirmed
-                  ? "This free visit is confirmed automatically — no action is needed from you or your client."
+                  ? providerClientConfirmed
+                    ? "This visit is confirmed and paid. It is on your follow-up calendar."
+                    : "This free visit is confirmed automatically — no action is needed from you or your client."
                   : "You will get a notification in Lubin when the client pays and confirms the visit. If the visit stays unpaid, it frees up automatically."
                 : confirmed
                   ? "This visit is confirmed. If you need to change it, message your provider in Lubin."
@@ -379,7 +400,9 @@ export const template = {
   subject: (data: FollowUpBookedProps) =>
     data.recipientRole === "provider"
       ? data.status === "confirmed"
-        ? `Free follow-up confirmed · ${data.clientName ?? ""}`.trim()
+        ? data.confirmationSource === "client"
+          ? `Follow-up confirmed · ${data.clientName ?? ""}`.trim()
+          : `Free follow-up confirmed · ${data.clientName ?? ""}`.trim()
         : `Booking sent · ${data.clientName ?? "follow-up"}`.trim()
       : data.status === "confirmed"
         ? `Your follow-up with ${data.providerName ?? "your provider"} is confirmed`
