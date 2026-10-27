@@ -1,4 +1,4 @@
-import { useState, type ChangeEvent, useEffect } from "react";
+import { useState, type ChangeEvent, useEffect, useRef } from "react";
 import { useMemo } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { z } from "zod";
@@ -158,6 +158,8 @@ function ProfilePage() {
   const [focusVisitId, setFocusVisitId] = useState<string | undefined>(undefined);
   const [connectionWarning, setConnectionWarning] = useState<string | null>(null);
   const [role, setRole] = useState<Role>("client");
+  /** True once the stored role has been read, so mount-time writes can't clobber it. */
+  const roleSyncReady = useRef(false);
   const { waitingCount } = useChatRxQueue();
   const [isHydrating, setIsHydrating] = useState<boolean>(true);
   const [isTransitioning, setIsTransitioning] = useState<boolean>(false);
@@ -200,17 +202,23 @@ function ProfilePage() {
       const stored =
         window.localStorage.getItem("lubin.userRole") ??
         window.localStorage.getItem("lubin.role");
-      if (stored === "provider" || stored === "client") setRole(stored);
+      if (stored === "provider" || stored === "client") {
+        setRole(stored);
+      } else if (
+        window.localStorage.getItem("lubin.userRole") === null &&
+        window.localStorage.getItem("lubin.role") === null
+      ) {
+        window.localStorage.setItem("lubin.role", "client");
+        window.localStorage.setItem("lubin.userRole", "client");
+      }
     } catch { /* ignore */ }
+    // Role writes wait until the stored role has been applied, so mounting
+    // never clobbers the saved role with the pre-read default.
+    const t = setTimeout(() => { roleSyncReady.current = true; }, 0);
+    return () => clearTimeout(t);
   }, []);
+  // When switching to provider mode, if a client-only tab is active, jump to provider.
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    try {
-      window.localStorage.setItem("lubin.role", role);
-      window.localStorage.setItem("lubin.userRole", role);
-      window.dispatchEvent(new Event("lubin:auth-change"));
-    } catch { /* ignore */ }
-    // When switching to provider mode, if a client-only tab is active, jump to profile.
     const providerSections: Section[] = [
       "provider",
       "calendar",
@@ -230,6 +238,15 @@ function ProfilePage() {
       setActiveSection("profile");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [role]);
+  // Persist role changes only after the stored role has been read and applied.
+  useEffect(() => {
+    if (!roleSyncReady.current) return;
+    try {
+      window.localStorage.setItem("lubin.role", role);
+      window.localStorage.setItem("lubin.userRole", role);
+      window.dispatchEvent(new Event("lubin:auth-change"));
+    } catch { /* ignore */ }
   }, [role]);
 
   const todayLabel = useMemo(
