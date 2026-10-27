@@ -13,6 +13,7 @@ import { AiProviderBrief } from "@/components/appointment/AiProviderBrief";
 import { AiPrescription } from "@/components/appointment/AiPrescription";
 import { DevPatientDataToggle } from "@/components/appointment/DevPatientDataToggle";
 import PassportDeliverySummary from "@/components/appointment/PassportDeliverySummary";
+import { FollowUpBookingButton } from "@/components/appointment/FollowUpBooking";
 import ProviderSharedPassportContents from "@/components/share/ProviderSharedPassportContents";
 import SharedPassportDialog from "@/components/share/SharedPassportDialog";
 import SoapNotesPanel from "@/components/clinical/SoapNotesPanel";
@@ -131,6 +132,10 @@ export const Route = createFileRoute("/appointment/details")({
         content:
           "Prepare, document and close out a therapy or psychiatry session in one calm workspace.",
       },
+      { property: "og:title", content: "Session workspace — Lubin" },
+      { property: "og:description", content: "Review a completed visit and schedule your client's next appointment with Lubin." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
     ],
   }),
 });
@@ -1319,6 +1324,12 @@ function DetailsPage() {
                     <p className="mt-1 text-[13px] leading-snug text-[#7E6BAF]">
                       Your appointments list has been updated with the new status and details.
                     </p>
+                    {recordedOutcome === "completed" && (
+                      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-y border-border py-4 font-body">
+                        <div><p className="text-sm font-semibold text-brand-purple-dark">Plan the next visit</p><p className="mt-1 text-sm text-muted-foreground">Book a paid or complimentary follow-up for {appt.client}.</p></div>
+                        <FollowUpBookingButton sourceId={appt.id} client={appt.client ?? "Client"} provider={providerDisplayName} />
+                      </div>
+                    )}
                     <div className="mt-4">
                       <PassportDeliverySummary
                         clientLabel={clientLabel}

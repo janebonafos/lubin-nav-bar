@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { FollowUpBookingButton, ProviderFollowUps } from "@/components/appointment/FollowUpBooking";
 import { Link } from "@tanstack/react-router";
 import { PrescribingVerificationCard } from "@/components/profile/PrescribingVerificationCard";
 import AppointmentMessageButton from "@/components/messages/AppointmentMessageButton";
@@ -1661,6 +1662,7 @@ export function AppointmentsSection() {
         />
       </div>
 
+      <ProviderFollowUps />
       <section className="overflow-hidden rounded-[12px] border border-[#EAE7F5] bg-white shadow-sm">
         <div className="p-6">
           <div className="flex items-center gap-3">
@@ -1762,6 +1764,9 @@ export function AppointmentsSection() {
 
                 {/* Actions */}
                 <div className="ml-auto flex shrink-0 items-center gap-2 sm:ml-4">
+                  {a.status === "completed" && (!a.outcome || a.outcome === "completed") && (
+                    <FollowUpBookingButton sourceId={a.id} client={a.client} />
+                  )}
                   {(a.status === "upcoming" || a.status === "session_review") && (
                     <AppointmentMessageButton
                       appointmentId={a.id}

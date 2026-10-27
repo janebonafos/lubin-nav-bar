@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { ClientFollowUps } from "@/components/appointment/FollowUpBooking";
 import {
   CalendarClock,
   Video,
@@ -386,6 +387,7 @@ export default function ClientAppointmentsSection() {
         <Stat label="Completed" value={String(counts.completed)} hint="Last 30 days" />
         <Stat label="Cancelled" value={String(counts.cancelled)} hint="Last 30 days" />
       </div>
+      <ClientFollowUps />
 
       <section className="overflow-hidden rounded-[12px] border border-[#EAE7F5] bg-white shadow-sm">
         <div className="p-6">
