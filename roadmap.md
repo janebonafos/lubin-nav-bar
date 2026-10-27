@@ -1,5 +1,6 @@
 # Health Passport patient design
 
+- [ ] Connect follow-up bookings to the provider’s demo calendar and verify status updates.
 - [x] Add recurring provider bookings with schedule preview and client/calendar visibility; verify local-only behavior.
 - [x] Design provider-booked follow-ups with free/paid confirmation, client promos, Lubin/email previews and calendar access; verify both paths.
 
