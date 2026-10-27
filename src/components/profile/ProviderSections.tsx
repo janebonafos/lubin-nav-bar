@@ -974,8 +974,8 @@ export function CalendarAvailabilitySection() {
                 </button>
               ))}
             </div>
-            <span className="hidden text-[10px] font-bold uppercase tracking-widest text-[#7E6BAF] sm:inline">
-              Timezone · EST
+            <span className="hidden rounded-full bg-[#F0EAFB] px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-[#3D2E6B] sm:inline">
+              Timezone · Manila (GMT+8)
             </span>
           </div>
         </div>
