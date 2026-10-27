@@ -61,7 +61,7 @@ function BookingForm({ sourceId, client, provider, onDone }: { sourceId: string;
         </div>
       </div>
       {created.seriesId && <div className="mt-4 rounded-xl border border-border p-5"><p className="text-sm font-semibold text-brand-purple-dark">{REPEAT_LABELS[repeat]} · {confirmed ? 'All visits confirmed' : 'Payment required separately for each visit'}</p><ol className="mt-3 grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">{dates.map((d, i) => <li key={d}>{i + 1}. {bookingDate({ ...created, date: d })}</li>)}</ol></div>}
-      <div className="mt-4 flex flex-wrap gap-2 text-xs text-muted-foreground"><span className="rounded-full border border-border px-3 py-1">Lubin notification</span><span className="rounded-full border border-border px-3 py-1">Email from {provider}</span><span className="rounded-full border border-border px-3 py-1">Calendar option</span></div>
+      <p className="mt-4 text-sm text-muted-foreground">{client} will get a notification in Lubin and an email from you, with an option to add the visit to their own calendar.</p>
       <div className="mt-6 flex flex-col gap-3 border-t border-border pt-5 sm:flex-row sm:justify-end">
         <Button variant="outline" asChild><Link to="/profile" search={{ tab: 'calendar' }}>View my calendar</Link></Button>
         <Button className={cta} onClick={onDone}>Done</Button>
