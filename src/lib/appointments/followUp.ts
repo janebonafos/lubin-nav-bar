@@ -42,6 +42,43 @@ export function saveFollowUpSeries(bookings: FollowUpBooking[]) {
   localStorage.setItem(KEY, JSON.stringify([...bookings, ...read().filter(b => !ids.has(b.id))]));
   window.dispatchEvent(new Event(EVENT));
 }
+// Fictional examples are added once, without replacing existing local bookings.
+export function demoCalendarBookings(existing: FollowUpBooking[], today: string): FollowUpBooking[] {
+  const names = ['Miguel Cruz', 'Sofia Lim', 'Daniel Garcia', 'Isabel Tan', 'Paolo Rivera', 'Camille Flores'];
+  const slots = [['10:00', '13:00', '15:30'], ['10:30', '14:00'], ['09:30', '11:00', '14:30', '16:00'], ['10:00', '15:00'], ['09:00', '13:30']];
+  const dates: string[] = [];
+  for (let offset = 1; dates.length < slots.length; offset++) {
+    const day = addDays(parseISO(today), offset);
+    if (day.getDay() !== 0 && day.getDay() !== 6) dates.push(format(day, 'yyyy-MM-dd'));
+  }
+  const samples: FollowUpBooking[] = [];
+  dates.forEach((date, dayIndex) => slots[dayIndex].forEach((time, index) => {
+    const start = Number(time.slice(0, 2)) * 60 + Number(time.slice(3));
+    const duration = index % 2 === 0 ? 30 : 50;
+    const overlap = existing.some(b => {
+      const other = Number(b.time.slice(0, 2)) * 60 + Number(b.time.slice(3));
+      return b.date === date && start < other + b.duration && other < start + duration;
+    });
+    if (overlap) return;
+    const confirmed = (dayIndex + index) % 3 !== 0;
+    samples.push({
+      id: `demo-calendar-${date}-${time}`, sourceId: 'demo-calendar',
+      client: names[(dayIndex + index) % names.length], provider: 'Maria Santos',
+      date, time, duration, service: 'Follow-up', fee: 1500,
+      status: confirmed ? 'confirmed' : 'awaiting-payment',
+      ...(confirmed ? { paidAmount: 1500 } : {}),
+      note: 'Fictional appointment for the local calendar preview.',
+    });
+  }));
+  return samples;
+}
+export function seedDemoCalendarBookings() {
+  const marker = 'lubin.follow-up-calendar-samples.v1';
+  if (localStorage.getItem(marker)) return;
+  const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Manila', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+  saveFollowUpSeries(demoCalendarBookings(read(), today));
+  localStorage.setItem(marker, 'added');
+}
 export function useFollowUps() {
   const [bookings, setBookings] = useState<FollowUpBooking[]>([]);
   useEffect(() => {

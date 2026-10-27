@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { addMonths, eachDayOfInterval, endOfMonth, format, getDay, startOfMonth } from 'date-fns';
 import { ChevronLeft, ChevronRight, Video } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { formatTime12 } from '@/lib/availability-store';
-import { useFollowUps, type FollowUpBooking } from '@/lib/appointments/followUp';
+import { seedDemoCalendarBookings, useFollowUps, type FollowUpBooking } from '@/lib/appointments/followUp';
 
 type Sortable = { date: string; time: string };
 const byTime = (a: Sortable, b: Sortable) => `${a.date}T${a.time}`.localeCompare(`${b.date}T${b.time}`);
@@ -26,6 +26,7 @@ const minutesLabel = (m: number) => (m < 60 ? `${m} min` : `${Math.floor(m / 60)
 
 export function ProviderFollowUpCalendar() {
   const bookings = useFollowUps();
+  useEffect(() => { seedDemoCalendarBookings(); }, []);
   const [month, setMonth] = useState(() => startOfMonth(new Date()));
   const [selected, setSelected] = useState('');
   const days = eachDayOfInterval({ start: month, end: endOfMonth(month) });
