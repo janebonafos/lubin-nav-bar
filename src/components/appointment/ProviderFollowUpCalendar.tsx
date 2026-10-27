@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { addMonths, eachDayOfInterval, endOfMonth, format, getDay, startOfMonth } from 'date-fns';
 import { ChevronLeft, ChevronRight, Video } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { formatTime12 } from '@/lib/availability-store';
 import { useFollowUps, type FollowUpBooking } from '@/lib/appointments/followUp';
 
 type Sortable = { date: string; time: string };
@@ -18,7 +19,9 @@ function railHours(entries: Sortable[]) {
   const end = hours.length ? Math.max(RAIL_END, ...hours) : RAIL_END;
   return Array.from({ length: end - start + 1 }, (_, i) => start + i);
 }
-const hourLabel = (h: number) => `${String(h).padStart(2, '0')}:00`;
+const hourLabel = (h: number) => formatTime12(`${String(h).padStart(2, '0')}:00`);
+// Month cells are narrow, so on-the-hour visits read "9 AM" and the rest keep their minutes.
+const chipTime = (time: string) => (time.endsWith(':00') ? formatTime12(time).replace(':00', '') : formatTime12(time));
 
 export function ProviderFollowUpCalendar() {
   const bookings = useFollowUps();
@@ -90,8 +93,8 @@ export function ProviderFollowUpCalendar() {
                   <span className={`text-xs font-semibold ${isFocus ? 'text-brand-purple-dark' : 'text-foreground'}`}>{format(day, 'd')}</span>
                   <div className="flex w-full flex-col gap-0.5">
                     {entries.slice(0, 2).map(b => (
-                      <span key={b.id} className={`w-full truncate rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${b.status === 'confirmed' ? 'bg-brand-purple-dark text-primary-foreground' : 'bg-brand-purple-accent/35 text-brand-purple-dark'}`}>
-                        {b.time}
+                      <span key={b.id} className={`w-full truncate rounded-full px-0.5 py-0.5 text-center text-[10px] font-semibold ${b.status === 'confirmed' ? 'bg-brand-purple-dark text-primary-foreground' : 'bg-brand-purple-accent/35 text-brand-purple-dark'}`}>
+                        {chipTime(b.time)}
                       </span>
                     ))}
                     {entries.length > 2 && (
@@ -130,15 +133,15 @@ export function ProviderFollowUpCalendar() {
               const bucket = focusEntries.filter(b => hourOf(b.time) === h);
               return (
                 <div key={h} className={`flex min-h-10 gap-3 ${bucket.length ? '' : 'flex-1'}`}>
-                  <span className="w-11 shrink-0 pt-1 text-right text-[11px] font-semibold tabular-nums text-brand-purple-dark/70">{hourLabel(h)}</span>
+                  <span className="w-16 shrink-0 pt-1 text-right text-[11px] font-semibold tabular-nums text-brand-purple-dark/70">{hourLabel(h)}</span>
                   <div className="flex-1 space-y-2 border-t border-dashed border-border px-0 pb-2 pt-1.5">
                     {bucket.map(b => (
-                      <button type="button" onClick={() => setOpenId(b.id)} aria-label={`Open details for ${b.client} at ${b.time}`} key={b.id} className={`block w-full rounded-lg border px-3 py-2 text-left transition hover:border-brand-purple-dark/50 hover:shadow-sm ${b.status === 'confirmed' ? 'border-brand-purple-dark/25 bg-brand-lavender' : 'border-border bg-background'}`}>
+                      <button type="button" onClick={() => setOpenId(b.id)} aria-label={`Open details for ${b.client} at ${formatTime12(b.time)}`} key={b.id} className={`block w-full rounded-lg border px-3 py-2 text-left transition hover:border-brand-purple-dark/50 hover:shadow-sm ${b.status === 'confirmed' ? 'border-brand-purple-dark/25 bg-brand-lavender' : 'border-border bg-background'}`}>
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0">
                             <p className="text-[13px] font-semibold leading-snug text-brand-purple-dark">{b.client} · {b.service}</p>
                             <p className="mt-0.5 text-[11px] text-[#5B5470]">
-                              {b.time} · {b.duration} min{b.seriesId ? ` · visit ${b.occurrence} of ${b.seriesCount}` : ''}
+                              {formatTime12(b.time)} · {b.duration} min{b.seriesId ? ` · visit ${b.occurrence} of ${b.seriesCount}` : ''}
                             </p>
                           </div>
                           <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-semibold ${b.status === 'confirmed' ? 'bg-brand-purple-dark text-primary-foreground' : 'bg-secondary text-foreground'}`}>
@@ -182,7 +185,7 @@ function VisitDetails({ booking: b, inCall, onJoin, onLeave, onBack }: { booking
   const rows: [string, string][] = [
     ['Client', b.client],
     ['Service', b.service],
-    ['When', `${format(new Date(`${b.date}T00:00:00`), 'EEEE, MMMM d')} · ${b.time} (Manila)`],
+    ['When', `${format(new Date(`${b.date}T00:00:00`), 'EEEE, MMMM d')} · ${formatTime12(b.time)} (Manila)`],
     ['Length', `${b.duration} min`],
     ['Fee', b.fee ? `₱${b.fee.toLocaleString()}` : 'Free'],
     ...(b.seriesId ? [['Series', `Visit ${b.occurrence} of ${b.seriesCount}`] as [string, string]] : []),
