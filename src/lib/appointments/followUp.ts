@@ -1,10 +1,22 @@
 import { useEffect, useState } from 'react';
+import { addDays, addMonths, format, parseISO } from 'date-fns';
+
+export type RepeatFrequency = 'once' | 'weekly' | 'fortnightly' | 'monthly';
+export const REPEAT_LABELS: Record<RepeatFrequency, string> = { once: 'Does not repeat', weekly: 'Every week', fortnightly: 'Every 2 weeks', monthly: 'Every month' };
+export function followUpDates(date: string, frequency: RepeatFrequency, count: number) {
+  if (!date) return [];
+  const start = parseISO(date);
+  if (Number.isNaN(start.getTime())) return [];
+  const visits = frequency === 'once' ? 1 : Math.min(12, Math.max(2, Math.floor(count) || 2));
+  return Array.from({ length: visits }, (_, index) => format(frequency === 'monthly' ? addMonths(start, index) : addDays(start, index * (frequency === 'fortnightly' ? 14 : 7)), 'yyyy-MM-dd'));
+}
 
 export type FollowUpBooking = {
   id: string; sourceId: string; client: string; provider: string;
   date: string; time: string; duration: number; service: string;
   fee: number; status: 'awaiting-payment' | 'confirmed'; note: string;
   paidAmount?: number; promo?: string;
+  seriesId?: string; occurrence?: number; seriesCount?: number; repeat?: RepeatFrequency;
 };
 export const FOLLOW_UP_PROMOS = [
   { code: 'FOLLOWUP20', label: '20% off your follow-up', discount: 0.2 },
@@ -23,7 +35,11 @@ function read(): FollowUpBooking[] {
   try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch { return []; }
 }
 export function saveFollowUp(booking: FollowUpBooking) {
-  localStorage.setItem(KEY, JSON.stringify([booking, ...read().filter(b => b.id !== booking.id)]));
+  saveFollowUpSeries([booking]);
+}
+export function saveFollowUpSeries(bookings: FollowUpBooking[]) {
+  const ids = new Set(bookings.map(b => b.id));
+  localStorage.setItem(KEY, JSON.stringify([...bookings, ...read().filter(b => !ids.has(b.id))]));
   window.dispatchEvent(new Event(EVENT));
 }
 export function useFollowUps() {
