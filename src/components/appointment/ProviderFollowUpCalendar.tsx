@@ -125,7 +125,7 @@ export function ProviderFollowUpCalendar() {
               return (
                 <div key={h} className="flex min-h-10 flex-1 gap-3">
                   <span className="w-11 shrink-0 pt-1 text-right text-[11px] font-semibold tabular-nums text-brand-purple-dark/70">{hourLabel(h)}</span>
-                  <div className="flex-1 space-y-2 border-t border-dashed border-border pt-1.5">
+                  <div className="flex-1 space-y-2 border-t border-dashed border-border px-0 pb-2 pt-1.5">
                     {bucket.map(b => (
                       <div key={b.id} className={`rounded-lg border px-3 py-2 ${b.status === 'confirmed' ? 'border-brand-purple-dark/25 bg-brand-lavender' : 'border-border bg-background'}`}>
                         <div className="flex items-start justify-between gap-3">
