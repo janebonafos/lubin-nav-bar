@@ -42,7 +42,7 @@ function BookingForm({ sourceId, client, provider }: { sourceId: string; client:
     <DialogDescription>{created.status === 'confirmed' ? `${client} doesn’t need to book or pay.` : `${client} can confirm this appointment by paying in Lubin.`}</DialogDescription>
     <div className="space-y-3 border-y border-border py-4 text-brand-purple-dark"><p className="flex items-center gap-3 text-sm"><Check className="size-5" />{created.status === 'confirmed' ? 'Added to your demo calendar · Confirmed' : 'Time reserved in your demo calendar · Awaiting client payment'}</p><Link to="/profile" search={{ tab: 'calendar' }} className="text-sm font-semibold underline underline-offset-4">View provider calendar</Link></div>
     {created.seriesId && <div className="space-y-2 border-b border-border pb-4"><p className="text-sm font-semibold text-brand-purple-dark">{REPEAT_LABELS[repeat]} · {created.status === 'confirmed' ? 'All visits confirmed' : 'Payment required separately for each visit'}</p><ol className="grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">{dates.map((d, i) => <li key={d}>{i + 1}. {bookingDate({ ...created, date: d })}</li>)}</ol></div>}
-    <ClientBooking booking={created} />
+    <p className="text-sm text-muted-foreground">Client receives: Lubin notification · Email from {provider} · Calendar option</p>
   </>;
   return <>
     <div><p className="mb-2 text-xs font-semibold uppercase text-brand-purple">AFTER THE APPOINTMENT</p><DialogTitle className="text-2xl text-brand-purple-dark">Book a follow-up</DialogTitle><DialogDescription className="mt-2">Schedule the next visit for {client}.</DialogDescription></div>
