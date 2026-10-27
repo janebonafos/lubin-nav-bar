@@ -1,5 +1,7 @@
 # Health Passport patient design
 
+- [ ] Design provider-booked follow-ups with free/paid confirmation, client promos, Lubin/email previews and calendar access; verify both paths.
+
 - [x] Add a larger fictional chat prescription queue, manageable list controls, and synchronized waiting counters on doctor navigation and profile icons.
 
 - [x] Clarify the whole-health purpose at both patient entry points.
