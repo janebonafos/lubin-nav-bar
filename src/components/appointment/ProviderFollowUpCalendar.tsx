@@ -123,7 +123,7 @@ export function ProviderFollowUpCalendar() {
             {hours.map(h => {
               const bucket = focusEntries.filter(b => hourOf(b.time) === h);
               return (
-                <div key={h} className="flex min-h-10 flex-1 gap-3">
+                <div key={h} className={`flex min-h-10 gap-3 ${bucket.length ? '' : 'flex-1'}`}>
                   <span className="w-11 shrink-0 pt-1 text-right text-[11px] font-semibold tabular-nums text-brand-purple-dark/70">{hourLabel(h)}</span>
                   <div className="flex-1 space-y-2 border-t border-dashed border-border px-0 pb-2 pt-1.5">
                     {bucket.map(b => (
