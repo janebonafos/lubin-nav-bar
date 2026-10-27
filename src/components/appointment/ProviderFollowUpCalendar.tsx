@@ -83,13 +83,15 @@ export function ProviderFollowUpCalendar() {
               const entries = bookings.filter(b => b.date === date).sort(byTime);
               const isFocus = date === focusDate;
               const isToday = date === format(new Date(), 'yyyy-MM-dd');
+              // Cells hold three lines at most, so a 3+ visit day trades a chip for the "+N more" line.
+              const shown = entries.length > 2 ? entries.slice(0, 1) : entries;
               return (
                 <button
                   key={date}
                   onClick={() => setSelected(isFocus ? '' : date)}
                   aria-label={`${format(day, 'MMMM d, yyyy')}, ${entries.length} follow-up${entries.length === 1 ? '' : 's'}`}
                   aria-pressed={isFocus}
-                  className={`flex min-h-[56px] min-w-0 flex-col items-start gap-1 rounded-lg border p-1.5 text-left transition-colors ${
+                  className={`flex min-h-[56px] min-w-0 flex-col items-start gap-1 overflow-hidden rounded-lg border p-1.5 text-left transition-colors ${
                     isFocus
                       ? 'border-brand-purple-dark bg-brand-lavender'
                       : isToday
@@ -104,13 +106,13 @@ export function ProviderFollowUpCalendar() {
                     )}
                   </div>
                   <div className="flex w-full flex-col gap-0.5">
-                    {entries.slice(0, 2).map(b => (
+                    {shown.map(b => (
                       <span key={b.id} className={`w-full truncate rounded-full px-0.5 py-0.5 text-center text-[10px] font-semibold ${b.status === 'confirmed' ? 'bg-brand-purple-dark text-primary-foreground' : 'bg-brand-purple-accent/35 text-brand-purple-dark'}`}>
                         {chipTime(b.time)}
                       </span>
                     ))}
-                    {entries.length > 2 && (
-                      <span className="px-1 text-[10px] font-medium text-[#5B5470]">+{entries.length - 2} more</span>
+                    {entries.length > shown.length && (
+                      <span className="px-1 text-[10px] font-medium text-[#5B5470]">+{entries.length - shown.length} more</span>
                     )}
                   </div>
                 </button>
