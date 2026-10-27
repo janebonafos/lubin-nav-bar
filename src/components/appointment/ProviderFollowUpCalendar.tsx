@@ -127,7 +127,7 @@ export function ProviderFollowUpCalendar() {
                   <span className="w-11 shrink-0 pt-1 text-right text-[11px] font-semibold tabular-nums text-brand-purple-dark/70">{hourLabel(h)}</span>
                   <div className="flex-1 space-y-2 border-t border-dashed border-border px-0 pb-2 pt-1.5">
                     {bucket.map(b => (
-                      <div key={b.id} className={`rounded-lg border px-3 py-2 ${b.status === 'confirmed' ? 'border-brand-purple-dark/25 bg-brand-lavender' : 'border-border bg-background'}`}>
+                      <button type="button" onClick={() => setOpenId(b.id)} aria-label={`Open details for ${b.client} at ${b.time}`} key={b.id} className={`block w-full rounded-lg border px-3 py-2 text-left transition hover:border-brand-purple-dark/50 hover:shadow-sm ${b.status === 'confirmed' ? 'border-brand-purple-dark/25 bg-brand-lavender' : 'border-border bg-background'}`}>
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0">
                             <p className="text-[13px] font-semibold leading-snug text-brand-purple-dark">{b.client} · {b.service}</p>
@@ -139,7 +139,8 @@ export function ProviderFollowUpCalendar() {
                             {b.status === 'confirmed' ? 'Confirmed' : 'Awaiting payment'}
                           </span>
                         </div>
-                      </div>
+                        {joinState(b) === 'open' && <span className="mt-1.5 inline-block rounded-full bg-brand-purple-dark px-2 py-0.5 text-[10px] font-semibold text-primary-foreground">Call open · Join now</span>}
+                      </button>
                     ))}
                   </div>
                 </div>
