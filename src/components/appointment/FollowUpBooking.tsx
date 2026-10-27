@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { CalendarDays, Mail, ArrowRight, Check, Ticket } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { bookingDate, calendarFile, FOLLOW_UP_PROMOS, followUpStatus, followUpTotal, saveFollowUp, useFollowUps, type FollowUpBooking } from '@/lib/appointments/followUp';
+import { bookingDate, calendarFile, FOLLOW_UP_PROMOS, REPEAT_LABELS, followUpDates, followUpStatus, followUpTotal, saveFollowUp, saveFollowUpSeries, useFollowUps, type FollowUpBooking, type RepeatFrequency } from '@/lib/appointments/followUp';
 
 const money = (value: number) => `₱${value.toLocaleString('en-PH')}`;
 const field = 'mt-2 w-full rounded-md border border-input bg-card px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-brand-purple';
@@ -26,11 +26,15 @@ function BookingForm({ sourceId, client, provider }: { sourceId: string; client:
   const [note, setNote] = useState('');
   const [created, setCreated] = useState<FollowUpBooking | null>(null);
   const [error, setError] = useState('');
+  const [repeat, setRepeat] = useState<RepeatFrequency>('once');
+  const [visits, setVisits] = useState(4);
+  const dates = followUpDates(date, repeat, visits);
   const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' });
   if (created) return <>
-    <DialogTitle className="text-2xl text-brand-purple-dark">{created.status === 'confirmed' ? 'Follow-up confirmed' : 'Payment request ready'}</DialogTitle>
+    <DialogTitle className="text-2xl text-brand-purple-dark">{created.seriesId ? `${created.seriesCount} follow-ups scheduled` : created.status === 'confirmed' ? 'Follow-up confirmed' : 'Payment request ready'}</DialogTitle>
     <DialogDescription>{created.status === 'confirmed' ? `${client} doesn’t need to book or pay.` : `${client} can confirm this appointment by paying in Lubin.`}</DialogDescription>
     <div className="flex items-center gap-3 border-y border-border py-4 text-brand-purple-dark"><Check className="size-5" /><p className="text-sm">Saved in this demo · email preview below</p></div>
+    {created.seriesId && <div className="space-y-2 border-b border-border pb-4"><p className="text-sm font-semibold text-brand-purple-dark">{REPEAT_LABELS[repeat]} · {created.status === 'confirmed' ? 'All visits confirmed' : 'Payment required separately for each visit'}</p><ol className="grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">{dates.map((d, i) => <li key={d}>{i + 1}. {bookingDate({ ...created, date: d })}</li>)}</ol></div>}
     <ClientBooking booking={created} />
   </>;
   return <>
@@ -41,16 +45,20 @@ function BookingForm({ sourceId, client, provider }: { sourceId: string; client:
       const amount = kind === 'free' ? 0 : Number(fee);
       if (!date || !service.trim() || !Number.isFinite(amount) || amount < 0 || (kind === 'paid' && amount === 0) || new Date(`${date}T${time}:00+08:00`).getTime() <= Date.now()) { setError('Choose a future appointment and a valid fee, or select Free.'); return; }
       const booking: FollowUpBooking = { id: `followup-${crypto.randomUUID()}`, sourceId, client, provider, date, time, duration, service: service.trim(), fee: amount, status: followUpStatus(amount), note };
-      saveFollowUp(booking); setCreated(booking);
+      const seriesId = repeat === 'once' ? undefined : `series-${crypto.randomUUID()}`;
+      const bookings = dates.map((d, i) => ({ ...booking, id: i === 0 ? booking.id : `followup-${crypto.randomUUID()}`, date: d, seriesId, occurrence: i + 1, seriesCount: dates.length, repeat }));
+      saveFollowUpSeries(bookings); setCreated(bookings[0] ?? booking);
     }}>
       <label className="block text-sm font-medium">Appointment type<input className={field} value={service} onChange={e => setService(e.target.value)} required /></label>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3"><label className="text-sm font-medium">Date<input type="date" min={today} value={date} onChange={e => setDate(e.target.value)} className={field} required /></label><label className="text-sm font-medium">Time · Manila<input type="time" value={time} onChange={e => setTime(e.target.value)} className={field} required /></label><label className="text-sm font-medium">Duration<select value={duration} onChange={e => setDuration(Number(e.target.value))} className={field}><option value={30}>30 minutes</option><option value={50}>50 minutes</option><option value={60}>60 minutes</option></select></label></div>
+      <div className="grid gap-4 sm:grid-cols-2"><label className="text-sm font-medium">Repeat<select className={field} value={repeat} onChange={e => setRepeat(e.target.value as RepeatFrequency)}>{Object.entries(REPEAT_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>{repeat !== 'once' && <label className="text-sm font-medium">Number of visits<select className={field} value={visits} onChange={e => setVisits(Number(e.target.value))}>{Array.from({ length: 11 }, (_, i) => i + 2).map(n => <option key={n} value={n}>{n} visits</option>)}</select></label>}</div>
+      {repeat !== 'once' && <div className="border-y border-border py-4"><p className="text-sm font-semibold text-brand-purple-dark">{dates.length ? `${dates.length} visits · ${REPEAT_LABELS[repeat].toLowerCase()}` : 'Choose the first visit date'}</p>{dates.length > 0 && <ol className="mt-3 grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">{dates.map((d, i) => <li key={d}>{i + 1}. {bookingDate({ date: d, time } as FollowUpBooking)}</li>)}</ol>}<p className="mt-3 text-xs text-muted-foreground">Same time, duration and provider for every visit. {kind === 'paid' ? 'Fee and promos apply to each visit separately.' : 'Every visit confirms automatically.'}</p></div>}
       <fieldset><legend className="mb-3 text-sm font-semibold">Payment</legend><div className="grid grid-cols-2 gap-3">{['paid', 'free'].map(value => <label key={value} className={`flex cursor-pointer items-center gap-3 rounded-md border p-4 ${kind === value ? 'border-brand-purple bg-brand-lavender' : 'border-border'}`}><input type="radio" name="follow-up-fee" value={value} checked={kind === value} onChange={() => setKind(value)} className="accent-brand-purple" /><span className="text-sm font-medium">{value === 'paid' ? 'Client pays' : 'Free follow-up'}</span></label>)}</div></fieldset>
-      {kind === 'paid' ? <><label className="block text-sm font-medium">Appointment fee (₱)<input type="number" min={1} value={fee} onChange={e => setFee(e.target.value)} className={field} required /></label><p className="text-sm leading-relaxed text-muted-foreground">Awaiting payment until the client pays. Available offers and a promo-code field appear at checkout.</p></> : <p className="text-sm leading-relaxed text-muted-foreground">Confirmed automatically. The client receives their appointment details without a payment step.</p>}
+       {kind === 'paid' ? <><label className="block text-sm font-medium">{repeat === 'once' ? 'Appointment fee (₱)' : 'Fee per visit (₱)'}<input type="number" min={1} value={fee} onChange={e => setFee(e.target.value)} className={field} required /></label><p className="text-sm leading-relaxed text-muted-foreground">Awaiting payment until the client pays. Available offers and a promo-code field appear at checkout.</p></> : <p className="text-sm leading-relaxed text-muted-foreground">Confirmed automatically. The client receives their appointment details without a payment step.</p>}
       <label className="block text-sm font-medium">Note to client <span className="font-normal text-muted-foreground">(optional)</span><textarea rows={2} value={note} onChange={e => setNote(e.target.value)} className={field} /></label>
       <div className="border-t border-border pt-4 text-sm text-muted-foreground"><p>Client receives: Lubin notification · Email · Calendar option</p><p className="mt-2 text-xs">Demo only · no real payment, email sending or calendar sync. Sample fee and promos.</p></div>
       {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
-      <Button type="submit" className={`w-full ${cta}`}>{kind === 'free' ? 'Confirm free appointment' : 'Create payment request'}<ArrowRight /></Button>
+      <Button type="submit" className={`w-full ${cta}`}>{repeat !== 'once' ? kind === 'free' ? `Confirm ${dates.length || visits} free visits` : `Schedule ${dates.length || visits} visits` : kind === 'free' ? 'Confirm free appointment' : 'Create payment request'}<ArrowRight /></Button>
     </form>
   </>;
 }
@@ -91,6 +99,7 @@ function ClientBooking({ booking }: { booking: FollowUpBooking }) {
     <div className="flex items-start justify-between gap-3"><div><p className="text-xs font-semibold uppercase text-brand-purple">{view === 'calendar' ? 'YOUR NEXT VISIT' : 'BOOKED BY YOUR PROVIDER'}</p><h3 className="mt-2 text-lg font-semibold text-brand-purple-dark">{b.service}</h3><p className="mt-1 text-sm text-muted-foreground">With {b.provider}</p></div><span className="shrink-0 rounded-full bg-brand-lavender px-3 py-1 text-xs font-semibold text-brand-purple-dark">{confirmed ? 'Confirmed' : 'Awaiting payment'}</span></div>
     <div className="flex items-center gap-3 border-y border-border py-4"><CalendarDays className="size-5 shrink-0 text-brand-purple" /><div><p className="text-sm font-semibold">{bookingDate(b)}</p><p className="mt-1 text-xs text-muted-foreground">Manila (GMT+8) · {b.duration} min · Online</p></div></div>
     {b.note && <p className="text-sm leading-relaxed text-muted-foreground">{b.note}</p>}
+    {b.seriesId && <p className="text-sm font-medium text-brand-purple-dark">Recurring follow-up · Visit {b.occurrence} of {b.seriesCount} · {REPEAT_LABELS[b.repeat ?? 'weekly']}</p>}
     {confirmed ? <><p className="text-sm">{b.fee === 0 ? 'Free follow-up · No payment needed.' : `Paid ${money(b.paidAmount ?? b.fee)}${b.promo ? ` · ${b.promo}` : ''}`} Your appointment is confirmed.</p><Button variant="outline" onClick={downloadCalendar}><CalendarDays />Add to calendar</Button><p className="text-xs text-muted-foreground">Download for Google Calendar, Apple Calendar or Outlook. This demo doesn’t sync automatically.</p></> : <>
       <p className="text-sm leading-relaxed">Your provider has scheduled your next visit. Pay {money(b.fee)} to confirm, or use an eligible promo.</p>
       {view === 'calendar' && <p className="text-sm text-muted-foreground">This visit is awaiting payment. Add it to your calendar once confirmed.</p>}
