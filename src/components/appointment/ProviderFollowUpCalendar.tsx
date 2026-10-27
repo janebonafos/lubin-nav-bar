@@ -24,7 +24,7 @@ export function ProviderFollowUpCalendar() {
     <section className="space-y-4 font-body text-foreground" aria-label="Provider follow-up calendar">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 className="font-display text-lg font-semibold text-brand-purple-dark">Your follow-up calendar</h2>
+          <h2 className="text-lg font-semibold text-brand-purple-dark">Your follow-up calendar</h2>
           <p className="mt-1 text-sm text-muted-foreground">Manila (GMT+8) · Demo calendar only · No external calendar sync</p>
         </div>
       </div>
@@ -32,7 +32,7 @@ export function ProviderFollowUpCalendar() {
         {/* Left — month grid */}
         <div className="rounded-xl border border-border bg-card p-4 shadow-sm sm:p-5">
           <div className="mb-3 flex items-center justify-between px-1">
-            <h3 className="font-display text-base font-semibold text-brand-purple-dark">{format(month, 'MMMM yyyy')}</h3>
+            <h3 className="text-base font-semibold text-brand-purple-dark">{format(month, 'MMMM yyyy')}</h3>
             <div className="flex items-center gap-2">
               <Button variant="outline" size="icon" aria-label="Previous month" onClick={() => navigate(-1)}><ChevronLeft /></Button>
               <Button variant="outline" size="icon" aria-label="Next month" onClick={() => navigate(1)}><ChevronRight /></Button>
@@ -74,7 +74,7 @@ export function ProviderFollowUpCalendar() {
         {/* Right — selected day detail */}
         <div className="rounded-xl border border-border bg-card p-4 shadow-sm sm:p-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <h3 className="font-display text-lg font-semibold text-brand-purple-dark">{format(new Date(`${focusDate}T00:00:00`), 'MMMM d')}</h3>
+            <h3 className="text-lg font-semibold text-brand-purple-dark">{format(new Date(`${focusDate}T00:00:00`), 'MMMM d')}</h3>
             <span className="text-xs text-muted-foreground">{format(new Date(`${focusDate}T00:00:00`), 'EEEE, MMMM d, yyyy')}</span>
           </div>
           <div className="mt-3 flex flex-wrap gap-2">
