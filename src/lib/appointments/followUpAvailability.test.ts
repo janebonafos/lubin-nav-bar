@@ -1,0 +1,12 @@
+import { test } from 'node:test';
+import { strict as assert } from 'node:assert';
+import { followUpSlotState } from './followUpAvailability';
+import type { FollowUpBooking } from './followUp';
+const week = { Tue: { enabled: true, intervals: [{ id: 't', start: '09:00', end: '17:00' }] }, Sun: { enabled: false, intervals: [] } };
+const booking: FollowUpBooking = { id: 'demo', sourceId: 'demo', client: 'Anna', provider: 'Maria Santos', date: '2026-11-03', time: '10:00', duration: 60, fee: 1500, status: 'awaiting-payment', note: '', service: 'Follow-up' };
+test('available provider hours allow a 60-minute visit at 09:00', () => assert.equal(followUpSlotState('2026-11-03', '09:00', 60, week, [], 'Maria Santos', 0), 'available'));
+test('pending follow-up blocks overlapping provider time', () => assert.equal(followUpSlotState('2026-11-03', '10:30', 30, week, [booking], 'Maria Santos', 0), 'booked'));
+test('confirmed follow-up blocks overlapping provider time', () => assert.equal(followUpSlotState('2026-11-03', '10:30', 30, week, [{ ...booking, status: 'confirmed' }], 'Maria Santos', 0), 'booked'));
+test('visit must fit completely within weekly hours', () => assert.equal(followUpSlotState('2026-11-03', '16:30', 60, week, [], 'Maria Santos', 0), 'outside-hours'));
+test('disabled provider day is unavailable', () => assert.equal(followUpSlotState('2026-11-01', '10:00', 30, week, [], 'Maria Santos', 0), 'outside-hours'));
+test('appointment boundary does not overlap the next visit', () => assert.equal(followUpSlotState('2026-11-03', '11:00', 30, week, [booking], 'Maria Santos', 0), 'available'));

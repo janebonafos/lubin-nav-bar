@@ -1,4 +1,7 @@
 import { useState } from 'react';
+import { useAvailabilityStore } from '@/lib/availability-store';
+import { followUpSlotState } from '@/lib/appointments/followUpAvailability';
+import { FollowUpAvailabilityPicker } from './FollowUpAvailabilityPicker';
 import { Link } from '@tanstack/react-router';
 import { CalendarDays, Mail, ArrowRight, Check, Ticket } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -30,6 +33,9 @@ function BookingForm({ sourceId, client, provider }: { sourceId: string; client:
   const [repeat, setRepeat] = useState<RepeatFrequency>('once');
   const [visits, setVisits] = useState(4);
   const dates = followUpDates(date, repeat, visits);
+  const week = useAvailabilityStore(s => s.week);
+  const existing = useFollowUps();
+  const unavailableDates = dates.filter(d => followUpSlotState(d, time, duration, week, existing, provider) !== 'available');
   const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' });
   if (created) return <>
     <DialogTitle className="text-2xl text-brand-purple-dark">{created.seriesId ? `${created.seriesCount} follow-ups scheduled` : created.status === 'confirmed' ? 'Follow-up confirmed' : 'Booking sent to client'}</DialogTitle>
@@ -45,6 +51,7 @@ function BookingForm({ sourceId, client, provider }: { sourceId: string; client:
       e.preventDefault();
       const amount = kind === 'free' ? 0 : Number(fee);
       if (!date || !service.trim() || !Number.isFinite(amount) || amount < 0 || (kind === 'paid' && amount === 0) || new Date(`${date}T${time}:00+08:00`).getTime() <= Date.now()) { setError('Choose a future appointment and a valid fee, or select Free.'); return; }
+      if (unavailableDates.length) { setError('Choose available dates and times for every visit.'); return; }
       const booking: FollowUpBooking = { id: `followup-${crypto.randomUUID()}`, sourceId, client, provider, date, time, duration, service: service.trim(), fee: amount, status: followUpStatus(amount), note };
       const seriesId = repeat === 'once' ? undefined : `series-${crypto.randomUUID()}`;
       const bookings = dates.map((d, i) => ({ ...booking, id: i === 0 ? booking.id : `followup-${crypto.randomUUID()}`, date: d, seriesId, occurrence: i + 1, seriesCount: dates.length, repeat }));
@@ -52,6 +59,8 @@ function BookingForm({ sourceId, client, provider }: { sourceId: string; client:
     }}>
       <label className="block text-sm font-medium">Appointment type<input className={field} value={service} onChange={e => setService(e.target.value)} required /></label>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3"><label className="text-sm font-medium">Date<input type="date" min={today} value={date} onChange={e => setDate(e.target.value)} className={field} required /></label><label className="text-sm font-medium">Time · Manila<input type="time" value={time} onChange={e => setTime(e.target.value)} className={field} required /></label><label className="text-sm font-medium">Duration<select value={duration} onChange={e => setDuration(Number(e.target.value))} className={field}><option value={30}>30 minutes</option><option value={50}>50 minutes</option><option value={60}>60 minutes</option></select></label></div>
+      <FollowUpAvailabilityPicker date={date} time={time} duration={duration} week={week} bookings={existing} provider={provider} onSelect={(d, t) => { setDate(d); setTime(t); setError(''); }} />
+      {unavailableDates.length > 0 && <p role="alert" className="text-sm text-destructive">Unavailable at {time}: {unavailableDates.join(', ')}. Choose another date or time{repeat !== 'once' ? ' for the series' : ''}.</p>}
       <div className="grid gap-4 sm:grid-cols-2"><label className="text-sm font-medium">Repeat<select className={field} value={repeat} onChange={e => setRepeat(e.target.value as RepeatFrequency)}>{Object.entries(REPEAT_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>{repeat !== 'once' && <label className="text-sm font-medium">Number of visits<select className={field} value={visits} onChange={e => setVisits(Number(e.target.value))}>{Array.from({ length: 11 }, (_, i) => i + 2).map(n => <option key={n} value={n}>{n} visits</option>)}</select></label>}</div>
       {repeat !== 'once' && <div className="border-y border-border py-4"><p className="text-sm font-semibold text-brand-purple-dark">{dates.length ? `${dates.length} visits · ${REPEAT_LABELS[repeat].toLowerCase()}` : 'Choose the first visit date'}</p>{dates.length > 0 && <ol className="mt-3 grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">{dates.map((d, i) => <li key={d}>{i + 1}. {bookingDate({ date: d, time } as FollowUpBooking)}</li>)}</ol>}<p className="mt-3 text-xs text-muted-foreground">Same time, duration and provider for every visit. {kind === 'paid' ? 'Fee and promos apply to each visit separately.' : 'Every visit confirms automatically.'}</p></div>}
       <fieldset><legend className="mb-3 text-sm font-semibold">Payment</legend><div className="grid grid-cols-2 gap-3">{['paid', 'free'].map(value => <label key={value} className={`flex cursor-pointer items-center gap-3 rounded-md border p-4 ${kind === value ? 'border-brand-purple bg-brand-lavender' : 'border-border'}`}><input type="radio" name="follow-up-fee" value={value} checked={kind === value} onChange={() => setKind(value)} className="accent-brand-purple" /><span className="text-sm font-medium">{value === 'paid' ? 'Client pays' : 'Free follow-up'}</span></label>)}</div></fieldset>

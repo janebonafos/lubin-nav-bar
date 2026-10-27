@@ -6,3 +6,4 @@
 - Large demo queues use search, review-state filtering and pagination rather than expanding every request at once.
 - Provider-booked follow-up designs share a separate local-only appointment store across provider and client views; recurring series expand into individually payable visits with shared series metadata, while email previews and manual calendar exports cannot send messages, charge money, or imply live synchronization.
 - The provider demo calendar derives follow-up events directly from the shared follow-up store, so new recurring visits and client payment status updates cannot diverge between views.
+- The follow-up booking calendar checks shared weekly hours and local follow-up overlaps for the full visit duration and each recurring date; it does not imply external-calendar availability.
