@@ -57,7 +57,7 @@ export function ProviderFollowUpCalendar() {
           </div>
           <div className="grid grid-cols-7 gap-1">
             {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-              <div key={day} className="pb-1 text-center text-[11px] font-semibold uppercase tracking-wide text-brand-purple-dark/55">{day}</div>
+              <div key={day} className="pb-1 text-center text-[11px] font-semibold uppercase tracking-wide text-brand-purple-dark/70">{day}</div>
             ))}
           </div>
           <div
@@ -92,7 +92,7 @@ export function ProviderFollowUpCalendar() {
                       </span>
                     ))}
                     {entries.length > 2 && (
-                      <span className="px-1 text-[10px] font-medium text-[#6B6480]">+{entries.length - 2} more</span>
+                      <span className="px-1 text-[10px] font-medium text-[#5B5470]">+{entries.length - 2} more</span>
                     )}
                   </div>
                 </button>
@@ -104,7 +104,7 @@ export function ProviderFollowUpCalendar() {
         <div className="flex h-full flex-col rounded-xl border border-border bg-card p-4 shadow-sm sm:p-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <h3 className="text-lg font-semibold text-brand-purple-dark">{format(new Date(`${focusDate}T00:00:00`), 'EEEE, MMMM d')}</h3>
-            <span className="text-xs font-medium text-[#6B6480]">{focusEntries.length} follow-up{focusEntries.length === 1 ? '' : 's'}</span>
+            <span className="text-xs font-medium text-[#5B5470]">{focusEntries.length} follow-up{focusEntries.length === 1 ? '' : 's'}</span>
           </div>
           <div className="mt-3 flex flex-wrap gap-2">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-lavender px-2.5 py-1 text-[11px] font-medium text-brand-purple-dark">
@@ -115,7 +115,7 @@ export function ProviderFollowUpCalendar() {
             </span>
           </div>
           {!focusEntries.length && (
-            <p className="mt-4 rounded-xl border border-dashed border-border px-4 py-3 text-center text-sm text-[#6B6480]">
+            <p className="mt-4 rounded-xl border border-dashed border-border px-4 py-3 text-center text-sm text-[#5B5470]">
               No follow-ups on this day.
             </p>
           )}
@@ -123,15 +123,15 @@ export function ProviderFollowUpCalendar() {
             {hours.map(h => {
               const bucket = focusEntries.filter(b => hourOf(b.time) === h);
               return (
-                <div key={h} className="flex min-h-9 flex-1 gap-3">
-                  <span className="w-11 shrink-0 pt-1 text-right text-[11px] font-medium tabular-nums text-brand-purple-dark/55">{hourLabel(h)}</span>
-                  <div className="flex-1 space-y-1.5 border-t border-dashed border-border pt-1.5">
+                <div key={h} className="flex min-h-10 flex-1 gap-3">
+                  <span className="w-11 shrink-0 pt-1 text-right text-[11px] font-semibold tabular-nums text-brand-purple-dark/70">{hourLabel(h)}</span>
+                  <div className="flex-1 space-y-2 border-t border-dashed border-border pt-1.5">
                     {bucket.map(b => (
                       <div key={b.id} className={`rounded-lg border px-3 py-2 ${b.status === 'confirmed' ? 'border-brand-purple-dark/25 bg-brand-lavender' : 'border-border bg-background'}`}>
                         <div className="flex items-start justify-between gap-3">
                           <div className="min-w-0">
-                            <p className="truncate text-[13px] font-semibold text-brand-purple-dark">{b.client} · {b.service}</p>
-                            <p className="mt-0.5 text-[11px] text-[#6B6480]">
+                            <p className="text-[13px] font-semibold leading-snug text-brand-purple-dark">{b.client} · {b.service}</p>
+                            <p className="mt-0.5 text-[11px] text-[#5B5470]">
                               {b.time} · {b.duration} min{b.seriesId ? ` · visit ${b.occurrence} of ${b.seriesCount}` : ''}
                             </p>
                           </div>
