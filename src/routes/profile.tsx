@@ -71,6 +71,7 @@ const profileSearchSchema = z.object({
     .enum([
       "profile",
       "appointments",
+      "calendar",
       "prescriptions",
       "clients",
       "passport",

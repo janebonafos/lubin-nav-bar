@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from '@tanstack/react-router';
 import { CalendarDays, Mail, ArrowRight, Check, Ticket } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
@@ -33,7 +34,7 @@ function BookingForm({ sourceId, client, provider }: { sourceId: string; client:
   if (created) return <>
     <DialogTitle className="text-2xl text-brand-purple-dark">{created.seriesId ? `${created.seriesCount} follow-ups scheduled` : created.status === 'confirmed' ? 'Follow-up confirmed' : 'Booking sent to client'}</DialogTitle>
     <DialogDescription>{created.status === 'confirmed' ? `${client} doesn’t need to book or pay.` : `${client} can confirm this appointment by paying in Lubin.`}</DialogDescription>
-    <div className="flex items-center gap-3 border-y border-border py-4 text-brand-purple-dark"><Check className="size-5" /><p className="text-sm">Saved in this demo · email preview below</p></div>
+    <div className="space-y-3 border-y border-border py-4 text-brand-purple-dark"><p className="flex items-center gap-3 text-sm"><Check className="size-5" />{created.status === 'confirmed' ? 'Added to your demo calendar · Confirmed' : 'Time reserved in your demo calendar · Awaiting client payment'}</p><Link to="/profile" search={{ tab: 'calendar' }} className="text-sm font-semibold underline underline-offset-4">View provider calendar</Link></div>
     {created.seriesId && <div className="space-y-2 border-b border-border pb-4"><p className="text-sm font-semibold text-brand-purple-dark">{REPEAT_LABELS[repeat]} · {created.status === 'confirmed' ? 'All visits confirmed' : 'Payment required separately for each visit'}</p><ol className="grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">{dates.map((d, i) => <li key={d}>{i + 1}. {bookingDate({ ...created, date: d })}</li>)}</ol></div>}
     <ClientBooking booking={created} />
   </>;
@@ -56,7 +57,7 @@ function BookingForm({ sourceId, client, provider }: { sourceId: string; client:
       <fieldset><legend className="mb-3 text-sm font-semibold">Payment</legend><div className="grid grid-cols-2 gap-3">{['paid', 'free'].map(value => <label key={value} className={`flex cursor-pointer items-center gap-3 rounded-md border p-4 ${kind === value ? 'border-brand-purple bg-brand-lavender' : 'border-border'}`}><input type="radio" name="follow-up-fee" value={value} checked={kind === value} onChange={() => setKind(value)} className="accent-brand-purple" /><span className="text-sm font-medium">{value === 'paid' ? 'Client pays' : 'Free follow-up'}</span></label>)}</div></fieldset>
        {kind === 'paid' ? <><label className="block text-sm font-medium">{repeat === 'once' ? 'Appointment fee (₱)' : 'Fee per visit (₱)'}<input type="number" min={1} value={fee} onChange={e => setFee(e.target.value)} className={field} required /></label><p className="text-sm leading-relaxed text-muted-foreground">Awaiting payment until the client pays. Available offers and a promo-code field appear at checkout.</p></> : <p className="text-sm leading-relaxed text-muted-foreground">Confirmed automatically. The client receives their appointment details without a payment step.</p>}
       <label className="block text-sm font-medium">Note to client <span className="font-normal text-muted-foreground">(optional)</span><textarea rows={2} value={note} onChange={e => setNote(e.target.value)} className={field} /></label>
-      <div className="border-t border-border pt-4 text-sm text-muted-foreground"><p>Client receives: Lubin notification · Email · Calendar option</p><p className="mt-2 text-xs">Demo only · no real payment, email sending or calendar sync. Sample fee and promos.</p></div>
+      <div className="border-t border-border pt-4 text-sm text-muted-foreground"><p>Your demo calendar: {kind === 'free' ? 'Added as confirmed' : 'Time reserved until the client pays'}{repeat !== 'once' ? ' for every visit' : ''}.</p><p className="mt-2">Client receives: Lubin notification · Email · Calendar option</p><p className="mt-2 text-xs">Demo only · no real payment, email sending or external calendar sync. Sample fee and promos.</p></div>
       {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
       <Button type="submit" className={`w-full ${cta}`}>{repeat !== 'once' ? kind === 'free' ? `Confirm ${dates.length || visits} free visits` : `Send ${dates.length || visits} bookings to client` : kind === 'free' ? 'Confirm free appointment' : 'Send booking to client'}<ArrowRight /></Button>
     </form>
@@ -66,7 +67,7 @@ function BookingForm({ sourceId, client, provider }: { sourceId: string; client:
 export function ProviderFollowUps() {
   const bookings = useFollowUps();
   if (!bookings.length) return null;
-  return <section className="border-y border-border py-5 font-body"><h2 className="font-semibold text-brand-purple-dark">Follow-ups booked for clients</h2><div className="mt-3 divide-y divide-border">{bookings.slice(0, 3).map(b => <div key={b.id} className="flex flex-wrap items-center justify-between gap-3 py-3"><div><p className="text-sm font-semibold">{b.client}</p><p className="mt-1 text-sm text-muted-foreground">{bookingDate(b)} · Manila</p></div><span className={`rounded-full px-3 py-1 text-xs font-semibold ${b.status === 'confirmed' ? 'bg-brand-lavender text-brand-purple-dark' : 'bg-secondary text-foreground'}`}>{b.status === 'confirmed' ? 'Confirmed' : 'Awaiting client payment'}</span></div>)}</div></section>;
+  return <section className="border-y border-border py-5 font-body"><div className="flex flex-wrap items-center justify-between gap-3"><h2 className="font-semibold text-brand-purple-dark">Follow-ups booked for clients</h2><Link to="/profile" search={{ tab: 'calendar' }} className="text-sm font-semibold text-brand-purple-dark underline underline-offset-4">View provider calendar</Link></div><div className="mt-3 divide-y divide-border">{bookings.slice(0, 3).map(b => <div key={b.id} className="flex flex-wrap items-center justify-between gap-3 py-3"><div><p className="text-sm font-semibold">{b.client}</p><p className="mt-1 text-sm text-muted-foreground">{bookingDate(b)} · Manila</p></div><span className={`rounded-full px-3 py-1 text-xs font-semibold ${b.status === 'confirmed' ? 'bg-brand-lavender text-brand-purple-dark' : 'bg-secondary text-foreground'}`}>{b.status === 'confirmed' ? 'Confirmed' : 'Awaiting client payment'}</span></div>)}</div></section>;
 }
 
 export function ClientFollowUps() {

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { FollowUpBookingButton, ProviderFollowUps } from "@/components/appointment/FollowUpBooking";
+import { ProviderFollowUpCalendar } from "@/components/appointment/ProviderFollowUpCalendar";
 import { Link } from "@tanstack/react-router";
 import { PrescribingVerificationCard } from "@/components/profile/PrescribingVerificationCard";
 import AppointmentMessageButton from "@/components/messages/AppointmentMessageButton";
@@ -876,12 +877,12 @@ export function CalendarAvailabilitySection() {
           <div>
             <h2 className="text-lg font-semibold text-[#3D2E6B]">Calendar Connections</h2>
             <p className="mt-1 text-sm text-[#7E6BAF]">
-              Sync bookings directly to your calendar.
+              Demo connection only. Follow-ups appear in your Lubin demo calendar below.
             </p>
           </div>
           {provider ? (
             <span className="shrink-0 rounded-[10px] border border-[#E5DCF5] bg-[#EFE8FB] px-3 py-1 text-xs font-medium text-[#3D2E6B]">
-              Sync Active
+              Demo connection
             </span>
           ) : (
             <span className="shrink-0 rounded-[10px] border border-[#EAE7F5] bg-[#F0EAFB]/40 px-3 py-1 text-xs font-medium text-[#7E6BAF]">
@@ -969,6 +970,8 @@ export function CalendarAvailabilitySection() {
           </p>
         </div>
       </section>
+
+      <ProviderFollowUpCalendar />
 
       {/* Weekly Hours */}
       <section className="overflow-hidden rounded-xl border border-[#EAE7F5] bg-white shadow-sm">
