@@ -1327,7 +1327,7 @@ function DetailsPage() {
                     {recordedOutcome === "completed" && (
                       <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-y border-border py-4 font-body">
                         <div><p className="text-sm font-semibold text-brand-purple-dark">Plan the next visit</p><p className="mt-1 text-sm text-muted-foreground">Book a paid or complimentary follow-up for {appt.client}.</p></div>
-                        <FollowUpBookingButton sourceId={appt.id} client={appt.client} provider={providerDisplayName} />
+                        <FollowUpBookingButton sourceId={appt.id} client={appt.client ?? "Client"} provider={providerDisplayName} />
                       </div>
                     )}
                     <div className="mt-4">
