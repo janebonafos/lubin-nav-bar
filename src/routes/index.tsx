@@ -6,6 +6,14 @@ import PassportPreview from "@/components/PassportPreview";
 import { openChatWaitlist } from "@/components/ChatWaitlistModal";
 
 export const Route = createFileRoute("/")({
+  head: () => ({ meta: [
+    { title: "Lubin — Your mental health companion" },
+    { name: "description", content: "Find care, understand your wellbeing and keep your Health Passport together with Lubin." },
+    { property: "og:title", content: "Lubin — Your mental health companion" },
+    { property: "og:description", content: "Find care and keep your health journey together with Lubin." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary_large_image" },
+  ] }),
   component: Index,
 });
 
