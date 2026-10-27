@@ -31,7 +31,7 @@ function BookingForm({ sourceId, client, provider }: { sourceId: string; client:
   const dates = followUpDates(date, repeat, visits);
   const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Manila' });
   if (created) return <>
-    <DialogTitle className="text-2xl text-brand-purple-dark">{created.seriesId ? `${created.seriesCount} follow-ups scheduled` : created.status === 'confirmed' ? 'Follow-up confirmed' : 'Payment request ready'}</DialogTitle>
+    <DialogTitle className="text-2xl text-brand-purple-dark">{created.seriesId ? `${created.seriesCount} follow-ups scheduled` : created.status === 'confirmed' ? 'Follow-up confirmed' : 'Booking sent to client'}</DialogTitle>
     <DialogDescription>{created.status === 'confirmed' ? `${client} doesn’t need to book or pay.` : `${client} can confirm this appointment by paying in Lubin.`}</DialogDescription>
     <div className="flex items-center gap-3 border-y border-border py-4 text-brand-purple-dark"><Check className="size-5" /><p className="text-sm">Saved in this demo · email preview below</p></div>
     {created.seriesId && <div className="space-y-2 border-b border-border pb-4"><p className="text-sm font-semibold text-brand-purple-dark">{REPEAT_LABELS[repeat]} · {created.status === 'confirmed' ? 'All visits confirmed' : 'Payment required separately for each visit'}</p><ol className="grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">{dates.map((d, i) => <li key={d}>{i + 1}. {bookingDate({ ...created, date: d })}</li>)}</ol></div>}
@@ -58,7 +58,7 @@ function BookingForm({ sourceId, client, provider }: { sourceId: string; client:
       <label className="block text-sm font-medium">Note to client <span className="font-normal text-muted-foreground">(optional)</span><textarea rows={2} value={note} onChange={e => setNote(e.target.value)} className={field} /></label>
       <div className="border-t border-border pt-4 text-sm text-muted-foreground"><p>Client receives: Lubin notification · Email · Calendar option</p><p className="mt-2 text-xs">Demo only · no real payment, email sending or calendar sync. Sample fee and promos.</p></div>
       {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
-      <Button type="submit" className={`w-full ${cta}`}>{repeat !== 'once' ? kind === 'free' ? `Confirm ${dates.length || visits} free visits` : `Schedule ${dates.length || visits} visits` : kind === 'free' ? 'Confirm free appointment' : 'Create payment request'}<ArrowRight /></Button>
+      <Button type="submit" className={`w-full ${cta}`}>{repeat !== 'once' ? kind === 'free' ? `Confirm ${dates.length || visits} free visits` : `Send ${dates.length || visits} bookings to client` : kind === 'free' ? 'Confirm free appointment' : 'Send booking to client'}<ArrowRight /></Button>
     </form>
   </>;
 }
