@@ -923,16 +923,16 @@ export function CalendarAvailabilitySection() {
             </div>
           </div>
           {provider ? (
-            <span className="shrink-0 rounded-full border border-[#E5DCF5] bg-[#EFE8FB] px-3 py-1 text-xs font-medium text-[#3D2E6B]">
+            <span className="shrink-0 rounded-full bg-[#3D2E6B] px-3.5 py-1.5 text-xs font-semibold text-primary-foreground">
               Demo connection
             </span>
           ) : (
-            <span className="shrink-0 rounded-full border border-[#EAE7F5] bg-[#F0EAFB]/40 px-3 py-1 text-xs font-medium text-[#7E6BAF]">
+            <span className="shrink-0 rounded-full border border-[#E0D8F0] bg-white px-3.5 py-1.5 text-xs font-semibold text-[#6B6480]">
               Not connected
             </span>
           )}
         </div>
-        <p className="mt-2.5 text-[11.5px] leading-relaxed text-[#A89BD0]">
+        <p className="mt-2.5 text-[11.5px] leading-relaxed text-[#6B6480]">
           Demo connection only · Follow-ups appear in your Lubin demo calendar below. Reconnecting to a different calendar won't carry previously synced bookings over.{" "}
           {!provider && (
             <>
