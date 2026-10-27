@@ -886,7 +886,7 @@ export function CalendarAvailabilitySection() {
         )}
         <div className="flex flex-wrap items-center justify-between gap-x-5 gap-y-3">
           <div className="flex flex-wrap items-center gap-3">
-            <h2 className="font-display text-sm font-semibold text-[#3D2E6B]">Calendar connections</h2>
+            <h2 className="text-sm font-semibold text-[#3D2E6B]">Calendar connections</h2>
             <div className="flex items-center gap-2.5 rounded-full border border-[#E3DBF5]/60 bg-[#F0EAFB]/30 py-1.5 pl-2.5 pr-4">
               <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white shadow-sm ring-1 ring-[#EAE7F5]">
                 <svg viewBox="0 0 48 48" className="h-4 w-4" aria-hidden="true">
