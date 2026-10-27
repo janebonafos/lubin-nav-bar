@@ -28,6 +28,7 @@ function BookingForm({ sourceId, client, provider }: { sourceId: string; client:
   const [kind, setKind] = useState('paid');
   const [fee, setFee] = useState('1500');
   const [note, setNote] = useState('');
+  const [consent, setConsent] = useState(false);
   const [created, setCreated] = useState<FollowUpBooking | null>(null);
   const [error, setError] = useState('');
   const [repeat, setRepeat] = useState<RepeatFrequency>('once');
@@ -48,6 +49,7 @@ function BookingForm({ sourceId, client, provider }: { sourceId: string; client:
     <div className="flex items-center justify-between border-y border-border py-4"><div><p className="font-semibold text-brand-purple-dark">{client}</p><p className="mt-1 text-sm text-muted-foreground">With {provider} · Online</p></div><span className="rounded-full bg-brand-lavender px-3 py-1 text-xs text-brand-purple-dark">Same provider</span></div>
     <form className="grid items-start gap-x-8 gap-y-6 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]" onSubmit={e => {
       e.preventDefault();
+      if (!consent) { setError('Tick the agreement box before sending this booking.'); return; }
       const amount = kind === 'free' ? 0 : Number(fee);
       if (!date || !service.trim() || !Number.isFinite(amount) || amount < 0 || (kind === 'paid' && amount === 0) || new Date(`${date}T${time}:00+08:00`).getTime() <= Date.now()) { setError('Choose a future appointment and a valid fee, or select Free.'); return; }
       if (unavailableDates.length) { setError('Choose available dates and times for every visit.'); return; }
@@ -71,6 +73,10 @@ function BookingForm({ sourceId, client, provider }: { sourceId: string; client:
         </div>
         {kind === 'paid' && <p className="text-sm leading-relaxed text-muted-foreground">Awaiting payment until the client pays. Available offers and a promo-code field appear at checkout.</p>}
         <div className="rounded-lg border border-border bg-muted p-4 text-sm text-muted-foreground"><p>Your demo calendar: {kind === 'free' ? 'Added as confirmed' : 'Time reserved until the client pays'}{repeat !== 'once' ? ' for every visit' : ''}.</p><p className="mt-2">Client receives: Lubin notification · Email from {provider} · Calendar option</p><p className="mt-3 text-xs">Demo only · no real payment, email sending or external calendar sync. Sample fee and promos.</p></div>
+        <label className={`flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition ${consent ? 'border-brand-purple bg-brand-lavender' : error ? 'border-destructive bg-background' : 'border-border bg-background hover:border-brand-purple/50'}`}>
+          <input type="checkbox" checked={consent} onChange={e => setConsent(e.target.checked)} className="mt-0.5 h-4 w-4 flex-none rounded accent-brand-purple" />
+          <span className="text-[12.5px] leading-relaxed text-muted-foreground">I agree to Lubin's <Link to="/terms" target="_blank" rel="noopener noreferrer" className="font-semibold text-brand-purple-dark underline underline-offset-2">Terms</Link> and <Link to="/privacy" target="_blank" rel="noopener noreferrer" className="font-semibold text-brand-purple-dark underline underline-offset-2">Privacy Policy</Link>. I confirm this booking is for {client} and that the fee and cancellation policy shown apply to each visit.</span>
+        </label>
         {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
         <Button type="submit" className={`w-full ${cta}`}>{repeat !== 'once' ? kind === 'free' ? `Confirm ${dates.length || visits} free visits` : `Send ${dates.length || visits} bookings to client` : kind === 'free' ? 'Confirm free appointment' : 'Send booking to client'}<ArrowRight /></Button>
       </div>
