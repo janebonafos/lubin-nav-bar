@@ -10,7 +10,7 @@ import { bookingDate, calendarFile, FOLLOW_UP_PROMOS, REPEAT_LABELS, followUpDat
 
 const money = (value: number) => `₱${value.toLocaleString('en-PH')}`;
 const field = 'mt-2 w-full rounded-md border border-input bg-card px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-brand-purple';
-const cta = 'bg-brand-purple-dark text-primary-foreground hover:bg-brand-purple';
+const cta = 'bg-brand-purple-dark text-primary-foreground hover:bg-brand-purple-deep hover:text-primary-foreground active:bg-brand-purple-deep';
 
 export function FollowUpBookingButton({ sourceId, client, provider = 'Maria Santos' }: { sourceId: string; client: string; provider?: string }) {
   const [open, setOpen] = useState(false);
