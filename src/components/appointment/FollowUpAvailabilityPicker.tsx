@@ -7,7 +7,7 @@ import type { FollowUpBooking } from '@/lib/appointments/followUp';
 import { FOLLOW_UP_TIMES, followUpSlotState } from '@/lib/appointments/followUpAvailability';
 
 const DURATIONS = [30, 50, 60];
-const selectedClasses = 'border-brand-purple-dark bg-brand-purple-dark text-primary-foreground hover:bg-brand-purple';
+const selectedClasses = 'border-brand-purple-dark bg-brand-purple-dark text-primary-foreground hover:border-brand-purple-deep hover:bg-brand-purple-deep hover:text-primary-foreground active:bg-brand-purple-deep';
 
 export function FollowUpAvailabilityPicker({ date, time, duration, week, bookings, provider, onSelect, onDuration }: { date: string; time: string; duration: number; week: WeekAvail; bookings: FollowUpBooking[]; provider: string; onSelect: (date: string, time: string) => void; onDuration: (duration: number) => void }) {
   const [month, setMonth] = useState(() => format(new Date(), 'yyyy-MM'));
