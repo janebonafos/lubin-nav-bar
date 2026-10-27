@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { ClientFollowUps } from "@/components/appointment/FollowUpBooking";
 import {
   CalendarClock,
   Video,
