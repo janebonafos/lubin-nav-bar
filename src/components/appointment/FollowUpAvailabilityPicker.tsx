@@ -6,14 +6,17 @@ import { formatTime12, type WeekAvail } from '@/lib/availability-store';
 import type { FollowUpBooking } from '@/lib/appointments/followUp';
 import { FOLLOW_UP_TIMES, followUpSlotState } from '@/lib/appointments/followUpAvailability';
 
-export function FollowUpAvailabilityPicker({ date, time, duration, week, bookings, provider, onSelect }: { date: string; time: string; duration: number; week: WeekAvail; bookings: FollowUpBooking[]; provider: string; onSelect: (date: string, time: string) => void }) {
+const DURATIONS = [30, 50, 60];
+const selectedClasses = 'border-brand-purple-dark bg-brand-purple-dark text-primary-foreground hover:bg-brand-purple';
+
+export function FollowUpAvailabilityPicker({ date, time, duration, week, bookings, provider, onSelect, onDuration }: { date: string; time: string; duration: number; week: WeekAvail; bookings: FollowUpBooking[]; provider: string; onSelect: (date: string, time: string) => void; onDuration: (duration: number) => void }) {
   const [month, setMonth] = useState(() => format(new Date(), 'yyyy-MM'));
   const start = startOfMonth(new Date(`${month}-01T12:00:00`));
   const selectedMonth = date ? date.slice(0, 7) : month;
   const shown = selectedMonth === month ? start : startOfMonth(new Date(`${selectedMonth}-01T12:00:00`));
   const days = eachDayOfInterval({ start: shown, end: endOfMonth(shown) });
-  const state = (d: string, t: string) => followUpSlotState(d, t, duration, week, bookings, provider);
-  const slots = date ? FOLLOW_UP_TIMES.filter(t => state(date, t) !== 'outside-hours' && state(date, t) !== 'past') : [];
+  const state = (d: string, t: string, dur: number) => followUpSlotState(d, t, dur, week, bookings, provider);
+  const slots = date ? FOLLOW_UP_TIMES.filter(t => state(date, t, duration) !== 'outside-hours' && state(date, t, duration) !== 'past') : [];
   function move(offset: number) {
     const next = addMonths(shown, offset);
     setMonth(format(next, 'yyyy-MM'));
@@ -25,8 +28,13 @@ export function FollowUpAvailabilityPicker({ date, time, duration, week, booking
     <div className="grid grid-cols-7 gap-1">
       {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => <span key={d} className="py-1 text-center text-xs text-muted-foreground">{d}</span>)}
       {Array.from({ length: getDay(shown) }, (_, i) => <span key={`empty-${i}`} />)}
-      {days.map(d => { const value = format(d, 'yyyy-MM-dd'); const available = FOLLOW_UP_TIMES.some(t => state(value, t) === 'available'); return <Button type="button" key={value} disabled={!available} aria-label={`${format(d, 'MMMM d, yyyy')} · ${available ? 'Available' : 'Unavailable'}`} aria-pressed={date === value} variant={date === value ? 'default' : available ? 'outline' : 'ghost'} className="h-11 min-w-0 px-0" onClick={() => onSelect(value, FOLLOW_UP_TIMES.find(t => state(value, t) === 'available') ?? time)}>{format(d, 'd')}</Button>; })}
+      {days.map(d => { const value = format(d, 'yyyy-MM-dd'); const available = FOLLOW_UP_TIMES.some(t => state(value, t, duration) === 'available'); return <Button type="button" key={value} disabled={!available} aria-label={`${format(d, 'MMMM d, yyyy')} · ${available ? 'Available' : 'Unavailable'}`} aria-pressed={date === value} variant={available ? 'outline' : 'ghost'} className={`h-11 min-w-0 px-0 ${date === value ? selectedClasses : available ? 'text-brand-purple-dark' : ''}`} onClick={() => onSelect(value, FOLLOW_UP_TIMES.find(t => state(value, t, duration) === 'available') ?? time)}>{format(d, 'd')}</Button>; })}
     </div>
-    {date ? <><p className="text-sm font-semibold">{format(new Date(`${date}T12:00:00`), 'EEE, MMM d')} · {duration}-minute visits</p><div className="grid grid-cols-3 gap-2 sm:grid-cols-5 lg:grid-cols-6">{slots.map(t => { const booked = state(date, t) === 'booked'; return <Button type="button" key={t} disabled={booked} variant={time === t ? 'default' : 'outline'} className="h-12 flex-col gap-0 text-xs" onClick={() => onSelect(date, t)}>{formatTime12(t)}{booked && <span className="text-xs">Booked</span>}</Button>; })}</div>{!slots.length && <p className="text-xs text-muted-foreground">No available times on this date.</p>}</> : <p className="text-xs text-muted-foreground">Choose an available date.</p>}
+    {date ? <><p className="text-sm font-semibold">{format(new Date(`${date}T12:00:00`), 'EEE, MMM d')} · {duration}-minute visits</p><div className="grid grid-cols-3 gap-2 sm:grid-cols-5 lg:grid-cols-6">{slots.map(t => { const booked = state(date, t, duration) === 'booked'; return <Button type="button" key={t} disabled={booked} aria-pressed={time === t} variant="outline" className={`h-12 flex-col gap-0 text-xs ${time === t ? selectedClasses : 'text-brand-purple-dark'}`} onClick={() => onSelect(date, t)}>{formatTime12(t)}{booked && <span className="text-xs">Booked</span>}</Button>; })}</div>
+      <div className="flex flex-wrap items-center gap-2 pt-1">
+        <span className="text-sm font-semibold text-brand-purple-dark">Visit length</span>
+        {DURATIONS.map(d => { const fits = state(date, time, d) === 'available'; return <Button type="button" key={d} variant="outline" disabled={date ? !fits : false} aria-pressed={duration === d} title={fits ? undefined : 'Doesn’t fit the provider’s available hours for this time'} className={`h-9 px-3 text-xs ${duration === d ? selectedClasses : 'text-brand-purple-dark'}`} onClick={() => onDuration(d)}>{d} minutes{!fits ? ' · not available' : ''}</Button>; })}
+      </div>
+      {!slots.length && <p className="text-xs text-muted-foreground">No available times on this date.</p>}</> : <p className="text-xs text-muted-foreground">Choose an available date.</p>}
   </section>;
 }
