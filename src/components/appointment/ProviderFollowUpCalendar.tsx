@@ -33,7 +33,10 @@ export function ProviderFollowUpCalendar() {
   const focusDate = selected || monthBookings[0]?.date || format(new Date(), 'yyyy-MM-dd');
   const focusEntries = bookings.filter(b => b.date === focusDate).sort(byTime);
   const hours = railHours(focusEntries);
-  const navigate = (offset: number) => { setMonth(addMonths(month, offset)); setSelected(''); };
+  const [openId, setOpenId] = useState('');
+  const [inCall, setInCall] = useState('');
+  const openBooking = bookings.find(b => b.id === openId);
+  const navigate = (offset: number) => { setMonth(addMonths(month, offset)); setSelected(''); setOpenId(''); };
   const jumpToday = () => { setMonth(startOfMonth(new Date())); setSelected(format(new Date(), 'yyyy-MM-dd')); };
 
   return (
@@ -101,6 +104,9 @@ export function ProviderFollowUpCalendar() {
           </div>
         </div>
         {/* Right — day rail */}
+        {openBooking ? (
+          <VisitDetails booking={openBooking} inCall={inCall === openBooking.id} onJoin={() => setInCall(openBooking.id)} onLeave={() => setInCall('')} onBack={() => { setOpenId(''); setInCall(''); }} />
+        ) : (
         <div className="flex h-full flex-col rounded-xl border border-border bg-card p-4 shadow-sm sm:p-5">
           <div className="flex flex-wrap items-baseline justify-between gap-2">
             <h3 className="text-lg font-semibold text-brand-purple-dark">{format(new Date(`${focusDate}T00:00:00`), 'EEEE, MMMM d')}</h3>
