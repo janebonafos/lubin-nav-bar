@@ -16,11 +16,11 @@ export function FollowUpBookingButton({ sourceId, client, provider = 'Maria Sant
   const [open, setOpen] = useState(false);
   return <><Button variant="outline" className="font-body text-brand-purple-dark" onClick={() => setOpen(true)}><CalendarDays />Book follow-up</Button>
     <Dialog open={open} onOpenChange={setOpen}><DialogContent className="max-h-[92dvh] w-[calc(100%-2rem)] max-w-5xl overflow-y-auto bg-card font-body sm:p-10">
-      <BookingForm sourceId={sourceId} client={client} provider={provider} />
+      <BookingForm sourceId={sourceId} client={client} provider={provider} onDone={() => setOpen(false)} />
     </DialogContent></Dialog></>;
 }
 
-function BookingForm({ sourceId, client, provider }: { sourceId: string; client: string; provider: string }) {
+function BookingForm({ sourceId, client, provider, onDone }: { sourceId: string; client: string; provider: string; onDone: () => void }) {
   const [date, setDate] = useState('');
   const [time, setTime] = useState('10:00');
   const [duration, setDuration] = useState(30);
@@ -37,13 +37,37 @@ function BookingForm({ sourceId, client, provider }: { sourceId: string; client:
   const week = useAvailabilityStore(s => s.week);
   const existing = useFollowUps();
   const unavailableDates = dates.filter(d => followUpSlotState(d, time, duration, week, existing, provider) !== 'available');
-  if (created) return <>
-    <DialogTitle className="text-2xl text-brand-purple-dark">{created.seriesId ? `${created.seriesCount} follow-ups scheduled` : created.status === 'confirmed' ? 'Follow-up confirmed' : 'Booking sent to client'}</DialogTitle>
-    <DialogDescription>{created.status === 'confirmed' ? `${client} doesn’t need to book or pay.` : `${client} can confirm this appointment by paying in Lubin.`}</DialogDescription>
-    <div className="space-y-3 border-y border-border py-4 text-brand-purple-dark"><p className="flex items-center gap-3 text-sm"><Check className="size-5" />{created.status === 'confirmed' ? 'Added to your demo calendar · Confirmed' : 'Time reserved in your demo calendar · Awaiting client payment'}</p><Link to="/profile" search={{ tab: 'calendar' }} className="text-sm font-semibold underline underline-offset-4">View provider calendar</Link></div>
-    {created.seriesId && <div className="space-y-2 border-b border-border pb-4"><p className="text-sm font-semibold text-brand-purple-dark">{REPEAT_LABELS[repeat]} · {created.status === 'confirmed' ? 'All visits confirmed' : 'Payment required separately for each visit'}</p><ol className="grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">{dates.map((d, i) => <li key={d}>{i + 1}. {bookingDate({ ...created, date: d })}</li>)}</ol></div>}
-    <p className="text-sm text-muted-foreground">Client receives: Lubin notification · Email from {provider} · Calendar option</p>
-  </>;
+  if (created) {
+    const confirmed = created.status === 'confirmed';
+    return <>
+      <div className="flex flex-col items-center text-center">
+        <span className="flex size-14 items-center justify-center rounded-full bg-brand-lavender"><Check className="size-7 text-brand-purple-dark" /></span>
+        <DialogTitle className="mt-4 text-2xl text-brand-purple-dark">{created.seriesId ? `${created.seriesCount} follow-ups scheduled` : confirmed ? 'Follow-up confirmed' : 'Booking sent to client'}</DialogTitle>
+        <DialogDescription className="mt-2">{confirmed ? `${client} doesn’t need to book or pay.` : `${client} can confirm this appointment by paying in Lubin.`}</DialogDescription>
+      </div>
+      <div className="mt-6 rounded-xl border border-border bg-muted p-5 text-left">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p className="text-xs font-semibold uppercase text-brand-purple">{confirmed ? 'CONFIRMED APPOINTMENT' : 'AWAITING CLIENT PAYMENT'}</p>
+            <p className="mt-1 text-base font-semibold text-brand-purple-dark">{created.service}</p>
+            <p className="mt-0.5 text-sm text-muted-foreground">With {provider} · Online</p>
+          </div>
+          <span className={`rounded-full px-3 py-1 text-xs font-semibold ${confirmed ? 'bg-brand-lavender text-brand-purple-dark' : 'bg-secondary text-foreground'}`}>{confirmed ? 'Confirmed' : 'Awaiting payment'}</span>
+        </div>
+        <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 border-t border-border pt-4 text-sm">
+          <span className="flex items-center gap-2"><CalendarDays className="size-4 text-brand-purple" />{bookingDate(created)}</span>
+          <span className="text-muted-foreground">{created.duration} min · Manila (GMT+8)</span>
+          <span className="font-medium text-brand-purple-dark">{created.fee === 0 ? 'Free' : confirmed ? `Paid · ${money(created.paidAmount ?? created.fee)}` : `${money(created.fee)}${created.seriesId ? ' per visit' : ''}`}</span>
+        </div>
+      </div>
+      {created.seriesId && <div className="mt-4 rounded-xl border border-border p-5"><p className="text-sm font-semibold text-brand-purple-dark">{REPEAT_LABELS[repeat]} · {confirmed ? 'All visits confirmed' : 'Payment required separately for each visit'}</p><ol className="mt-3 grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">{dates.map((d, i) => <li key={d}>{i + 1}. {bookingDate({ ...created, date: d })}</li>)}</ol></div>}
+      <div className="mt-4 flex flex-wrap gap-2 text-xs text-muted-foreground"><span className="rounded-full border border-border px-3 py-1">Lubin notification</span><span className="rounded-full border border-border px-3 py-1">Email from {provider}</span><span className="rounded-full border border-border px-3 py-1">Calendar option</span></div>
+      <div className="mt-6 flex flex-col gap-3 border-t border-border pt-5 sm:flex-row sm:justify-end">
+        <Button variant="outline" asChild><Link to="/profile" search={{ tab: 'calendar' }}>View provider calendar</Link></Button>
+        <Button className={cta} onClick={onDone}>Done</Button>
+      </div>
+    </>;
+  }
   return <>
     <div><p className="mb-2 text-xs font-semibold uppercase text-brand-purple">AFTER THE APPOINTMENT</p><DialogTitle className="text-2xl text-brand-purple-dark">Book a follow-up</DialogTitle><DialogDescription className="mt-2">Schedule the next visit for {client}.</DialogDescription></div>
     <div className="flex items-center justify-between border-y border-border py-4"><div><p className="font-semibold text-brand-purple-dark">{client}</p><p className="mt-1 text-sm text-muted-foreground">With {provider} · Online</p></div><span className="rounded-full bg-brand-lavender px-3 py-1 text-xs text-brand-purple-dark">Same provider</span></div>
