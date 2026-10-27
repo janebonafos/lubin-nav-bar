@@ -134,5 +134,36 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
     replyTo: (data) => data.replyToAddress,
   },
   "webinar-confirmation": webinarConfirmation,
+  "follow-up-booked": followUpBooked,
+  "follow-up-booked-provider": {
+    component: followUpBooked.component,
+    subject: (data: any) =>
+      data.status === "confirmed"
+        ? `Free follow-up confirmed · ${data.clientName ?? ""}`.trim()
+        : `Booking sent · ${data.clientName ?? "follow-up"}`.trim(),
+    displayName: "Follow-up booked (provider receipt)",
+    previewData: {
+      recipientRole: "provider",
+      status: "awaiting-payment",
+      clientName: "Anna Reyes",
+      providerName: "Maria Santos",
+      serviceName: "Follow-up consultation",
+      dateTime: "Wednesday, October 28, 2026 · 9:00 AM",
+      duration: "30 min",
+      timezone: "Manila (GMT+8)",
+      feeLabel: "₱1,500",
+      paymentLine: "The visit stays reserved until the client pays in Lubin.",
+      seriesLabel: "Weekly · 4 visits",
+      visitList: [
+        "1. Wednesday, October 28 · 9:00 AM",
+        "2. Wednesday, November 4 · 9:00 AM",
+        "3. Wednesday, November 11 · 9:00 AM",
+        "4. Wednesday, November 18 · 9:00 AM",
+      ],
+      note: "Please bring your recent lab results so we can review them together.",
+      actionLink: "https://lubin.care/profile",
+      supportEmail: "support@lubin.care",
+    },
+  },
 };
 
