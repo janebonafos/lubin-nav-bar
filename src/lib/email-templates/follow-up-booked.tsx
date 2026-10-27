@@ -171,12 +171,12 @@ export default function FollowUpBookedEmail({
                   </>
                 )
               ) : confirmed ? (
-                <>Your next appointment with {providerName ?? "your provider"} is confirmed. I look forward to seeing you.</>
+                <>Your next appointment with me is confirmed. I look forward to seeing you.</>
               ) : (
                 <>
-                  <strong style={{ color: colors.brandNavy }}>{providerName ?? "Your provider"}</strong>{" "}
-                  scheduled your next appointment. Please review the details below and complete
-                  payment in Lubin to confirm your visit.
+                  I've scheduled our next appointment
+                  {serviceName ? ` (${serviceName})` : ""}. Please review the details below and
+                  complete payment in Lubin to confirm your visit.
                 </>
               )}
             </Text>
