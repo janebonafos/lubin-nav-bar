@@ -87,7 +87,7 @@ export function ProviderFollowUpCalendar() {
                 <button
                   key={date}
                   onClick={() => setSelected(isFocus ? '' : date)}
-                  aria-label={`${format(day, 'MMMM d, yyyy')}, ${entries.length} follow-ups`}
+                  aria-label={`${format(day, 'MMMM d, yyyy')}, ${entries.length} follow-up${entries.length === 1 ? '' : 's'}`}
                   aria-pressed={isFocus}
                   className={`flex min-h-[56px] min-w-0 flex-col items-start gap-1 rounded-lg border p-1.5 text-left transition-colors ${
                     isFocus
