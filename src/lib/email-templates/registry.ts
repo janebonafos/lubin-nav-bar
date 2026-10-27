@@ -21,6 +21,7 @@ import AppointmentMessageEmail, {
 import HealthPassportSharedEmail, {
   template as healthPassportShared,
 } from "./health-passport-shared";
+import { template as followUpBooked } from "./follow-up-booked";
 import { template as webinarConfirmation } from "./webinar-confirmation";
 
 export type TemplateEntry = {
