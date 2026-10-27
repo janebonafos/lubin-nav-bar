@@ -22,6 +22,7 @@ function railHours(entries: Sortable[]) {
 const hourLabel = (h: number) => formatTime12(`${String(h).padStart(2, '0')}:00`);
 // Month cells are narrow, so on-the-hour visits read "9 AM" and the rest keep their minutes.
 const chipTime = (time: string) => (time.endsWith(':00') ? formatTime12(time).replace(':00', '') : formatTime12(time));
+const minutesLabel = (m: number) => (m < 60 ? `${m} min` : `${Math.floor(m / 60)} h${m % 60 ? ` ${m % 60} min` : ''}`);
 
 export function ProviderFollowUpCalendar() {
   const bookings = useFollowUps();
@@ -36,6 +37,12 @@ export function ProviderFollowUpCalendar() {
   const focusDate = selected || monthBookings[0]?.date || format(new Date(), 'yyyy-MM-dd');
   const focusEntries = bookings.filter(b => b.date === focusDate).sort(byTime);
   const hours = railHours(focusEntries);
+  const focusConfirmed = focusEntries.filter(b => b.status === 'confirmed').length;
+  const focusMinutes = focusEntries.reduce((sum, b) => sum + b.duration, 0);
+  // Days holding more than one visit, so busy days can be flagged across the month.
+  const dayCounts = new Map<string, number>();
+  monthBookings.forEach(b => dayCounts.set(b.date, (dayCounts.get(b.date) ?? 0) + 1));
+  const busiest = [...dayCounts.entries()].filter(([, n]) => n > 1).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))[0];
   const [openId, setOpenId] = useState('');
   const [inCall, setInCall] = useState('');
   const openBooking = bookings.find(b => b.id === openId);
@@ -76,13 +83,15 @@ export function ProviderFollowUpCalendar() {
               const entries = bookings.filter(b => b.date === date).sort(byTime);
               const isFocus = date === focusDate;
               const isToday = date === format(new Date(), 'yyyy-MM-dd');
+              // Cells hold three lines at most, so a 3+ visit day trades a chip for the "+N more" line.
+              const shown = entries.length > 2 ? entries.slice(0, 1) : entries;
               return (
                 <button
                   key={date}
                   onClick={() => setSelected(isFocus ? '' : date)}
-                  aria-label={`${format(day, 'MMMM d, yyyy')}, ${entries.length} follow-ups`}
+                  aria-label={`${format(day, 'MMMM d, yyyy')}, ${entries.length} follow-up${entries.length === 1 ? '' : 's'}`}
                   aria-pressed={isFocus}
-                  className={`flex min-h-[56px] min-w-0 flex-col items-start gap-1 rounded-lg border p-1.5 text-left transition-colors ${
+                  className={`flex min-h-[56px] min-w-0 flex-col items-start gap-1 overflow-hidden rounded-lg border p-1.5 text-left transition-colors ${
                     isFocus
                       ? 'border-brand-purple-dark bg-brand-lavender'
                       : isToday
@@ -90,15 +99,20 @@ export function ProviderFollowUpCalendar() {
                         : 'border-transparent hover:bg-muted'
                   }`}
                 >
-                  <span className={`text-xs font-semibold ${isFocus ? 'text-brand-purple-dark' : 'text-foreground'}`}>{format(day, 'd')}</span>
+                  <div className="flex w-full items-center justify-between gap-1">
+                    <span className={`text-xs font-semibold ${isFocus ? 'text-brand-purple-dark' : 'text-foreground'}`}>{format(day, 'd')}</span>
+                    {entries.length > 1 && (
+                      <span title={`${entries.length} appointments on this day`} className={`shrink-0 rounded-full px-1.5 py-px text-[9px] font-bold leading-none ${isFocus ? 'bg-brand-purple-dark text-primary-foreground' : 'bg-brand-purple-accent/30 text-brand-purple-dark'}`}>{entries.length}</span>
+                    )}
+                  </div>
                   <div className="flex w-full flex-col gap-0.5">
-                    {entries.slice(0, 2).map(b => (
+                    {shown.map(b => (
                       <span key={b.id} className={`w-full truncate rounded-full px-0.5 py-0.5 text-center text-[10px] font-semibold ${b.status === 'confirmed' ? 'bg-brand-purple-dark text-primary-foreground' : 'bg-brand-purple-accent/35 text-brand-purple-dark'}`}>
                         {chipTime(b.time)}
                       </span>
                     ))}
-                    {entries.length > 2 && (
-                      <span className="px-1 text-[10px] font-medium text-[#5B5470]">+{entries.length - 2} more</span>
+                    {entries.length > shown.length && (
+                      <span className="px-1 text-[10px] font-medium text-[#5B5470]">+{entries.length - shown.length} more</span>
                     )}
                   </div>
                 </button>
@@ -123,6 +137,11 @@ export function ProviderFollowUpCalendar() {
               <span className="h-1.5 w-1.5 rounded-full bg-brand-purple-accent" /> Awaiting payment · Time reserved in demo
             </span>
           </div>
+          {focusEntries.length > 1 && (
+            <p className="mt-3 rounded-lg bg-brand-lavender px-3 py-2 text-[11px] font-semibold text-brand-purple-dark">
+              {focusEntries.length} appointments on this day · {focusConfirmed} confirmed, {focusEntries.length - focusConfirmed} awaiting payment · {minutesLabel(focusMinutes)} in visits
+            </p>
+          )}
           {!focusEntries.length && (
             <p className="mt-4 rounded-xl border border-dashed border-border px-4 py-3 text-center text-sm text-[#5B5470]">
               No follow-ups on this day.
@@ -156,9 +175,10 @@ export function ProviderFollowUpCalendar() {
               );
             })}
           </div>
-          <div className="mt-4 flex items-center justify-between gap-3 border-t border-border pt-3">
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-3">
             <p className="text-xs font-medium text-[#6B6480]">
               {selected ? format(new Date(`${selected}T00:00:00`), 'MMMM d') : 'This month'} · {monthBookings.length} follow-up{monthBookings.length === 1 ? '' : 's'}
+              {busiest && <> · busiest day {format(new Date(`${busiest[0]}T00:00:00`), 'MMM d')} with {busiest[1]}</>}
             </p>
             {selected && (
               <Button variant="link" size="sm" className="h-auto p-0 text-xs" onClick={() => setSelected('')}>Show whole month</Button>
