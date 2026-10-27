@@ -93,7 +93,7 @@ export function ProviderFollowUpCalendar() {
                   <span className={`text-xs font-semibold ${isFocus ? 'text-brand-purple-dark' : 'text-foreground'}`}>{format(day, 'd')}</span>
                   <div className="flex w-full flex-col gap-0.5">
                     {entries.slice(0, 2).map(b => (
-                      <span key={b.id} className={`w-full truncate rounded-full px-1 py-0.5 text-center text-[10px] font-semibold ${b.status === 'confirmed' ? 'bg-brand-purple-dark text-primary-foreground' : 'bg-brand-purple-accent/35 text-brand-purple-dark'}`}>
+                      <span key={b.id} className={`w-full truncate rounded-full px-0.5 py-0.5 text-center text-[10px] font-semibold ${b.status === 'confirmed' ? 'bg-brand-purple-dark text-primary-foreground' : 'bg-brand-purple-accent/35 text-brand-purple-dark'}`}>
                         {chipTime(b.time)}
                       </span>
                     ))}
