@@ -41,7 +41,7 @@ import StandardMeasuresPanel from "@/components/profile/StandardMeasuresPanel";
 /**
  * Provider-side: build the client intake form — the standard details clinicians
  * collect before a first session (identification, contact and emergency
- * details, reason for care, clinical background, consent and billing).
+ * details, reason for care, clinical background).
  * Sections are picked here; the exact questions in a section — including any the
  * provider writes themselves — are edited in a side drawer to keep this list short.
  */
