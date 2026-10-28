@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { Check, CheckCircle2, Eye, Search, X } from "lucide-react";
+import { Check, CheckCircle2, Plus, Search, Trash2, X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
 import {
@@ -65,7 +66,7 @@ export default function StandardMeasuresPanel({
     toast.success(
       on
         ? `${measure?.code} removed`
-        : `${measure?.code} added — ${CADENCE_LABEL[measure!.cadence].toLowerCase()}`,
+        : `${measure?.code} added${measure ? ` — ${CADENCE_LABEL[measure.cadence].toLowerCase()}` : ""}`,
     );
   };
 
@@ -83,63 +84,45 @@ export default function StandardMeasuresPanel({
     );
 
   return (
-    <section className="overflow-hidden rounded-[12px] border border-[#EAE7F5] bg-white shadow-sm">
-      <div className="border-b border-[#F0EAFB] p-6">
-        <h3 className="text-base font-semibold text-[#3D2E6B]">
-          Standard measures
-        </h3>
-        <p className="mt-1 max-w-2xl text-sm leading-relaxed text-[#7E6BAF]">
-          The questionnaires used across the field for intake and outcome
-          tracking. Anything Lubin already runs as a guided check is completed by
-          the client in a tap and scored into their Health Passport; the rest sit
-          in your session view to record as you go.
-        </p>
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-          <p className="text-xs text-[#7E6BAF]">
-            {chosen.length} measure{chosen.length === 1 ? "" : "s"} ·{" "}
-            {inApp} completed in-app by clients
-          </p>
-          <button
-            onClick={() => setOpen(true)}
-            className="inline-flex items-center gap-1.5 rounded-[12px] border border-[#D8C7F0] bg-white px-3 py-1.5 text-xs font-semibold text-[#3D2E6B] transition hover:bg-[#F0EAFB]"
-          >
-            <Eye className="h-3.5 w-3.5" /> Choose measures
-          </button>
+    <section>
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h3 className="text-base font-semibold text-brand-purple-dark">Selected measures</h3>
+          <p className="mt-1 text-xs text-muted-foreground">{chosen.length} selected · {inApp} completed by clients · {chosen.length - inApp} recorded in session</p>
         </div>
+        <Button variant="outline" onClick={() => setOpen(true)} className="border-brand-lavender text-brand-purple-dark"><Plus /> Add measures</Button>
       </div>
-
       {chosen.length === 0 ? (
-        <p className="p-6 text-sm text-[#7E6BAF]">
+        <p className="p-6 text-sm text-muted-foreground">
           No measures selected yet. CORE-10, PHQ-9, GAD-7 and WSAS are the usual
           starting set.
         </p>
       ) : (
-        <ul className="divide-y divide-[#F0EAFB]">
+        <ul className="grid gap-3 sm:grid-cols-2">
           {chosen.map((m) => (
-            <li key={m.id} className="flex flex-wrap items-start gap-3 p-6">
-              <div className="min-w-[240px] flex-1">
-                <p className="text-sm font-semibold text-[#3D2E6B]">
-                  {m.code}{" "}
-                  <span className="font-normal text-[#7E6BAF]">· {m.name}</span>
+            <li key={m.id} className="flex items-start gap-3 rounded-lg border border-brand-lavender bg-background p-4">
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold text-brand-purple-dark">
+                  {m.code}
+                  <span className="mt-1 block text-xs font-normal text-muted-foreground">{m.name}</span>
                 </p>
-                <p className="mt-0.5 text-xs leading-relaxed text-[#7E6BAF]">
-                  {m.use}
-                </p>
-                <p className="mt-1.5 text-[10px] font-bold uppercase tracking-wider text-[#A89BD0]">
+                
+                <p className="mt-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                   {m.items} items · about {m.minutes} min ·{" "}
                   {CADENCE_LABEL[m.cadence]} ·{" "}
                   {m.slug ? "Client completes in Lubin" : "Recorded in session"}
                 </p>
                 {m.licence && (
-                  <p className="mt-1 text-[11px] text-[#8A5A12]">{m.licence}</p>
+                  <p className="mt-1 text-[11px] text-muted-foreground">{m.licence}</p>
                 )}
               </div>
-              <button
+              <Button
                 onClick={() => toggle(m.id)}
-                className="rounded-[12px] border border-[#D8C7F0] bg-white px-3 py-1.5 text-xs font-semibold text-[#3D2E6B] transition hover:bg-[#F0EAFB]"
+                aria-label={`Remove ${m.code}`} title={`Remove ${m.code}`} size="icon-sm" variant="ghost"
+                className="rounded-lg border border-brand-lavender bg-background px-3 py-1.5 text-xs font-semibold text-brand-purple-dark transition hover:bg-brand-lavender/50"
               >
-                Remove
-              </button>
+                <Trash2 />
+              </Button>
             </li>
           ))}
         </ul>
@@ -149,47 +132,48 @@ export default function StandardMeasuresPanel({
         <SheetContent className="flex w-full flex-col overflow-hidden p-0 sm:max-w-lg">
           <div className="flex-1 overflow-y-auto px-6 pt-6">
             <SheetHeader className="space-y-1 text-left">
-              <SheetTitle className="text-[#3D2E6B]">Choose measures</SheetTitle>
-              <SheetDescription className="text-[#7E6BAF]">
+              <SheetTitle className="text-brand-purple-dark">Choose measures</SheetTitle>
+              <SheetDescription className="text-muted-foreground">
                 Tap the cards to add or remove questionnaires. Lubin-guided checks
                 are completed by clients; the rest are recorded in session.
               </SheetDescription>
             </SheetHeader>
 
-            <div className="mt-4 flex items-center gap-2 rounded-[12px] border border-[#D8C7F0] px-3 py-2">
-              <Search className="h-4 w-4 shrink-0 text-[#A89BD0]" />
+            <div className="mt-4 flex items-center gap-2 rounded-lg border border-brand-lavender px-3 py-2">
+              <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search CORE-10, WSAS, trauma…"
-                className="min-w-0 flex-1 bg-transparent text-sm text-[#3D2E6B] outline-none placeholder:text-[#A89BD0]"
+                aria-label="Search measures" placeholder="Search CORE-10, WSAS, trauma…"
+                className="min-w-0 flex-1 bg-transparent text-sm text-brand-purple-dark outline-none placeholder:text-muted-foreground"
               />
               {query && (
-                <button
-                  onClick={() => setQuery("")}
-                  className="rounded-full p-1 text-[#A89BD0] hover:bg-[#F0EAFB] hover:text-[#3D2E6B]"
+                <Button
+                  aria-label="Clear measure search" variant="ghost" size="icon-sm" onClick={() => setQuery("")}
+                  className="rounded-full p-1 text-muted-foreground hover:bg-brand-lavender/50 hover:text-brand-purple-dark"
                 >
                   <X className="h-3.5 w-3.5" />
-                </button>
+                </Button>
               )}
             </div>
 
             {selected.length > 0 && (
               <div className="mt-5">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-[#5B4796]">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-brand-purple-dark">
                   Selected ({selected.length})
                 </p>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {chosen.map((m) => (
-                    <button
+                    <Button
+                      size="sm" variant="outline"
                       key={m.id}
                       onClick={() => toggle(m.id)}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-[#5B4796] bg-[#F0EAFB] px-3 py-1 text-xs font-semibold text-[#3D2E6B] transition hover:bg-[#E2D8F5]"
+                      className="inline-flex items-center gap-1.5 rounded-full border border-brand-purple-dark bg-brand-lavender/50 px-3 py-1 text-xs font-semibold text-brand-purple-dark transition hover:bg-brand-lavender"
                     >
                       <Check className="h-3 w-3" />
                       {m.code}
-                      <X className="ml-0.5 h-3 w-3 text-[#7E6BAF]" />
-                    </button>
+                      <X className="ml-0.5 h-3 w-3 text-muted-foreground" />
+                    </Button>
                   ))}
                 </div>
               </div>
@@ -205,11 +189,11 @@ export default function StandardMeasuresPanel({
                 return (
                   <div key={purpose}>
                     <div className="mb-2 flex items-center justify-between gap-2">
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-[#7E6BAF]">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                         {purpose}
                       </p>
                       {selectedInGroup > 0 && (
-                        <span className="text-[10px] font-bold text-[#5B4796]">
+                        <span className="text-[10px] font-bold text-brand-purple-dark">
                           {selectedInGroup} selected
                         </span>
                       )}
@@ -218,43 +202,44 @@ export default function StandardMeasuresPanel({
                       {items.map((m) => {
                         const on = selected.includes(m.id);
                         return (
-                          <button
+                          <Button
                             key={m.id}
                             onClick={() => toggle(m.id)}
-                            className={`group flex w-full items-start gap-3 rounded-[12px] border p-3 text-left transition ${
+                            variant="ghost" aria-pressed={on}
+                            className={`group h-auto whitespace-normal flex w-full items-start gap-3 rounded-lg border p-3 text-left transition ${
                               on
-                                ? "border-[#5B4796] bg-[#F0EAFB] shadow-sm"
-                                : "border-[#EAE7F5] bg-white hover:border-[#D8C7F0] hover:bg-[#FDFCFF]"
+                                ? "border-brand-purple-dark bg-brand-lavender/50 shadow-sm"
+                                : "border-brand-lavender bg-background hover:border-brand-lavender hover:bg-background"
                             }`}
                           >
                             <span
                               className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border transition ${
                                 on
-                                  ? "border-[#5B4796] bg-[#5B4796] text-white"
-                                  : "border-[#D8C7F0] bg-white text-transparent group-hover:border-[#5B4796]"
+                                  ? "border-brand-purple-dark bg-brand-purple-dark text-primary-foreground"
+                                  : "border-brand-lavender bg-background text-transparent group-hover:border-brand-purple-dark"
                               }`}
                             >
                               <Check className="h-3 w-3" strokeWidth={3} />
                             </span>
                             <span className="min-w-0 flex-1">
                               <span className="flex items-center gap-2">
-                                <span className="block text-sm font-semibold text-[#3D2E6B]">
+                                <span className="block text-sm font-semibold text-brand-purple-dark">
                                   {m.code}
                                 </span>
                                 {m.slug ? (
-                                  <span className="inline-flex items-center gap-1 rounded-full bg-[#E6F8F1] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#2D8E69]">
+                                  <span className="inline-flex items-center gap-1 rounded-full bg-brand-lavender px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-brand-purple-dark">
                                     <CheckCircle2 className="h-3 w-3" /> In Lubin
                                   </span>
                                 ) : (
-                                  <span className="inline-flex items-center rounded-full bg-[#F0EAFB] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#5B4796]">
+                                  <span className="inline-flex items-center rounded-full bg-brand-lavender/50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-brand-purple-dark">
                                     In session
                                   </span>
                                 )}
                               </span>
-                              <span className="mt-1 block text-xs leading-relaxed text-[#7E6BAF]">
+                              <span className="mt-1 block text-xs leading-relaxed text-muted-foreground">
                                 {m.name} — {m.use}
                               </span>
-                              <span className="mt-1.5 block text-[11px] leading-relaxed text-[#A89BD0]">
+                              <span className="mt-1.5 block text-[11px] leading-relaxed text-muted-foreground">
                                 {m.standard}
                               </span>
                               <span className="mt-2 flex flex-wrap items-center gap-1.5">
@@ -263,12 +248,12 @@ export default function StandardMeasuresPanel({
                                 <Tag>{CADENCE_LABEL[m.cadence]}</Tag>
                               </span>
                               {m.licence && (
-                                <span className="mt-2 block text-[11px] text-[#8A5A12]">
+                                <span className="mt-2 block text-[11px] text-muted-foreground">
                                   {m.licence}
                                 </span>
                               )}
                             </span>
-                          </button>
+                          </Button>
                         );
                       })}
                     </div>
@@ -278,18 +263,18 @@ export default function StandardMeasuresPanel({
             </div>
           </div>
 
-          <div className="border-t border-[#F0EAFB] bg-[#FBF9FF] p-4">
+          <div className="border-t border-brand-lavender bg-muted p-4">
             <div className="flex items-center justify-between gap-3">
-              <p className="text-sm text-[#3D2E6B]">
+              <p className="text-sm text-brand-purple-dark">
                 <span className="font-semibold">{selected.length}</span> measure
                 {selected.length === 1 ? "" : "s"} selected
               </p>
-              <button
+              <Button
                 onClick={() => setOpen(false)}
-                className="inline-flex items-center gap-1.5 rounded-[12px] bg-[#5B4796] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#4A3A82]"
+                className="inline-flex items-center gap-1.5 rounded-lg bg-brand-purple-dark px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:bg-brand-purple-deep"
               >
                 <Check className="h-4 w-4" /> Done
-              </button>
+              </Button>
             </div>
           </div>
         </SheetContent>
@@ -300,7 +285,7 @@ export default function StandardMeasuresPanel({
 
 function Tag({ children }: { children: React.ReactNode }) {
   return (
-    <span className="inline-flex items-center rounded-full bg-[#F0EAFB] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#5B4796]">
+    <span className="inline-flex items-center rounded-full bg-brand-lavender/50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-brand-purple-dark">
       {children}
     </span>
   );
