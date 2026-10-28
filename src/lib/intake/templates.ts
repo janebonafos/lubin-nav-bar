@@ -3,7 +3,7 @@
 //
 // Sections follow what therapists, psychologists and psychiatrists normally
 // collect at intake: client identification, contact and emergency details,
-// presenting concern, clinical background, and consent/billing admin.
+// presenting concern, and clinical background.
 //
 // Nothing here is ever a hard requirement: the client can confirm a prefilled
 // answer, write their own, or say they'd rather talk about it in the session.
@@ -35,8 +35,7 @@ export type IntakeGroup =
   | "Client identification"
   | "Contact & emergency"
   | "Reason for care"
-  | "Clinical background"
-  | "Consent & admin";
+  | "Clinical background";
 
 export type IntakeTemplate = {
   id: string;
@@ -345,42 +344,6 @@ export const INTAKE_TEMPLATES: IntakeTemplate[] = [
       },
     ],
   },
-  {
-    id: "insurance",
-    label: "Billing and insurance",
-    group: "Consent & admin",
-    why: "Only needed if you plan to claim your session — otherwise skip it.",
-    minutes: 1,
-    fields: [
-      {
-        id: "insurance.provider",
-        label: "Insurance or HMO provider",
-        type: "short-text",
-        placeholder: "e.g. Maxicare — or \"paying myself\"",
-      },
-      {
-        id: "insurance.member",
-        label: "Member or policy number",
-        type: "short-text",
-        placeholder: "Optional",
-      },
-    ],
-  },
-  {
-    id: "consent",
-    label: "Consent and practice policies",
-    group: "Consent & admin",
-    why: "A quick read now means nothing to sign while your session clock is running.",
-    minutes: 1,
-    fields: [
-      {
-        id: "consent.ack",
-        label: "I've read how my provider handles confidentiality, notes and cancellations.",
-        help: "You can still ask questions about any of it in the session.",
-        type: "ack",
-      },
-    ],
-  },
 ];
 
 export const INTAKE_GROUPS: IntakeGroup[] = [
@@ -388,7 +351,6 @@ export const INTAKE_GROUPS: IntakeGroup[] = [
   "Contact & emergency",
   "Reason for care",
   "Clinical background",
-  "Consent & admin",
 ];
 
 export function templateById(id: string): IntakeTemplate | undefined {
