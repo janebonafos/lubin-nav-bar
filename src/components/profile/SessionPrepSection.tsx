@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import {
   ChevronDown,
-  ClipboardList,
-  ListChecks,
+  Gauge,
+  Layers3,
   Check,
   Eye,
   Plus,
@@ -140,8 +140,8 @@ export default function SessionPrepSection({
       </div>
       <Tabs defaultValue="sections">
         <TabsList className="h-auto max-w-full flex-wrap justify-start bg-brand-lavender p-1">
-          <TabsTrigger value="sections" className="gap-2 px-4 py-2 text-brand-purple-dark"><ClipboardList className="h-4 w-4" /> Form sections</TabsTrigger>
-          <TabsTrigger value="measures" className="gap-2 px-4 py-2 text-brand-purple-dark"><ListChecks className="h-4 w-4" /> Standard measures</TabsTrigger>
+          <TabsTrigger value="sections" className="gap-2 px-4 py-2 text-brand-purple-dark"><Layers3 className="h-4 w-4" /> Form sections</TabsTrigger>
+          <TabsTrigger value="measures" className="gap-2 px-4 py-2 text-brand-purple-dark"><Gauge className="h-4 w-4" /> Standard measures</TabsTrigger>
         </TabsList>
         <TabsContent value="sections" className="mt-5">
           <div className="space-y-3">
