@@ -109,10 +109,7 @@ export default function SessionPrepSection({
     });
   };
 
-  // Only count sections that still exist in the library — a selection saved
-  // before a section was retired must not inflate the header numbers.
-  const chosenIds = request.templateIds.filter((id) => templateById(id));
-  const questionCount = chosenIds.reduce(
+  const questionCount = request.templateIds.reduce(
     (sum, id) => sum + activeCountOf(id),
     0,
   );
@@ -134,7 +131,7 @@ export default function SessionPrepSection({
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-brand-lavender pb-5">
         <div>
           <p className="text-lg font-semibold">Your client form</p>
-          <p className="mt-1 text-sm text-muted-foreground">{chosenIds.length} sections · {questionCount} questions</p>
+          <p className="mt-1 text-sm text-muted-foreground">{request.templateIds.length} sections · {questionCount} questions</p>
         </div>
         <div className="flex items-center gap-3">
           <span role="status" className="inline-flex items-center gap-1.5 text-xs text-muted-foreground"><Check className="h-3.5 w-3.5" />{saved ? "Saved" : "All changes saved"}</span>
