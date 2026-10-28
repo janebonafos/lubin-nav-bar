@@ -1,6 +1,6 @@
 # Health Passport patient design
 
-- [ ] Simplify Client Intake Forms presentation and verify selection, question editing, preview and measures.
+- [x] Simplify Client Intake Forms presentation and verify selection, question editing, preview and measures.
 
 - [x] Connect follow-up bookings to the provider’s demo calendar and verify status updates.
 - [x] Add recurring provider bookings with schedule preview and client/calendar visibility; verify local-only behavior.
