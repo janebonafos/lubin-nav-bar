@@ -89,7 +89,7 @@ export default function StandardMeasuresPanel({
         <div>
           <h3 className="text-base font-semibold text-brand-purple-dark">Selected measures</h3>
           <p className="mt-1 text-xs text-muted-foreground">Standard measures are well-known questionnaires — like PHQ-9 for mood or GAD-7 for anxiety — that track how a client is doing over time. Clients answer the in-Lubin ones on their own; the rest you fill in during the session.</p>
-          <p className="mt-1 text-xs text-muted-foreground">{chosen.length} selected · {inApp} completed by clients · {chosen.length - inApp} recorded in session</p>
+          <p className="mt-1 text-xs text-muted-foreground">{chosen.length} selected · {inApp} the client answers in Lubin · {chosen.length - inApp} you fill in during the session</p>
         </div>
         <Button variant="outline" onClick={() => setOpen(true)} className="border-brand-lavender text-brand-purple-dark"><Plus /> Add measures</Button>
       </div>
@@ -111,7 +111,7 @@ export default function StandardMeasuresPanel({
                 <p className="mt-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
                   {m.items} items · about {m.minutes} min ·{" "}
                   {CADENCE_LABEL[m.cadence]} ·{" "}
-                  {m.slug ? "Client completes in Lubin" : "Recorded in session"}
+                  {m.slug ? "Client answers this in Lubin" : "You fill this in during the session"}
                 </p>
                 {m.licence && (
                   <p className="mt-1 text-[11px] text-muted-foreground">{m.licence}</p>
@@ -135,8 +135,9 @@ export default function StandardMeasuresPanel({
             <SheetHeader className="space-y-1 text-left">
               <SheetTitle className="text-brand-purple-dark">Choose measures</SheetTitle>
               <SheetDescription className="text-muted-foreground">
-                Tap the cards to add or remove questionnaires. Lubin-guided checks
-                are completed by clients; the rest are recorded in session.
+                Tap the cards to add or remove questionnaires. Ones marked
+                "Client answers in Lubin" are filled in by the client on their
+                own; for the rest you type the answers during the session.
               </SheetDescription>
             </SheetHeader>
 
