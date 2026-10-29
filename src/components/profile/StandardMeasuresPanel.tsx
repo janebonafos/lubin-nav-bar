@@ -230,11 +230,11 @@ export default function StandardMeasuresPanel({
                                 </span>
                                 {m.slug ? (
                                   <span className="inline-flex items-center gap-1 rounded-full bg-brand-lavender px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-brand-purple-dark">
-                                    <CheckCircle2 className="h-3 w-3" /> In Lubin
+                                    <CheckCircle2 className="h-3 w-3" /> Client answers in Lubin
                                   </span>
                                 ) : (
-                                  <span className="inline-flex items-center rounded-full bg-brand-lavender/50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-brand-purple-dark">
-                                    In session
+                                  <span className="inline-flex items-center gap-1 rounded-full bg-brand-lavender/50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-brand-purple-dark">
+                                    You fill in during session
                                   </span>
                                 )}
                               </span>
