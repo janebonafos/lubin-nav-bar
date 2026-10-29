@@ -287,7 +287,7 @@ export default function StandardMeasuresPanel({
 
 function Tag({ children }: { children: React.ReactNode }) {
   return (
-    <span className="inline-flex items-center rounded-full bg-brand-lavender/50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-brand-purple-dark">
+    <span className="inline-flex items-center rounded-full bg-brand-lavender/50 px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-brand-purple-dark">
       {children}
     </span>
   );
