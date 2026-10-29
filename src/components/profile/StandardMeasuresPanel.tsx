@@ -88,8 +88,8 @@ export default function StandardMeasuresPanel({
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h3 className="text-base font-semibold text-brand-purple-dark">Selected measures</h3>
-          <p className="mt-1 text-xs text-muted-foreground">Standard measures are well-known questionnaires — like PHQ-9 for mood or GAD-7 for anxiety — that track how a client is doing over time. Clients answer the in-Lubin ones on their own; the rest you fill in during the session.</p>
-          <p className="mt-1 text-xs text-muted-foreground">{chosen.length} selected · {inApp} the client answers in Lubin · {chosen.length - inApp} you fill in during the session</p>
+          <p className="mt-1 text-sm text-muted-foreground">Standard measures are well-known questionnaires — like PHQ-9 for mood or GAD-7 for anxiety — that track how a client is doing over time. Clients answer the in-Lubin ones on their own; the rest you fill in during the session.</p>
+          <p className="mt-1 text-sm text-muted-foreground">{chosen.length} selected · {inApp} the client answers in Lubin · {chosen.length - inApp} you fill in during the session</p>
         </div>
         <Button variant="outline" onClick={() => setOpen(true)} className="border-brand-lavender text-brand-purple-dark"><Plus /> Add measures</Button>
       </div>
@@ -108,13 +108,13 @@ export default function StandardMeasuresPanel({
                   <span className="mt-1 block text-xs font-normal text-muted-foreground">{m.name}</span>
                 </p>
                 
-                <p className="mt-1.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                <p className="mt-1.5 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   {m.items} items · about {m.minutes} min ·{" "}
                   {CADENCE_LABEL[m.cadence]} ·{" "}
                   {m.slug ? "Client answers this in Lubin" : "You fill this in during the session"}
                 </p>
                 {m.licence && (
-                  <p className="mt-1 text-[11px] text-muted-foreground">{m.licence}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">{m.licence}</p>
                 )}
               </div>
               <Button
@@ -161,7 +161,7 @@ export default function StandardMeasuresPanel({
 
             {selected.length > 0 && (
               <div className="mt-5">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-brand-purple-dark">
+                <p className="text-xs font-semibold uppercase tracking-wide text-brand-purple-dark">
                   Selected ({selected.length})
                 </p>
                 <div className="mt-2 flex flex-wrap gap-2">
@@ -191,11 +191,11 @@ export default function StandardMeasuresPanel({
                 return (
                   <div key={purpose}>
                     <div className="mb-2 flex items-center justify-between gap-2">
-                      <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                         {purpose}
                       </p>
                       {selectedInGroup > 0 && (
-                        <span className="text-[10px] font-bold text-brand-purple-dark">
+                        <span className="text-xs font-semibold text-brand-purple-dark">
                           {selectedInGroup} selected
                         </span>
                       )}
@@ -229,11 +229,11 @@ export default function StandardMeasuresPanel({
                                   {m.code}
                                 </span>
                                 {m.slug ? (
-                                  <span className="inline-flex items-center gap-1 rounded-full bg-brand-lavender px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-brand-purple-dark">
+                                  <span className="inline-flex items-center gap-1 rounded-full bg-brand-lavender px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-brand-purple-dark">
                                     <CheckCircle2 className="h-3 w-3" /> Client answers in Lubin
                                   </span>
                                 ) : (
-                                  <span className="inline-flex items-center gap-1 rounded-full bg-brand-lavender/50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-brand-purple-dark">
+                                  <span className="inline-flex items-center gap-1 rounded-full bg-brand-lavender/50 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-brand-purple-dark">
                                     You fill in during session
                                   </span>
                                 )}
