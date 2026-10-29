@@ -88,6 +88,7 @@ export default function StandardMeasuresPanel({
       <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h3 className="text-base font-semibold text-brand-purple-dark">Selected measures</h3>
+          <p className="mt-1 text-xs text-muted-foreground">Standard measures are well-known questionnaires — like PHQ-9 for mood or GAD-7 for anxiety — that track how a client is doing over time. Clients answer the in-Lubin ones on their own; the rest you fill in during the session.</p>
           <p className="mt-1 text-xs text-muted-foreground">{chosen.length} selected · {inApp} completed by clients · {chosen.length - inApp} recorded in session</p>
         </div>
         <Button variant="outline" onClick={() => setOpen(true)} className="border-brand-lavender text-brand-purple-dark"><Plus /> Add measures</Button>
