@@ -689,10 +689,14 @@ function ProviderOnboardingPage() {
               <div className="space-y-8">
                 <Field
                   label="Focus areas"
-                  hint="Select all that apply — we use this to match you with the right clients."
+                  hint={
+                    specialty === "doctor"
+                      ? "Select all that apply — we use this to match you with the right clients."
+                      : "Select all that apply — we use this to match you with the right clients."
+                  }
                 >
                   <PillGridMulti
-                    options={FOCUS_AREAS}
+                    options={specialty === "doctor" ? DOCTOR_FOCUS_AREAS : FOCUS_AREAS}
                     value={focusAreas}
                     onChange={setFocusAreas}
                   />
