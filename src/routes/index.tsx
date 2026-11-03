@@ -73,7 +73,6 @@ function ThoughtBubble({
           style={{
             ...(isUser ? {} : { background: aiGradient }),
             borderRadius: radius,
-            fontFamily: "Inter, sans-serif",
             animationDelay: delay,
             maxWidth: 280,
             whiteSpace: "normal",
@@ -95,7 +94,6 @@ function Index() {
   return (
     <div
       className="relative min-h-screen overflow-hidden bg-gradient-to-b from-[#F5F3FF] via-[#EFEAFE] to-[#F5F3FF] pt-16"
-      style={{ fontFamily: "Inter, sans-serif" }}
     >
       {/* Decorative floating gradient blobs */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">

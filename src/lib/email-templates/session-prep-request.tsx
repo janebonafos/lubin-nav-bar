@@ -26,7 +26,7 @@ interface Props {
 
 const main = {
   backgroundColor: "#ffffff",
-  fontFamily: "Inter, Arial, sans-serif",
+  fontFamily: "'Plus Jakarta Sans', Arial, sans-serif",
   color: "#3D2E6B",
 };
 const container = { padding: "32px 28px", maxWidth: "560px" };

@@ -509,7 +509,6 @@ function IntroView({
       exit={{ opacity: 0, y: -8 }}
       transition={{ duration: 0.35, ease: "easeOut" }}
       className="relative mt-8 rounded-2xl border border-brand-purple/10 bg-white p-6 shadow-[0_14px_38px_-24px_rgba(126,107,175,0.45)] md:p-7"
-      style={{ fontFamily: "Inter, sans-serif" }}
     >
       <header className="mb-5">
         <span className="block text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-purple">
@@ -688,7 +687,6 @@ function QuestionView({
       <motion.div
         transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
         className="mt-8 rounded-2xl border border-brand-purple/10 bg-white p-6 shadow-[0_14px_38px_-24px_rgba(126,107,175,0.45)] md:p-7"
-        style={{ fontFamily: "Inter, sans-serif" }}
       >
         {assessment.id === "phq-9" || assessment.id === "gad-7" ? (
           <p className="text-[13px] text-brand-purple-dark/55">

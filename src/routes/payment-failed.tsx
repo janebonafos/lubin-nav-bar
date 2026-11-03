@@ -66,7 +66,6 @@ function PaymentFailedPage() {
   return (
     <div
       className="min-h-screen bg-[#F9F8FF]"
-      style={{ fontFamily: "Inter, sans-serif" }}
     >
       <Navbar />
       <main className="mx-auto w-full max-w-2xl px-4 pb-20 pt-24 sm:pt-28">

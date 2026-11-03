@@ -27,7 +27,7 @@ import {
 
 type MoodCheckin = { id: string; mood: number; note: string; date: string };
 
-const SITE_FONT = "Inter, sans-serif";
+const SITE_FONT = '"Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif';
 
 export default function ShareTabView({
   checkins,

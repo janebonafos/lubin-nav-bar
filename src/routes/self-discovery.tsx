@@ -173,7 +173,6 @@ function PatternsPage() {
   return (
     <div
       className="relative min-h-screen overflow-hidden bg-gradient-to-b from-[#F5F3FF] via-[#EFEAFE] to-[#F5F3FF]"
-      style={{ fontFamily: "Inter, sans-serif" }}
     >
       {/* Decorative floating gradient blobs — matches the rest of Lubin */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">

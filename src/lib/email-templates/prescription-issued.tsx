@@ -73,7 +73,7 @@ export default function PrescriptionIssuedEmail({
           margin: 0,
           padding: 0,
           fontFamily:
-            '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+            '"Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
         }}
       >
         <Container style={{ maxWidth: 560, margin: "0 auto", padding: "32px 24px" }}>

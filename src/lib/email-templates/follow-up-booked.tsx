@@ -115,7 +115,7 @@ export default function FollowUpBookedEmail({
           margin: 0,
           padding: 0,
           fontFamily:
-            '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+            '"Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
         }}
       >
         <Container style={{ maxWidth: 600, margin: "0 auto", padding: "24px 20px" }}>
