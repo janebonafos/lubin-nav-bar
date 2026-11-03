@@ -2,8 +2,9 @@
 @source "../src";
 @import "tw-animate-css";
 
+/* Kept as a class name for existing markup, but it now uses the site font. */
 .font-serif-display {
-  font-family: "Playfair Display", "Times New Roman", serif;
+  font-family: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
   font-feature-settings: "liga", "kern";
 }
 
@@ -33,6 +34,12 @@
  */
 
 @theme inline {
+  /* Plus Jakarta Sans is the site's main font: it is Tailwind's default
+     `font-sans` (so every element inherits it) and the `font-body` utility.
+     Fraunces stays only for the deliberate display headings (`font-display`). */
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-body: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fraunces", Georgia, serif;
   --color-brand-purple: #7E6BAF;
   --color-brand-purple-dark: #3D2E6B;
   --color-brand-purple-deep: #2A1F4D;
