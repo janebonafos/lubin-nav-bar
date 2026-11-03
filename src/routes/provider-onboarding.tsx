@@ -578,7 +578,11 @@ function ProviderOnboardingPage() {
                   <PillGrid
                     options={SPECIALTIES}
                     value={specialty}
-                    onChange={(v) => setSpecialty(v as Specialty)}
+                    onChange={(v) => {
+                      setSpecialty(v as Specialty);
+                      // Focus areas differ per profession; clear stale picks.
+                      setFocusAreas([]);
+                    }}
                   />
                 </Field>
 
