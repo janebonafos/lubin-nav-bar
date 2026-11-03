@@ -321,7 +321,6 @@ function Shell({ children }: { children: React.ReactNode }) {
   return (
     <main
       className="min-h-screen bg-[#F3F0FA] px-5 py-10"
-      style={{ fontFamily: "Inter, sans-serif" }}
     >
       <div className="mx-auto w-full max-w-[560px]">{children}</div>
     </main>

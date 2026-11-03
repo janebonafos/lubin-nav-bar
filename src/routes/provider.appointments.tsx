@@ -41,7 +41,6 @@ function ProviderAppointmentsPage() {
   return (
     <div
       className="min-h-screen bg-[#F0EAFB]"
-      style={{ fontFamily: "Inter, sans-serif" }}
     >
       <Navbar />
       <main className="mx-auto max-w-6xl px-4 pb-20 pt-28 sm:px-6 lg:px-8">

@@ -232,7 +232,7 @@ function CheckoutPage() {
   if (search.type === "webinar") {
     const webinar = search.webinarId ? getWebinarById(search.webinarId) : undefined;
     return (
-      <div className="min-h-screen bg-[#F9F8FF]" style={{ fontFamily: "Inter, sans-serif" }}>
+      <div className="min-h-screen bg-[#F9F8FF]">
         <Navbar />
         <main className="mx-auto w-full max-w-5xl px-4 pb-20 pt-24 sm:pt-28">
           <Link
@@ -388,7 +388,7 @@ function CheckoutPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F9F8FF]" style={{ fontFamily: "Inter, sans-serif" }}>
+    <div className="min-h-screen bg-[#F9F8FF]">
       <Navbar />
       <main className="mx-auto w-full max-w-5xl px-4 pb-20 pt-24 sm:pt-28">
         <Link

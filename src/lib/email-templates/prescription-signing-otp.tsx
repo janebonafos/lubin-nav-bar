@@ -54,7 +54,7 @@ export default function PrescriptionSigningOtpEmail({
           backgroundColor: colors.white,
           margin: 0,
           padding: "24px 0",
-          fontFamily: "Helvetica, Arial, sans-serif",
+          fontFamily: "'Plus Jakarta Sans', Arial, sans-serif",
           color: colors.brandNavy,
         }}
       >

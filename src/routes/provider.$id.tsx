@@ -182,7 +182,6 @@ function ProviderProfilePage() {
   return (
     <div
       className="min-h-screen bg-[#F8F9FD]"
-      style={{ fontFamily: "'Plus Jakarta Sans', Inter, sans-serif" }}
     >
       <Navbar />
 

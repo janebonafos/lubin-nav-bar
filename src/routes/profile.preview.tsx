@@ -78,7 +78,7 @@ function ProfilePreviewPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#F9F8FF]" style={{ fontFamily: "Inter, sans-serif" }}>
+    <div className="min-h-screen bg-[#F9F8FF]">
       {/* Preview banner */}
       <div className="sticky top-0 z-20 border-b border-[#E5DEF2] bg-[#3D2E6B] text-white">
         <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-6 py-3">

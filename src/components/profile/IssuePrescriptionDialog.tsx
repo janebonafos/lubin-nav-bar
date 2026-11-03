@@ -3302,7 +3302,7 @@ export default function IssuePrescriptionDialog({
                     </div>
                   </div>
 
-                  <h2 className="text-2xl font-semibold tracking-tight text-[#3D2E6B]" style={{ fontFamily: "'Playfair Display', Georgia, serif" }}>
+                  <h2 className="text-2xl font-semibold tracking-tight text-[#3D2E6B]">
                     Prescription issued
                   </h2>
                   <p className="mt-2 text-[13px] text-[#5B45A0]">

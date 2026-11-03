@@ -98,7 +98,7 @@ function EPrescriptionViewPage() {
   }
 
   return (
-    <main style={{ fontFamily: "Inter, sans-serif" }}>
+    <main>
       <EPrescriptionDocument
         rx={rx}
         country={record?.country ?? country}

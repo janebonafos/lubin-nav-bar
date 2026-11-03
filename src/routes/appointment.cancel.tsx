@@ -83,7 +83,7 @@ function CancelPage() {
     return (
       <div
         className="flex min-h-screen items-center justify-center p-6"
-        style={{ fontFamily: "Inter, sans-serif", backgroundColor: "#F0EAFB" }}
+        style={{ backgroundColor: "#F0EAFB" }}
       >
         <div className="flex w-full max-w-[460px] flex-col items-center">
           <div
@@ -176,7 +176,7 @@ function CancelPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#F9F8FF] py-12" style={{ fontFamily: "Inter, sans-serif" }}>
+    <div className="min-h-screen bg-[#F9F8FF] py-12">
       <main className="mx-auto max-w-2xl px-6">
         <button
           onClick={() => window.close()}
@@ -309,7 +309,7 @@ function Shimmer({ className = "" }: { className?: string }) {
 
 function CancelSkeleton() {
   return (
-    <div className="min-h-screen bg-[#F9F8FF] py-12" style={{ fontFamily: "Inter, sans-serif" }}>
+    <div className="min-h-screen bg-[#F9F8FF] py-12">
       <main className="mx-auto max-w-2xl px-6">
         <Shimmer className="h-4 w-16" />
         <div className="mt-4 space-y-3">

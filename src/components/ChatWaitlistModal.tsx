@@ -57,7 +57,6 @@ export default function ChatWaitlistModal() {
     <div
       className="fixed inset-0 z-[100] flex items-end justify-center bg-brand-navy/30 p-4 backdrop-blur-sm sm:items-center"
       onClick={() => setOpen(false)}
-      style={{ fontFamily: "Inter, sans-serif" }}
     >
       <div
         onClick={(e) => e.stopPropagation()}

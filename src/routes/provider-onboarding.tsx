@@ -417,7 +417,6 @@ function ProviderOnboardingPage() {
   return (
     <div
       className="relative min-h-screen overflow-hidden bg-[#F0EAFB]"
-      style={{ fontFamily: "Inter, sans-serif" }}
     >
       <div className="pointer-events-none fixed -top-[10%] -right-[10%] -z-0 h-[600px] w-[600px] rounded-full bg-[#7E6BAF]/20 blur-[120px]" />
       <div className="pointer-events-none fixed -bottom-[10%] -left-[10%] -z-0 h-[600px] w-[600px] rounded-full bg-[#A89BD0]/30 blur-[120px]" />
