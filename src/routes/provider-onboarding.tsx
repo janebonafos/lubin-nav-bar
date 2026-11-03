@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { ArrowRight, ShieldCheck, Sparkles, Linkedin, Loader2, RefreshCw, Check, ChevronUp, ChevronDown, Calendar as CalendarIcon, Clock, Plus, X, Globe, Mail, Facebook, UserPlus } from "lucide-react";
+import { ArrowRight, ShieldCheck, Sparkles, Linkedin, Loader2, RefreshCw, Check, ChevronUp, ChevronDown, Calendar as CalendarIcon, Clock, Plus, X, Globe, Mail, Facebook, UserPlus, Search } from "lucide-react";
 import Navbar from "@/components/Navbar";
 
 export const Route = createFileRoute("/provider-onboarding")({
@@ -284,15 +284,41 @@ function ProviderOnboardingPage() {
     };
     if (!specialty) return "1:1 Session";
     if (specialty === "doctor") {
-      const byDoctorType: Record<DoctorType, string> = {
+      const byDoctorType: Partial<Record<DoctorType, string>> = {
         gp: "General Practice Consultation",
-        pediatrician: "Pediatric Consultation",
-        neurologist: "Neurology Consultation",
+        family_med: "Family Medicine Consultation",
         internal: "Internal Medicine Consultation",
+        pediatrician: "Pediatric Consultation",
         obgyn: "OB-GYN Consultation",
+        dermatologist: "Dermatology Consultation",
+        cardiologist: "Cardiology Consultation",
+        neurologist: "Neurology Consultation",
+        endocrinologist: "Endocrinology Consultation",
+        gastroenterologist: "Gastroenterology Consultation",
+        pulmonologist: "Pulmonology Consultation",
+        nephrologist: "Nephrology Consultation",
+        urologist: "Urology Consultation",
+        orthopedic: "Orthopedic Consultation",
+        rheumatologist: "Rheumatology Consultation",
+        ophthalmologist: "Ophthalmology Consultation",
+        ent: "ENT Consultation",
+        oncologist: "Oncology Consultation",
+        hematologist: "Hematology Consultation",
+        infectious: "Infectious Disease Consultation",
+        allergy: "Allergy & Immunology Consultation",
+        geriatrician: "Geriatrics Consultation",
+        sports_med: "Sports Medicine Consultation",
+        emergency: "Emergency Medicine Consultation",
+        surgeon: "Surgical Consultation",
+        anesthesiologist: "Anesthesiology Consultation",
+        radiologist: "Radiology Consultation",
+        pathologist: "Pathology Consultation",
+        rehab: "Rehabilitation Medicine Consultation",
+        sleep_med: "Sleep Medicine Consultation",
+        pain_med: "Pain Medicine Consultation",
         other: "Medical Consultation",
       };
-      return doctorType ? byDoctorType[doctorType] : "Medical Consultation";
+      return (doctorType && byDoctorType[doctorType]) || "Medical Consultation";
     }
     return map[specialty];
   })();
@@ -538,10 +564,13 @@ function ProviderOnboardingPage() {
                     label="What type of doctor are you?"
                     hint="This is what clients see when they look for you."
                   >
-                    <PillGrid
-                      options={DOCTOR_TYPES}
+                    <DoctorTypePicker
                       value={doctorType}
-                      onChange={(v) => setDoctorType(v as DoctorType)}
+                      onChange={setDoctorType}
+                      onOther={(text) => {
+                        setDoctorType("other");
+                        if (text) setDoctorTypeOther(text);
+                      }}
                     />
                     {doctorType === "other" && (
                       <div className="pt-3">
