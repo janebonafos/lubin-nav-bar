@@ -336,6 +336,8 @@ function ProviderOnboardingPage() {
     setFullName("");
     setHeadline("");
     setBio("");
+    setDoctorType(null);
+    setDoctorTypeOther("");
     setLinkedInImported(false);
     const t = setTimeout(() => {
       if (signupSource === "linkedin") {
@@ -372,7 +374,7 @@ function ProviderOnboardingPage() {
         instruction: opts.instruction,
         context: {
           fullName,
-          specialty: specialty ?? undefined,
+          specialty: professionLabel,
           focus: focusAreas[0],
         },
       }),
@@ -386,7 +388,11 @@ function ProviderOnboardingPage() {
 
   const canNext =
     step === 0
-      ? fullName.trim().length > 1 && specialty !== null
+      ? fullName.trim().length > 1 &&
+        specialty !== null &&
+        (specialty !== "doctor" ||
+          (doctorType !== null &&
+            (doctorType !== "other" || doctorTypeOther.trim().length > 1)))
       : step === 1
       ? focusAreas.length > 0 && yearsBand !== null
       : step === 2
@@ -504,6 +510,29 @@ function ProviderOnboardingPage() {
                     onChange={(v) => setSpecialty(v as Specialty)}
                   />
                 </Field>
+
+                {specialty === "doctor" && (
+                  <Field
+                    label="What type of doctor are you?"
+                    hint="This is what clients see when they look for you."
+                  >
+                    <PillGrid
+                      options={DOCTOR_TYPES}
+                      value={doctorType}
+                      onChange={(v) => setDoctorType(v as DoctorType)}
+                    />
+                    {doctorType === "other" && (
+                      <div className="pt-3">
+                        <TextField
+                          label="Which type of doctor?"
+                          value={doctorTypeOther}
+                          onChange={setDoctorTypeOther}
+                          placeholder="e.g. Sports medicine physician"
+                        />
+                      </div>
+                    )}
+                  </Field>
+                )}
 
                 <div className="space-y-2.5">
                   <TextField
