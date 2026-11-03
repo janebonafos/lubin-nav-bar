@@ -1667,8 +1667,7 @@ function DoctorTypePicker({
             : "border-[#E3DBF5]/70 hover:border-[#A89BD0]"
         }`}
       >
-        <span className="flex min-w-0 items-center gap-3">
-          <Stethoscope className="h-4 w-4 shrink-0 text-[#A89BD0]" />
+        <span className="flex min-w-0 items-center">
           {shown ? (
             <span className="truncate text-[15px] font-medium text-[#3D2E6B]">
               {shown}
