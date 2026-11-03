@@ -567,6 +567,7 @@ function ProviderOnboardingPage() {
                     <DoctorTypePicker
                       value={doctorType}
                       onChange={setDoctorType}
+                      otherLabel={doctorTypeOther}
                       onOther={(text) => {
                         setDoctorType("other");
                         if (text) setDoctorTypeOther(text);
