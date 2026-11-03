@@ -42,22 +42,45 @@ const SPECIALTIES: { id: Specialty; label: string }[] = [
 ];
 
 // Asked only when the provider picks "Doctor" above.
-type DoctorType =
-  | "gp"
-  | "pediatrician"
-  | "neurologist"
-  | "internal"
-  | "obgyn"
-  | "other";
+// `keywords` are plain-language words people actually type when searching
+// ("skin", "heart", "kids"), so the search box finds a type even when the
+// official name is different.
+const DOCTOR_TYPES = [
+  { id: "gp", label: "General practitioner", keywords: "gp family doctor primary care general practice clinic" },
+  { id: "family_med", label: "Family medicine", keywords: "family doctor household primary care" },
+  { id: "internal", label: "Internal medicine", keywords: "internist adult medicine grown-ups" },
+  { id: "pediatrician", label: "Pediatrician", keywords: "kids children baby infant teen newborn" },
+  { id: "obgyn", label: "OB-GYN", keywords: "ob gyn pregnancy women pregnancy maternity reproductive" },
+  { id: "dermatologist", label: "Dermatologist", keywords: "skin acne eczema hair nails mole" },
+  { id: "cardiologist", label: "Cardiologist", keywords: "heart blood pressure cardiac chest" },
+  { id: "neurologist", label: "Neurologist", keywords: "brain nerves headache migraine seizure stroke" },
+  { id: "endocrinologist", label: "Endocrinologist", keywords: "hormones diabetes thyroid gland insulin" },
+  { id: "gastroenterologist", label: "Gastroenterologist", keywords: "stomach gut digestion liver intestines reflux" },
+  { id: "pulmonologist", label: "Pulmonologist", keywords: "lungs breathing asthma copd cough" },
+  { id: "nephrologist", label: "Nephrologist", keywords: "kidney dialysis urine renal" },
+  { id: "urologist", label: "Urologist", keywords: "urinary bladder prostate men" },
+  { id: "orthopedic", label: "Orthopedic doctor", keywords: "bones joints fracture spine knee back sports injury" },
+  { id: "rheumatologist", label: "Rheumatologist", keywords: "arthritis joints autoimmune lupus gout" },
+  { id: "ophthalmologist", label: "Ophthalmologist", keywords: "eye vision eyesight glaucoma glasses" },
+  { id: "ent", label: "ENT specialist", keywords: "ears nose throat hearing sinus tonsils" },
+  { id: "oncologist", label: "Oncologist", keywords: "cancer tumour chemotherapy oncology" },
+  { id: "hematologist", label: "Hematologist", keywords: "blood anemia clotting platelets" },
+  { id: "infectious", label: "Infectious disease doctor", keywords: "infection fever virus tb hiv antibiotics" },
+  { id: "allergy", label: "Allergy & immunology", keywords: "allergies immune asthma hives reaction" },
+  { id: "geriatrician", label: "Geriatrician", keywords: "elderly seniors older adults aging" },
+  { id: "sports_med", label: "Sports medicine", keywords: "athletes exercise injury running fitness" },
+  { id: "emergency", label: "Emergency medicine", keywords: "er urgent accident acute" },
+  { id: "surgeon", label: "Surgeon", keywords: "surgery operating theatre operation" },
+  { id: "anesthesiologist", label: "Anesthesiologist", keywords: "anesthesia pain sedation numb" },
+  { id: "radiologist", label: "Radiologist", keywords: "xray mri ultrasound imaging scan" },
+  { id: "pathologist", label: "Pathologist", keywords: "lab laboratory tests biopsy samples" },
+  { id: "rehab", label: "Rehabilitation medicine", keywords: "physiotherapy recovery physical therapy stroke" },
+  { id: "sleep_med", label: "Sleep medicine", keywords: "snoring insomnia apnea sleep" },
+  { id: "psychiatric_nurse"? as never,
+  { id: "other", label: "Other", keywords: "not listed something else" },
+] as const;
 
-const DOCTOR_TYPES: { id: DoctorType; label: string }[] = [
-  { id: "gp", label: "General practitioner" },
-  { id: "pediatrician", label: "Pediatrician" },
-  { id: "neurologist", label: "Neurologist" },
-  { id: "internal", label: "Internal medicine" },
-  { id: "obgyn", label: "OB-GYN" },
-  { id: "other", label: "Other" },
-];
+type DoctorType = (typeof DOCTOR_TYPES)[number]["id"];
 
 const STEPS = ["Registration", "Profile Customization", "Calendar & Sessions", "Review"] as const;
 
