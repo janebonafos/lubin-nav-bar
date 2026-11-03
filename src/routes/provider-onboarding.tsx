@@ -1588,19 +1588,26 @@ function PillGrid<T extends string>({
   );
 }
 
-// Searchable list of doctor types: type a word ("skin", "heart", "kids") and
-// the list narrows. "Other" stays pinned at the bottom so anything missing is
-// still one tap away.
+// Compact searchable selector for the doctor's type: one tidy field that
+// opens a list with the search box inside it, so the page stays short.
 function DoctorTypePicker({
   value,
   onChange,
   onOther,
+  otherLabel,
 }: {
   value: DoctorType | null;
   onChange: (v: DoctorType) => void;
   onOther: (text?: string) => void;
+  otherLabel?: string;
 }) {
+  const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const [active, setActive] = useState(0);
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
+
   const q = query.trim().toLowerCase();
   const choices = DOCTOR_TYPES.filter((d) => d.id !== "other");
   const matches = q
@@ -1611,125 +1618,225 @@ function DoctorTypePicker({
       )
     : choices;
   const selected = DOCTOR_TYPES.find((d) => d.id === value);
+  const shown =
+    selected && selected.id === "other" && otherLabel?.trim()
+      ? otherLabel.trim()
+      : selected?.label;
+
+  // Clicking anywhere outside the field closes the list.
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: PointerEvent) => {
+      if (!wrapRef.current?.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("pointerdown", onDown);
+    return () => document.removeEventListener("pointerdown", onDown);
+  }, [open]);
+
+  // Keep the highlighted row in view while using the arrow keys.
+  useEffect(() => {
+    const hot = listRef.current?.querySelector<HTMLElement>(
+      "[data-active='true']",
+    );
+    if (hot) hot.scrollIntoView({ block: "nearest" });
+  }, [active, query, open]);
+
+  const openPanel = () => {
+    setQuery("");
+    setActive(0);
+    setOpen(true);
+    requestAnimationFrame(() => searchRef.current?.focus());
+  };
+
+  const pick = (id: DoctorType) => {
+    onChange(id);
+    setOpen(false);
+  };
 
   return (
-    <div className="space-y-3">
-      <div className="relative">
-        <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#A89BD0]" />
-        <input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key !== "Enter") return;
-            e.preventDefault();
-            const first = matches[0];
-            if (first) onChange(first.id);
-          }}
-          placeholder={'Search a type — try "skin", "heart", "kids"'}
-          aria-label="Search type of doctor"
-          className="w-full rounded-xl border border-[#E3DBF5]/70 bg-white/60 py-3.5 pl-11 pr-11 text-[15px] text-[#3D2E6B] outline-none transition-all placeholder:text-[#A89BD0] focus:border-[#7E6BAF] focus:ring-2 focus:ring-[#7E6BAF]/20"
+    <div className="relative" ref={wrapRef}>
+      <button
+        type="button"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        onClick={() => (open ? setOpen(false) : openPanel())}
+        className={`flex w-full items-center justify-between gap-3 rounded-xl border bg-white/70 px-5 py-4 text-left transition-all ${
+          open
+            ? "border-[#7E6BAF] ring-2 ring-[#7E6BAF]/20"
+            : "border-[#E3DBF5]/70 hover:border-[#A89BD0]"
+        }`}
+      >
+        <span className="flex min-w-0 items-center gap-3">
+          <Stethoscope className="h-4 w-4 shrink-0 text-[#A89BD0]" />
+          {shown ? (
+            <span className="truncate text-[15px] font-medium text-[#3D2E6B]">
+              {shown}
+            </span>
+          ) : (
+            <span className="truncate text-[15px] text-[#A89BD0]">
+              Select your type of doctor
+            </span>
+          )}
+        </span>
+        <ChevronDown
+          className={`h-4 w-4 shrink-0 text-[#7E6BAF] transition-transform ${
+            open ? "rotate-180" : ""
+          }`}
         />
-        {query && (
-          <button
-            type="button"
-            onClick={() => setQuery("")}
-            aria-label="Clear search"
-            className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1.5 text-[#A89BD0] transition hover:bg-[#EAE7F5] hover:text-[#3D2E6B]"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        )}
-      </div>
+      </button>
 
-      <div className="max-h-[290px] overflow-y-auto rounded-2xl border border-[#E3DBF5]/60 bg-[#FBF9FF]/80 p-2">
-        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-          {matches.map((d) => {
-            const active = value === d.id;
-            return (
+      {open && (
+        <div
+          role="listbox"
+          className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-2xl border border-[#F0EAFB] bg-white shadow-[0_20px_40px_-12px_rgba(126,107,175,0.35)]"
+        >
+          <div className="border-b border-[#F0EAFB] p-2">
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#A89BD0]" />
+              <input
+                ref={searchRef}
+                value={query}
+                onChange={(e) => {
+                  setQuery(e.target.value);
+                  setActive(0);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Escape") {
+                    setOpen(false);
+                    return;
+                  }
+                  if (e.key === "ArrowDown") {
+                    e.preventDefault();
+                    setActive((i) =>
+                      Math.min(i + 1, Math.max(matches.length - 1, 0)),
+                    );
+                    return;
+                  }
+                  if (e.key === "ArrowUp") {
+                    e.preventDefault();
+                    setActive((i) => Math.max(i - 1, 0));
+                    return;
+                  }
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    const hot = matches[active];
+                    if (hot) pick(hot.id);
+                  }
+                }}
+                placeholder={'Search — try "skin", "heart", "kids"'}
+                aria-label="Search type of doctor"
+                className="w-full rounded-xl border border-[#E3DBF5]/70 bg-[#FBF9FF]/70 py-3 pl-10 pr-9 text-[14px] text-[#3D2E6B] outline-none transition-all placeholder:text-[#A89BD0] focus:border-[#7E6BAF] focus:ring-2 focus:ring-[#7E6BAF]/15"
+              />
+              {query && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setQuery("");
+                    setActive(0);
+                    searchRef.current?.focus();
+                  }}
+                  aria-label="Clear search"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-full p-1 text-[#A89BD0] transition hover:bg-[#EAE7F5] hover:text-[#3D2E6B]"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div
+            ref={listRef}
+            className="max-h-64 overflow-y-auto p-1.5"
+            style={{
+              scrollbarWidth: "thin",
+              scrollbarColor: "#D6CBED transparent",
+            }}
+          >
+            {matches.map((d, i) => {
+              const isSelected = value === d.id;
+              const isHot = i === active;
+              return (
+                <button
+                  key={d.id}
+                  type="button"
+                  role="option"
+                  aria-selected={isSelected}
+                  data-active={isHot}
+                  onMouseDown={(e) => e.preventDefault()}
+                  onMouseEnter={() => setActive(i)}
+                  onClick={() => pick(d.id)}
+                  className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-[14px] transition-colors ${
+                    isSelected
+                      ? "bg-[#7E6BAF] font-medium text-white"
+                      : isHot
+                        ? "bg-[#F0EAFB] text-[#3D2E6B]"
+                        : "text-[#3D2E6B] hover:bg-[#F7F3FE]"
+                  }`}
+                >
+                  <Check
+                    className={`h-3.5 w-3.5 shrink-0 ${
+                      isSelected ? "opacity-100" : "opacity-0"
+                    }`}
+                  />
+                  <span className="truncate">{d.label}</span>
+                </button>
+              );
+            })}
+
+            {matches.length === 0 && (
+              <div className="px-3 py-6 text-center">
+                <p className="text-[13px] text-[#73689D]">
+                  No type matches &ldquo;{query.trim()}&rdquo;.
+                </p>
+                <button
+                  type="button"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => {
+                    onOther(query.trim());
+                    setOpen(false);
+                  }}
+                  className="mt-2.5 inline-flex items-center gap-1.5 rounded-lg bg-[#3D2E6B] px-3.5 py-2 text-[12.5px] font-semibold text-white transition hover:bg-[#2A1F4D]"
+                >
+                  <Plus className="h-3.5 w-3.5" />
+                  Add &ldquo;{query.trim()}&rdquo; as my type
+                </button>
+              </div>
+            )}
+
+            <div className="mt-1 border-t border-[#F0EAFB] pt-1">
               <button
-                key={d.id}
                 type="button"
-                onClick={() => onChange(d.id)}
-                className={`group flex items-center gap-3 rounded-xl border px-3.5 py-3 text-left transition-all ${
-                  active
-                    ? "border-[#7E6BAF] bg-[#7E6BAF] hover:border-brand-purple-deep hover:bg-brand-purple-deep"
-                    : "border-[#E3DBF5]/60 bg-white/80 hover:border-[#A89BD0]"
+                role="option"
+                aria-selected={value === "other"}
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => {
+                  onOther();
+                  setOpen(false);
+                }}
+                className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-[14px] transition-colors ${
+                  value === "other"
+                    ? "bg-[#7E6BAF] font-medium text-white"
+                    : "text-[#3D2E6B] hover:bg-[#F7F3FE]"
                 }`}
               >
-                <span
-                  className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition-colors ${
-                    active
-                      ? "border-white bg-white"
-                      : "border-[#E3DBF5] group-hover:border-[#A89BD0]"
+                <Check
+                  className={`h-3.5 w-3.5 shrink-0 ${
+                    value === "other" ? "opacity-100" : "opacity-0"
                   }`}
-                >
-                  {active && <Check className="h-3 w-3 text-[#7E6BAF]" />}
-                </span>
-                <span
-                  className={`truncate text-sm font-medium ${
-                    active ? "text-white" : "text-[#3D2E6B]"
-                  }`}
-                >
-                  {d.label}
-                </span>
+                />
+                <span className="truncate">Other — not in the list</span>
               </button>
-            );
-          })}
-        </div>
-
-        {matches.length === 0 && (
-          <div className="px-3 py-6 text-center">
-            <p className="text-sm text-[#73689D]">
-              No type matches &ldquo;{query.trim()}&rdquo;.
-            </p>
-            <button
-              type="button"
-              onClick={() => onOther(query.trim())}
-              className="mt-2.5 inline-flex items-center gap-1.5 rounded-lg bg-[#3D2E6B] px-3.5 py-2 text-[12.5px] font-semibold text-white transition hover:bg-[#2A1F4D]"
-            >
-              <Plus className="h-3.5 w-3.5" />
-              Add &ldquo;{query.trim()}&rdquo; as my type
-            </button>
+            </div>
           </div>
-        )}
 
-        <div className="mt-2 border-t border-[#E3DBF5]/70 pt-2">
-          <button
-            type="button"
-            onClick={() => onOther()}
-            className={`group flex w-full items-center gap-3 rounded-xl border px-3.5 py-3 text-left transition-all ${
-              value === "other"
-                ? "border-[#7E6BAF] bg-[#7E6BAF] hover:border-brand-purple-deep hover:bg-brand-purple-deep"
-                : "border-dashed border-[#E3DBF5] hover:border-[#A89BD0]"
-            }`}
-          >
-            <span
-              className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition-colors ${
-                value === "other"
-                  ? "border-white bg-white"
-                  : "border-[#E3DBF5] group-hover:border-[#A89BD0]"
-              }`}
-            >
-              {value === "other" && (
-                <Check className="h-3 w-3 text-[#7E6BAF]" />
-              )}
-            </span>
-            <span
-              className={`text-sm font-medium ${
-                value === "other" ? "text-white" : "text-[#3D2E6B]"
-              }`}
-            >
-              Other — not in the list
-            </span>
-          </button>
+          <p className="border-t border-[#F0EAFB] px-4 py-2 text-[11.5px] text-[#958DAE]">
+            {matches.length} of {choices.length} types
+            {matches.length === 0
+              ? " — pick “Other” and type yours"
+              : ""}
+          </p>
         </div>
-      </div>
-
-      <p className="text-[12px] text-[#958DAE]">
-        {value && selected
-          ? `Selected: ${selected.label}.`
-          : `${choices.length} types to pick from — search or scroll the list.`}
-      </p>
+      )}
     </div>
   );
 }
