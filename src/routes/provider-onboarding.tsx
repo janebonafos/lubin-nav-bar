@@ -28,6 +28,7 @@ type Specialty =
   | "coach"
   | "psychiatrist"
   | "counselor"
+  | "doctor"
   | "other";
 
 const SPECIALTIES: { id: Specialty; label: string }[] = [
@@ -35,7 +36,26 @@ const SPECIALTIES: { id: Specialty; label: string }[] = [
   { id: "psychologist", label: "Psychologist" },
   { id: "counselor", label: "Counselor" },
   { id: "psychiatrist", label: "Psychiatrist" },
+  { id: "doctor", label: "Doctor" },
   { id: "coach", label: "Wellness coach" },
+  { id: "other", label: "Other" },
+];
+
+// Asked only when the provider picks "Doctor" above.
+type DoctorType =
+  | "gp"
+  | "pediatrician"
+  | "neurologist"
+  | "internal"
+  | "obgyn"
+  | "other";
+
+const DOCTOR_TYPES: { id: DoctorType; label: string }[] = [
+  { id: "gp", label: "General practitioner" },
+  { id: "pediatrician", label: "Pediatrician" },
+  { id: "neurologist", label: "Neurologist" },
+  { id: "internal", label: "Internal medicine" },
+  { id: "obgyn", label: "OB-GYN" },
   { id: "other", label: "Other" },
 ];
 
@@ -185,6 +205,8 @@ function ProviderOnboardingPage() {
   const [headline, setHeadline] = useState("");
   const [bio, setBio] = useState("");
   const [specialty, setSpecialty] = useState<Specialty | null>(null);
+  const [doctorType, setDoctorType] = useState<DoctorType | null>(null);
+  const [doctorTypeOther, setDoctorTypeOther] = useState("");
   const [focusAreas, setFocusAreas] = useState<FocusArea[]>([]);
   const [yearsBand, setYearsBand] = useState<string | null>(null);
   const [sessionTypes, setSessionTypes] = useState<{ video: boolean; inPerson: boolean }>({
@@ -233,10 +255,35 @@ function ProviderOnboardingPage() {
       psychologist: "Clinical Psychology Session",
       counselor: "Counseling Session",
       psychiatrist: "Psychiatry Consultation",
+      doctor: "Medical Consultation",
       coach: "Coaching Session",
       other: "1:1 Session",
     };
-    return specialty ? map[specialty] : "1:1 Session";
+    if (!specialty) return "1:1 Session";
+    if (specialty === "doctor") {
+      const byDoctorType: Record<DoctorType, string> = {
+        gp: "General Practice Consultation",
+        pediatrician: "Pediatric Consultation",
+        neurologist: "Neurology Consultation",
+        internal: "Internal Medicine Consultation",
+        obgyn: "OB-GYN Consultation",
+        other: "Medical Consultation",
+      };
+      return doctorType ? byDoctorType[doctorType] : "Medical Consultation";
+    }
+    return map[specialty];
+  })();
+
+  // How the profession reads everywhere it's shown or sent to the AI helper.
+  const professionLabel = (() => {
+    if (!specialty) return undefined;
+    const base = SPECIALTIES.find((s) => s.id === specialty)?.label;
+    if (specialty !== "doctor") return base;
+    const type =
+      doctorType === "other"
+        ? doctorTypeOther.trim()
+        : DOCTOR_TYPES.find((d) => d.id === doctorType)?.label;
+    return type ? `${base} · ${type}` : base;
   })();
 
   useEffect(() => {
