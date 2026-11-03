@@ -1528,52 +1528,271 @@ function Field({
   );
 }
 
-function PillGridMulti<T extends string>({
+function FocusAreasPicker({
   options,
   value,
   onChange,
 }: {
-  options: { id: T; label: string }[];
-  value: T[];
-  onChange: (v: T[]) => void;
+  options: string[];
+  value: string[];
+  onChange: (v: string[]) => void;
 }) {
-  const toggle = (id: T) => {
-    onChange(value.includes(id) ? value.filter((v) => v !== id) : [...value, id]);
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const [active, setActive] = useState(0);
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
+
+  const q = query.trim().toLowerCase();
+  const matches = q
+    ? options.filter((o) => o.toLowerCase().includes(q))
+    : options;
+  // A word that isn't already in the list can be added as a custom area.
+  const canAdd = q.length > 0 && !options.some((o) => o.toLowerCase() === q);
+
+  // Clicking anywhere outside the field closes the list.
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: PointerEvent) => {
+      if (!wrapRef.current?.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("pointerdown", onDown);
+    return () => document.removeEventListener("pointerdown", onDown);
+  }, [open]);
+
+  // Keep the highlighted row in view while using the arrow keys.
+  useEffect(() => {
+    const hot = listRef.current?.querySelector<HTMLElement>(
+      "[data-active='true']",
+    );
+    if (hot) hot.scrollIntoView({ block: "nearest" });
+  }, [active, query, open]);
+
+  const openPanel = () => {
+    setQuery("");
+    setActive(0);
+    setOpen(true);
+    requestAnimationFrame(() => searchRef.current?.focus());
   };
+
+  const toggle = (label: string) => {
+    onChange(
+      value.includes(label)
+        ? value.filter((v) => v !== label)
+        : [...value, label],
+    );
+  };
+
+  const addCustom = (label: string) => {
+    const trimmed = label.trim();
+    if (!trimmed) return;
+    if (
+      !value.includes(trimmed) &&
+      !options.some((o) => o.toLowerCase() === trimmed.toLowerCase())
+    ) {
+      onChange([...value, trimmed]);
+    }
+    setQuery("");
+    setActive(0);
+    searchRef.current?.focus();
+  };
+
+  const summary =
+    value.length === 0
+      ? ""
+      : value.length <= 2
+        ? value.join(", ")
+        : `${value[0]} +${value.length - 1} more`;
+
   return (
-    <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
-      {options.map((o) => {
-        const active = value.includes(o.id);
-        return (
-          <button
-            key={o.id}
-            type="button"
-            onClick={() => toggle(o.id)}
-            className={`group flex items-center space-x-3 rounded-xl border p-3.5 text-left transition-all ${
-              active
-                ? "border-[#7E6BAF] bg-[#7E6BAF] text-white"
-                : "border-[#E3DBF5]/60 bg-[#FBF9FF]/90 hover:border-[#A89BD0]"
+    <div>
+      <div className="relative" ref={wrapRef}>
+        <button
+          type="button"
+          aria-haspopup="listbox"
+          aria-expanded={open}
+          onClick={() => (open ? setOpen(false) : openPanel())}
+          className={`flex w-full items-center justify-between gap-3 rounded-xl border bg-white/70 px-5 py-4 text-left transition-all ${
+            open
+              ? "border-[#7E6BAF] ring-2 ring-[#7E6BAF]/20"
+              : "border-[#E3DBF5]/70 hover:border-[#A89BD0]"
+          }`}
+        >
+          <span className="min-w-0 truncate text-[15px] font-medium text-[#3D2E6B]">
+            {summary || (
+              <span className="font-normal text-[#A89BD0]">
+                Choose your focus areas
+              </span>
+            )}
+          </span>
+          <ChevronDown
+            className={`h-4 w-4 shrink-0 text-[#7E6BAF] transition-transform ${
+              open ? "rotate-180" : ""
             }`}
+          />
+        </button>
+
+        {open && (
+          <div
+            role="listbox"
+            className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-2xl border border-[#F0EAFB] bg-white shadow-[0_20px_40px_-12px_rgba(126,107,175,0.35)]"
           >
-            <span
-              className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-md border transition-colors ${
-                active
-                  ? "border-white bg-white text-[#7E6BAF]"
-                  : "border-[#D6CCEB] bg-white group-hover:border-[#A89BD0]"
-              }`}
+            <div className="border-b border-[#F0EAFB] p-2">
+              <div className="relative">
+                <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#A89BD0]" />
+                <input
+                  ref={searchRef}
+                  value={query}
+                  onChange={(e) => {
+                    setQuery(e.target.value);
+                    setActive(0);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Escape") {
+                      setOpen(false);
+                      return;
+                    }
+                    if (e.key === "ArrowDown") {
+                      e.preventDefault();
+                      setActive((i) =>
+                        Math.min(i + 1, Math.max(matches.length - 1, 0)),
+                      );
+                      return;
+                    }
+                    if (e.key === "ArrowUp") {
+                      e.preventDefault();
+                      setActive((i) => Math.max(i - 1, 0));
+                      return;
+                    }
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      const hot = matches[active];
+                      if (hot) toggle(hot);
+                      else if (canAdd) addCustom(query.trim());
+                    }
+                  }}
+                  placeholder='Search — try "anxiety", "kids", "sleep"'
+                  aria-label="Search focus areas"
+                  className="w-full rounded-xl border border-[#E3DBF5]/70 bg-[#FBF9FF]/70 py-3 pl-10 pr-9 text-[14px] text-[#3D2E6B] outline-none transition-all placeholder:text-[#A89BD0] focus:border-[#7E6BAF] focus:ring-2 focus:ring-[#7E6BAF]/15"
+                />
+                {query && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setQuery("");
+                      setActive(0);
+                      searchRef.current?.focus();
+                    }}
+                    aria-label="Clear search"
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 rounded-full p-1 text-[#A89BD0] transition hover:bg-[#EAE7F5] hover:text-[#3D2E6B]"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div
+              ref={listRef}
+              className="max-h-64 overflow-y-auto p-1.5"
+              style={{
+                scrollbarWidth: "thin",
+                scrollbarColor: "#D6CBED transparent",
+              }}
             >
-              {active && <Check className="h-3 w-3" strokeWidth={3} />}
-            </span>
+              {matches.map((label, i) => {
+                const isSelected = value.includes(label);
+                const isHot = i === active;
+                return (
+                  <button
+                    key={label}
+                    type="button"
+                    role="option"
+                    aria-selected={isSelected}
+                    data-active={isHot}
+                    onMouseDown={(e) => e.preventDefault()}
+                    onMouseEnter={() => setActive(i)}
+                    onClick={() => toggle(label)}
+                    className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-[14px] transition-colors ${
+                      isSelected
+                        ? "bg-[#7E6BAF] font-medium text-white"
+                        : isHot
+                          ? "bg-[#F0EAFB] text-[#3D2E6B]"
+                          : "text-[#3D2E6B] hover:bg-[#F7F3FE]"
+                    }`}
+                  >
+                    <span
+                      className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-md border transition-colors ${
+                        isSelected
+                          ? "border-white bg-white text-[#7E6BAF]"
+                          : "border-[#D6CCEB] bg-white"
+                      }`}
+                    >
+                      <Check
+                        className={`h-3 w-3 ${isSelected ? "opacity-100" : "opacity-0"}`}
+                        strokeWidth={3}
+                      />
+                    </span>
+                    <span className="truncate">{label}</span>
+                  </button>
+                );
+              })}
+
+              {matches.length === 0 && (
+                <p className="px-3 py-4 text-center text-[13px] text-[#73689D]">
+                  No focus area matches &ldquo;{query.trim()}&rdquo;.
+                </p>
+              )}
+            </div>
+
+            {canAdd && (
+              <div className="border-t border-[#F0EAFB] p-2">
+                <button
+                  type="button"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => addCustom(query.trim())}
+                  className="flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-left text-[13.5px] font-semibold text-[#3D2E6B] transition hover:bg-[#F7F3FE]"
+                >
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#3D2E6B] text-white">
+                    <Plus className="h-3 w-3" />
+                  </span>
+                  Add &ldquo;{query.trim()}&rdquo; as my focus area
+                </button>
+              </div>
+            )}
+
+            <p className="border-t border-[#F0EAFB] px-4 py-2 text-[11.5px] text-[#958DAE]">
+              {matches.length} of {options.length} areas
+              {value.length > 0 ? ` · ${value.length} selected` : ""}
+              {!canAdd && matches.length < options.length
+                ? " — add your own by typing it above"
+                : ""}
+            </p>
+          </div>
+        )}
+      </div>
+
+      {value.length > 0 && (
+        <div className="mt-3 flex flex-wrap gap-2">
+          {value.map((label) => (
             <span
-              className={`truncate text-sm font-medium ${
-                active ? "text-white" : "text-[#3D2E6B]"
-              }`}
+              key={label}
+              className="inline-flex items-center gap-1.5 rounded-full border border-[#7E6BAF]/30 bg-[#F4EEFB] py-1.5 pl-3.5 pr-2 text-[13px] font-medium text-[#3D2E6B]"
             >
-              {o.label}
+              {label}
+              <button
+                type="button"
+                onClick={() => toggle(label)}
+                aria-label={`Remove ${label}`}
+                className="rounded-full p-0.5 text-[#7E6BAF] transition hover:bg-[#E3D9F5] hover:text-[#2A1F4D]"
+              >
+                <X className="h-3 w-3" />
+              </button>
             </span>
-          </button>
-        );
-      })}
+          ))}
+        </div>
+      )}
     </div>
   );
 }
