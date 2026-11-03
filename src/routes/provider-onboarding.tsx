@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { ArrowRight, ShieldCheck, Sparkles, Linkedin, Loader2, RefreshCw, Check, ChevronUp, ChevronDown, Calendar as CalendarIcon, Clock, Plus, X, Globe, Mail, Facebook, UserPlus, Search, Stethoscope } from "lucide-react";
+import { ArrowRight, ShieldCheck, Sparkles, Linkedin, Loader2, RefreshCw, Check, ChevronUp, ChevronDown, Calendar as CalendarIcon, Clock, Plus, X, Globe, Mail, Facebook, UserPlus, Search } from "lucide-react";
 import Navbar from "@/components/Navbar";
 
 export const Route = createFileRoute("/provider-onboarding")({
@@ -562,7 +562,7 @@ function ProviderOnboardingPage() {
                 {specialty === "doctor" && (
                   <Field
                     label="What type of doctor are you?"
-                    hint="This is what clients see when they look for you."
+                    hint="Clients see this when they search for a doctor."
                   >
                     <DoctorTypePicker
                       value={doctorType}
@@ -1667,15 +1667,14 @@ function DoctorTypePicker({
             : "border-[#E3DBF5]/70 hover:border-[#A89BD0]"
         }`}
       >
-        <span className="flex min-w-0 items-center gap-3">
-          <Stethoscope className="h-4 w-4 shrink-0 text-[#A89BD0]" />
+        <span className="flex min-w-0 items-center">
           {shown ? (
             <span className="truncate text-[15px] font-medium text-[#3D2E6B]">
               {shown}
             </span>
           ) : (
             <span className="truncate text-[15px] text-[#A89BD0]">
-              Select your type of doctor
+              Choose one
             </span>
           )}
         </span>
