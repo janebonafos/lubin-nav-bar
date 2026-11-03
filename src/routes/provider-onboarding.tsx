@@ -76,7 +76,7 @@ const DOCTOR_TYPES = [
   { id: "pathologist", label: "Pathologist", keywords: "lab laboratory tests biopsy samples" },
   { id: "rehab", label: "Rehabilitation medicine", keywords: "physiotherapy recovery physical therapy stroke" },
   { id: "sleep_med", label: "Sleep medicine", keywords: "snoring insomnia apnea sleep" },
-  { id: "psychiatric_nurse"? as never,
+  { id: "pain_med", label: "Pain medicine", keywords: "chronic pain nerve pain back pain headache" },
   { id: "other", label: "Other", keywords: "not listed something else" },
 ] as const;
 
