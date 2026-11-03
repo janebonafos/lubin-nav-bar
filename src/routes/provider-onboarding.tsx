@@ -1588,6 +1588,152 @@ function PillGrid<T extends string>({
   );
 }
 
+// Searchable list of doctor types: type a word ("skin", "heart", "kids") and
+// the list narrows. "Other" stays pinned at the bottom so anything missing is
+// still one tap away.
+function DoctorTypePicker({
+  value,
+  onChange,
+  onOther,
+}: {
+  value: DoctorType | null;
+  onChange: (v: DoctorType) => void;
+  onOther: (text?: string) => void;
+}) {
+  const [query, setQuery] = useState("");
+  const q = query.trim().toLowerCase();
+  const choices = DOCTOR_TYPES.filter((d) => d.id !== "other");
+  const matches = q
+    ? choices.filter(
+        (d) =>
+          d.label.toLowerCase().includes(q) ||
+          d.keywords.toLowerCase().includes(q),
+      )
+    : choices;
+  const selected = DOCTOR_TYPES.find((d) => d.id === value);
+
+  return (
+    <div className="space-y-3">
+      <div className="relative">
+        <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#A89BD0]" />
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key !== "Enter") return;
+            e.preventDefault();
+            const first = matches[0];
+            if (first) onChange(first.id);
+          }}
+          placeholder={'Search a type — try "skin", "heart", "kids"'}
+          aria-label="Search type of doctor"
+          className="w-full rounded-xl border border-[#E3DBF5]/70 bg-white/60 py-3.5 pl-11 pr-11 text-[15px] text-[#3D2E6B] outline-none transition-all placeholder:text-[#A89BD0] focus:border-[#7E6BAF] focus:ring-2 focus:ring-[#7E6BAF]/20"
+        />
+        {query && (
+          <button
+            type="button"
+            onClick={() => setQuery("")}
+            aria-label="Clear search"
+            className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full p-1.5 text-[#A89BD0] transition hover:bg-[#EAE7F5] hover:text-[#3D2E6B]"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )}
+      </div>
+
+      <div className="max-h-[290px] overflow-y-auto rounded-2xl border border-[#E3DBF5]/60 bg-[#FBF9FF]/80 p-2">
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          {matches.map((d) => {
+            const active = value === d.id;
+            return (
+              <button
+                key={d.id}
+                type="button"
+                onClick={() => onChange(d.id)}
+                className={`group flex items-center gap-3 rounded-xl border px-3.5 py-3 text-left transition-all ${
+                  active
+                    ? "border-[#7E6BAF] bg-[#7E6BAF] hover:border-brand-purple-deep hover:bg-brand-purple-deep"
+                    : "border-[#E3DBF5]/60 bg-white/80 hover:border-[#A89BD0]"
+                }`}
+              >
+                <span
+                  className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition-colors ${
+                    active
+                      ? "border-white bg-white"
+                      : "border-[#E3DBF5] group-hover:border-[#A89BD0]"
+                  }`}
+                >
+                  {active && <Check className="h-3 w-3 text-[#7E6BAF]" />}
+                </span>
+                <span
+                  className={`truncate text-sm font-medium ${
+                    active ? "text-white" : "text-[#3D2E6B]"
+                  }`}
+                >
+                  {d.label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        {matches.length === 0 && (
+          <div className="px-3 py-6 text-center">
+            <p className="text-sm text-[#73689D]">
+              No type matches &ldquo;{query.trim()}&rdquo;.
+            </p>
+            <button
+              type="button"
+              onClick={() => onOther(query.trim())}
+              className="mt-2.5 inline-flex items-center gap-1.5 rounded-lg bg-[#3D2E6B] px-3.5 py-2 text-[12.5px] font-semibold text-white transition hover:bg-[#2A1F4D]"
+            >
+              <Plus className="h-3.5 w-3.5" />
+              Add &ldquo;{query.trim()}&rdquo; as my type
+            </button>
+          </div>
+        )}
+
+        <div className="mt-2 border-t border-[#E3DBF5]/70 pt-2">
+          <button
+            type="button"
+            onClick={() => onOther()}
+            className={`group flex w-full items-center gap-3 rounded-xl border px-3.5 py-3 text-left transition-all ${
+              value === "other"
+                ? "border-[#7E6BAF] bg-[#7E6BAF] hover:border-brand-purple-deep hover:bg-brand-purple-deep"
+                : "border-dashed border-[#E3DBF5] hover:border-[#A89BD0]"
+            }`}
+          >
+            <span
+              className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border transition-colors ${
+                value === "other"
+                  ? "border-white bg-white"
+                  : "border-[#E3DBF5] group-hover:border-[#A89BD0]"
+              }`}
+            >
+              {value === "other" && (
+                <Check className="h-3 w-3 text-[#7E6BAF]" />
+              )}
+            </span>
+            <span
+              className={`text-sm font-medium ${
+                value === "other" ? "text-white" : "text-[#3D2E6B]"
+              }`}
+            >
+              Other — not in the list
+            </span>
+          </button>
+        </div>
+      </div>
+
+      <p className="text-[12px] text-[#958DAE]">
+        {value && selected
+          ? `Selected: ${selected.label}.`
+          : `${choices.length} types to pick from — search or scroll the list.`}
+      </p>
+    </div>
+  );
+}
+
 function TextField({
   label,
   value,
