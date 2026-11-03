@@ -562,7 +562,7 @@ function ProviderOnboardingPage() {
                 {specialty === "doctor" && (
                   <Field
                     label="What type of doctor are you?"
-                    hint="This is what clients see when they look for you."
+                    hint="Clients see this when they search for a doctor."
                   >
                     <DoctorTypePicker
                       value={doctorType}
