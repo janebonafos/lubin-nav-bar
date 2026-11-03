@@ -253,7 +253,8 @@ function ProviderOnboardingPage() {
   const [specialty, setSpecialty] = useState<Specialty | null>(null);
   const [doctorType, setDoctorType] = useState<DoctorType | null>(null);
   const [doctorTypeOther, setDoctorTypeOther] = useState("");
-  const [focusAreas, setFocusAreas] = useState<FocusArea[]>([]);
+  const [focusAreas, setFocusAreas] = useState<string[]>([]);
+  const [customFocusAreas, setCustomFocusAreas] = useState<string[]>([]);
   const [yearsBand, setYearsBand] = useState<string | null>(null);
   const [sessionTypes, setSessionTypes] = useState<{ video: boolean; inPerson: boolean }>({
     video: true,
@@ -689,10 +690,16 @@ function ProviderOnboardingPage() {
               <div className="space-y-8">
                 <Field
                   label="Focus areas"
-                  hint="Select all that apply — we use this to match you with the right clients."
+                  hint="Select all that apply — search the list, or add your own if it's missing."
                 >
-                  <PillGridMulti
-                    options={specialty === "doctor" ? DOCTOR_FOCUS_AREAS : FOCUS_AREAS}
+                  <FocusAreasPicker
+                    options={[
+                      ...(specialty === "doctor"
+                        ? DOCTOR_FOCUS_AREAS
+                        : FOCUS_AREAS
+                      ).map((o) => o.label),
+                      ...customFocusAreas,
+                    ]}
                     value={focusAreas}
                     onChange={setFocusAreas}
                   />
