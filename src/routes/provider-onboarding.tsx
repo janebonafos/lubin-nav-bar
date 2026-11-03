@@ -1674,7 +1674,7 @@ function DoctorTypePicker({
             </span>
           ) : (
             <span className="truncate text-[15px] text-[#A89BD0]">
-              Select your type of doctor
+              Choose one
             </span>
           )}
         </span>
