@@ -93,7 +93,17 @@ type FocusArea =
   | "selfesteem"
   | "grief"
   | "mindfulness"
-  | "sleep";
+  | "sleep"
+  // Doctor-specific focus areas
+  | "checkups"
+  | "chronic"
+  | "heart"
+  | "skin"
+  | "digestive"
+  | "womens"
+  | "kids"
+  | "mental"
+  | "pain";
 
 const FOCUS_AREAS: { id: FocusArea; label: string }[] = [
   { id: "anxiety", label: "Anxiety & Panic" },
@@ -105,6 +115,19 @@ const FOCUS_AREAS: { id: FocusArea; label: string }[] = [
   { id: "grief", label: "Grief & Loss" },
   { id: "mindfulness", label: "Mindfulness" },
   { id: "sleep", label: "Sleep & Rest" },
+];
+
+const DOCTOR_FOCUS_AREAS: { id: FocusArea; label: string }[] = [
+  { id: "checkups", label: "Check-ups & prevention" },
+  { id: "chronic", label: "Chronic conditions" },
+  { id: "heart", label: "Heart & blood pressure" },
+  { id: "skin", label: "Skin & allergies" },
+  { id: "digestive", label: "Digestive & gut health" },
+  { id: "womens", label: "Women's health" },
+  { id: "kids", label: "Child & family health" },
+  { id: "mental", label: "Mental health & mood" },
+  { id: "pain", label: "Pain & injury" },
+  { id: "sleep", label: "Sleep & fatigue" },
 ];
 
 const YEARS_BANDS: { id: string; label: string }[] = [
