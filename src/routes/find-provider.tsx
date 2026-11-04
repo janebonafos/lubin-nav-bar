@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Search, MapPin, Star, BadgeCheck, Globe, Send, Sparkles, X, ExternalLink, Navigation, Hash, Building2, User, CalendarDays, Clock, Languages, ShieldCheck, Zap } from "lucide-react";
+import { Search, MapPin, Star, BadgeCheck, Globe, Send, Sparkles, X, ExternalLink, Navigation, Hash, Building2, User, CalendarDays, Clock, Languages, ShieldCheck, Zap, Check } from "lucide-react";
 import Navbar from "@/components/Navbar";
-import { PROVIDERS, type Provider } from "@/lib/providers";
+import { PROVIDERS, DOCTOR_SPECIALTIES, type DoctorSpecialtyId, type Provider } from "@/lib/providers";
 
 export const Route = createFileRoute("/find-provider")({
   head: () => ({
@@ -11,20 +11,52 @@ export const Route = createFileRoute("/find-provider")({
       {
         name: "description",
         content:
-          "Search verified psychologists, counsellors, and therapists across the Philippines. Filter by specialty, location, and price.",
+          "Book a consultation with verified doctors, psychologists, psychiatrists, therapists, and counsellors across the Philippines. Browse doctors by specialization.",
       },
       { property: "og:title", content: "Find a service provider — Lubin" },
       {
         property: "og:description",
         content:
-          "Search verified mental health professionals — filter by specialty, location, and price.",
+          "Choose the kind of consultation you need — doctor, psychologist, psychiatrist, or therapist — and book a verified professional.",
       },
     ],
   }),
   component: FindProviderPage,
 });
 
-const PRACTICE_AREAS = ["Psychologist", "Counselling", "Therapist"] as const;
+type ConsultationKind = "doctor" | "psychologist" | "psychiatrist" | "therapy";
+
+const CATEGORIES: {
+  id: ConsultationKind;
+  label: string;
+  blurb: string;
+  practices: Provider["practice"][];
+}[] = [
+  {
+    id: "doctor",
+    label: "Doctor",
+    blurb: "Check-ups, symptoms, and ongoing conditions — general practice and specialists.",
+    practices: ["Doctor"],
+  },
+  {
+    id: "psychologist",
+    label: "Psychologist",
+    blurb: "Assessment and therapy for mood, anxiety, trauma, and more.",
+    practices: ["Psychologist"],
+  },
+  {
+    id: "psychiatrist",
+    label: "Psychiatrist",
+    blurb: "Medical doctors who can diagnose conditions and prescribe medication.",
+    practices: ["Psychiatrist"],
+  },
+  {
+    id: "therapy",
+    label: "Therapist / Counsellor",
+    blurb: "Talk therapy and counselling for everyday mental health support.",
+    practices: ["Counselling", "Therapist"],
+  },
+];
 
 const PRICE_RANGES = [
   { label: "Up to ₱1,500", min: 0, max: 1500 },
@@ -156,7 +188,8 @@ const EXTERNAL_PROVIDERS: ExternalProvider[] = [
 function FindProviderPage() {
   const [query, setQuery] = useState("");
   const [location, setLocation] = useState("");
-  const [practices, setPractices] = useState<string[]>([]);
+  const [category, setCategory] = useState<ConsultationKind | null>(null);
+  const [doctorSpecialty, setDoctorSpecialty] = useState<DoctorSpecialtyId | "all">("all");
   const [priceIdx, setPriceIdx] = useState<number[]>([]);
   const [modalities, setModalities] = useState<string[]>([]);
   const [sessionModes, setSessionModes] = useState<string[]>([]);
@@ -197,11 +230,17 @@ function FindProviderPage() {
     const loc = location.trim().toLowerCase();
     const result = PROVIDERS.filter((p) => {
       if (q) {
-        const hay = `${p.name} ${p.title} ${p.practice} ${p.tags.join(" ")} ${p.bio}`.toLowerCase();
+        const hay = `${p.name} ${p.title} ${p.specialty?.label ?? ""} ${p.practice} ${p.tags.join(" ")} ${p.bio}`.toLowerCase();
         if (!hay.includes(q)) return false;
       }
       if (loc && !p.location.toLowerCase().includes(loc)) return false;
-      if (practices.length && !practices.includes(p.practice)) return false;
+      if (category) {
+        const cat = CATEGORIES.find((c) => c.id === category);
+        if (!cat || !cat.practices.includes(p.practice)) return false;
+        if (category === "doctor" && doctorSpecialty !== "all" && p.specialty?.id !== doctorSpecialty) {
+          return false;
+        }
+      }
       if (priceIdx.length) {
         const inRange = priceIdx.some((i) => {
           const r = PRICE_RANGES[i];
@@ -262,7 +301,7 @@ function FindProviderPage() {
         break;
     }
     return sorted;
-  }, [query, location, practices, priceIdx, modalities, sessionModes, availDays, availPeriods, languages, concerns, ageGroups, credentials, sort]);
+  }, [query, location, category, doctorSpecialty, priceIdx, modalities, sessionModes, availDays, availPeriods, languages, concerns, ageGroups, credentials, sort]);
 
   const externalResults = useMemo(() => {
     const q = query.trim().toLowerCase();
