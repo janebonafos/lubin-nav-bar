@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Search, MapPin, Star, BadgeCheck, Globe, Send, Sparkles, X, ExternalLink, Navigation, Hash, Building2, User, CalendarDays, Clock, Languages, ShieldCheck, Zap } from "lucide-react";
+import { Search, MapPin, Star, BadgeCheck, Globe, Send, Sparkles, X, ExternalLink, Navigation, Hash, Building2, User, CalendarDays, Clock, Languages, ShieldCheck, Zap, Check } from "lucide-react";
 import Navbar from "@/components/Navbar";
-import { PROVIDERS, type Provider } from "@/lib/providers";
+import { PROVIDERS, DOCTOR_SPECIALTIES, type DoctorSpecialtyId, type Provider } from "@/lib/providers";
 
 export const Route = createFileRoute("/find-provider")({
   head: () => ({
@@ -11,20 +11,52 @@ export const Route = createFileRoute("/find-provider")({
       {
         name: "description",
         content:
-          "Search verified psychologists, counsellors, and therapists across the Philippines. Filter by specialty, location, and price.",
+          "Book a consultation with verified doctors, psychologists, psychiatrists, therapists, and counsellors across the Philippines. Browse doctors by specialization.",
       },
       { property: "og:title", content: "Find a service provider — Lubin" },
       {
         property: "og:description",
         content:
-          "Search verified mental health professionals — filter by specialty, location, and price.",
+          "Choose the kind of consultation you need — doctor, psychologist, psychiatrist, or therapist — and book a verified professional.",
       },
     ],
   }),
   component: FindProviderPage,
 });
 
-const PRACTICE_AREAS = ["Psychologist", "Counselling", "Therapist"] as const;
+type ConsultationKind = "doctor" | "psychologist" | "psychiatrist" | "therapy";
+
+const CATEGORIES: {
+  id: ConsultationKind;
+  label: string;
+  blurb: string;
+  practices: Provider["practice"][];
+}[] = [
+  {
+    id: "doctor",
+    label: "Doctor",
+    blurb: "Check-ups, symptoms, and ongoing conditions — general practice and specialists.",
+    practices: ["Doctor"],
+  },
+  {
+    id: "psychologist",
+    label: "Psychologist",
+    blurb: "Assessment and therapy for mood, anxiety, trauma, and more.",
+    practices: ["Psychologist"],
+  },
+  {
+    id: "psychiatrist",
+    label: "Psychiatrist",
+    blurb: "Medical doctors who can diagnose conditions and prescribe medication.",
+    practices: ["Psychiatrist"],
+  },
+  {
+    id: "therapy",
+    label: "Therapist / Counsellor",
+    blurb: "Talk therapy and counselling for everyday mental health support.",
+    practices: ["Counselling", "Therapist"],
+  },
+];
 
 const PRICE_RANGES = [
   { label: "Up to ₱1,500", min: 0, max: 1500 },
@@ -156,7 +188,8 @@ const EXTERNAL_PROVIDERS: ExternalProvider[] = [
 function FindProviderPage() {
   const [query, setQuery] = useState("");
   const [location, setLocation] = useState("");
-  const [practices, setPractices] = useState<string[]>([]);
+  const [category, setCategory] = useState<ConsultationKind | null>(null);
+  const [doctorSpecialty, setDoctorSpecialty] = useState<DoctorSpecialtyId | "all">("all");
   const [priceIdx, setPriceIdx] = useState<number[]>([]);
   const [modalities, setModalities] = useState<string[]>([]);
   const [sessionModes, setSessionModes] = useState<string[]>([]);
@@ -197,11 +230,17 @@ function FindProviderPage() {
     const loc = location.trim().toLowerCase();
     const result = PROVIDERS.filter((p) => {
       if (q) {
-        const hay = `${p.name} ${p.title} ${p.practice} ${p.tags.join(" ")} ${p.bio}`.toLowerCase();
+        const hay = `${p.name} ${p.title} ${p.specialty?.label ?? ""} ${p.practice} ${p.tags.join(" ")} ${p.bio}`.toLowerCase();
         if (!hay.includes(q)) return false;
       }
       if (loc && !p.location.toLowerCase().includes(loc)) return false;
-      if (practices.length && !practices.includes(p.practice)) return false;
+      if (category) {
+        const cat = CATEGORIES.find((c) => c.id === category);
+        if (!cat || !cat.practices.includes(p.practice)) return false;
+        if (category === "doctor" && doctorSpecialty !== "all" && p.specialty?.id !== doctorSpecialty) {
+          return false;
+        }
+      }
       if (priceIdx.length) {
         const inRange = priceIdx.some((i) => {
           const r = PRICE_RANGES[i];
@@ -262,7 +301,7 @@ function FindProviderPage() {
         break;
     }
     return sorted;
-  }, [query, location, practices, priceIdx, modalities, sessionModes, availDays, availPeriods, languages, concerns, ageGroups, credentials, sort]);
+  }, [query, location, category, doctorSpecialty, priceIdx, modalities, sessionModes, availDays, availPeriods, languages, concerns, ageGroups, credentials, sort]);
 
   const externalResults = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -290,10 +329,94 @@ function FindProviderPage() {
             Find a service provider
           </h1>
           <p className="mt-2 text-[15px] leading-relaxed text-slate-500">
-            Browse verified psychologists, counsellors, and therapists. Filter by
-            what matters most to you.
+            Book a consultation with the kind of professional you want to see —
+            doctors by specialization, psychologists, psychiatrists, or therapists
+            and counsellors. Not sure yet? Browse everyone below.
           </p>
         </header>
+
+        {/* Consultation categories */}
+        <section aria-label="Kind of consultation" className="mb-6">
+          <h2 className="text-[18px] font-bold text-slate-800">
+            What kind of consultation do you need?
+          </h2>
+          <p className="mt-1 text-[13.5px] text-slate-500">
+            Pick one to narrow the list — tap it again to see everyone.
+          </p>
+          <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            {CATEGORIES.map((c) => {
+              const active = category === c.id;
+              return (
+                <button
+                  key={c.id}
+                  type="button"
+                  aria-pressed={active}
+                  onClick={() => {
+                    setCategory(active ? null : c.id);
+                    if (!active && c.id !== "doctor") setDoctorSpecialty("all");
+                  }}
+                  className={
+                    "rounded-2xl border p-5 text-left transition-all duration-200 " +
+                    (active
+                      ? "border-brand-purple bg-[#F8F6FF] ring-2 ring-brand-purple/25 shadow-[0_14px_34px_-18px_rgba(124,113,176,0.45)]"
+                      : "border-[#E9E6FA] bg-white shadow-sm hover:-translate-y-0.5 hover:border-brand-purple/40 hover:shadow-[0_16px_34px_-20px_rgba(124,113,176,0.35)]")
+                  }
+                >
+                  <span className="flex items-center justify-between gap-2">
+                    <span className="text-[15.5px] font-bold text-slate-900">{c.label}</span>
+                    {active && (
+                      <span className="inline-flex h-5 w-5 flex-none items-center justify-center rounded-full bg-brand-purple text-white">
+                        <Check className="h-3.5 w-3.5" />
+                      </span>
+                    )}
+                  </span>
+                  <span className="mt-1.5 block text-[13px] leading-relaxed text-slate-500">
+                    {c.blurb}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {category === "doctor" && (
+            <div className="mt-4 rounded-2xl border border-[#E9E6FA] bg-white p-5 shadow-sm">
+              <h3 className="text-[12px] font-bold uppercase tracking-wider text-[#A799E2]">
+                Which kind of doctor?
+              </h3>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  aria-pressed={doctorSpecialty === "all"}
+                  onClick={() => setDoctorSpecialty("all")}
+                  className={
+                    "rounded-full border px-3.5 py-1.5 text-[13px] font-medium transition-colors " +
+                    (doctorSpecialty === "all"
+                      ? "border-brand-purple bg-brand-purple text-white hover:bg-brand-purple-deep"
+                      : "border-[#E9E6FA] bg-white text-slate-600 hover:border-brand-purple/40 hover:text-brand-purple")
+                  }
+                >
+                  All specializations
+                </button>
+                {DOCTOR_SPECIALTIES.map((s) => (
+                  <button
+                    key={s.id}
+                    type="button"
+                    aria-pressed={doctorSpecialty === s.id}
+                    onClick={() => setDoctorSpecialty(s.id)}
+                    className={
+                      "rounded-full border px-3.5 py-1.5 text-[13px] font-medium transition-colors " +
+                      (doctorSpecialty === s.id
+                        ? "border-brand-purple bg-brand-purple text-white hover:bg-brand-purple-deep"
+                        : "border-[#E9E6FA] bg-white text-slate-600 hover:border-brand-purple/40 hover:text-brand-purple")
+                    }
+                  >
+                    {s.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </section>
 
         {/* Search bar */}
         <section
@@ -354,26 +477,6 @@ function FindProviderPage() {
               Quick Filters
             </h2>
 
-            <div className="mt-5">
-              <h3 className="text-[12px] font-bold uppercase tracking-wider text-[#A799E2]">
-                Practice Areas
-              </h3>
-              <ul className="mt-3 space-y-2.5">
-                {PRACTICE_AREAS.map((p) => (
-                  <li key={p}>
-                    <label className="flex cursor-pointer items-center gap-3 rounded-lg px-1 py-1 text-[14px] text-slate-600 transition-colors hover:text-brand-purple">
-                      <input
-                        type="checkbox"
-                        checked={practices.includes(p)}
-                        onChange={() => setPractices((arr) => toggle(arr, p))}
-                        className="h-[18px] w-[18px] cursor-pointer rounded border-[#DCD7F5] accent-brand-purple"
-                      />
-                      {p}
-                    </label>
-                  </li>
-                ))}
-              </ul>
-            </div>
 
             <div className="mt-6">
               <h3 className="text-[12px] font-bold uppercase tracking-wider text-[#A799E2]">
@@ -481,7 +584,7 @@ function FindProviderPage() {
               ))}
             </FilterGroup>
 
-            {(practices.length > 0 ||
+            {(category !== null ||
               priceIdx.length > 0 ||
               modalities.length > 0 ||
               sessionModes.length > 0 ||
@@ -494,7 +597,8 @@ function FindProviderPage() {
               <button
                 type="button"
                 onClick={() => {
-                  setPractices([]);
+                  setCategory(null);
+                  setDoctorSpecialty("all");
                   setPriceIdx([]);
                   setModalities([]);
                   setSessionModes([]);
@@ -521,6 +625,14 @@ function FindProviderPage() {
                   {filtered.length}
                 </span>{" "}
                 provider{filtered.length === 1 ? "" : "s"}
+                {category && (
+                  <span className="text-slate-400">
+                    {" · "}
+                    {category === "doctor" && doctorSpecialty !== "all"
+                      ? DOCTOR_SPECIALTIES.find((s) => s.id === doctorSpecialty)?.label
+                      : CATEGORIES.find((c) => c.id === category)?.label}
+                  </span>
+                )}
               </p>
               <label className="flex items-center gap-2 text-[13px] text-slate-500">
                 <span className="hidden sm:inline">Sort by</span>
@@ -552,7 +664,8 @@ function FindProviderPage() {
                   onClick={() => {
                     setQuery("");
                     setLocation("");
-                    setPractices([]);
+                    setCategory(null);
+                    setDoctorSpecialty("all");
                     setPriceIdx([]);
                   }}
                   className="mt-5 inline-flex items-center gap-1.5 rounded-xl bg-brand-purple px-5 py-2.5 text-[13px] font-semibold text-white shadow-sm transition hover:bg-brand-purple-dark"
@@ -770,7 +883,7 @@ function ProviderCardInner({ provider }: { provider: Provider }) {
       {/* Tags — capped to reduce clutter */}
       <div className="mt-3 flex flex-wrap gap-1.5">
         <span className="rounded-full bg-[#F3F0FF] px-2.5 py-1 text-[11.5px] font-semibold text-brand-purple ring-1 ring-inset ring-brand-purple/10">
-          {provider.practice}
+          {provider.specialty?.label ?? provider.practice}
         </span>
         {visibleTags.map((t) => (
           <span
