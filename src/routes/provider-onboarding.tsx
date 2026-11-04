@@ -1693,6 +1693,33 @@ function FocusAreasPicker({
               </div>
             </div>
 
+            {/* Everything picked so far, as small removable chips right under
+                the search bar — so multiple picks stay easy to review. */}
+            {value.length > 0 && (
+              <div className="flex flex-wrap items-center gap-1.5 border-b border-[#F0EAFB] px-2 pb-2">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-[#A89BD0]">
+                  Selected · {value.length}
+                </span>
+                {value.map((label) => (
+                  <span
+                    key={label}
+                    className="inline-flex max-w-full items-center gap-1 rounded-full border border-[#7E6BAF]/25 bg-[#F4EEFB] py-1 pl-2.5 pr-1 text-[12px] font-medium text-[#3D2E6B]"
+                  >
+                    <span className="truncate">{label}</span>
+                    <button
+                      type="button"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => toggle(label)}
+                      aria-label={`Remove ${label}`}
+                      className="rounded-full p-0.5 text-[#7E6BAF] transition hover:bg-[#E3D9F5] hover:text-[#2A1F4D]"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+
             <div
               ref={listRef}
               className="max-h-64 overflow-y-auto p-1.5"
@@ -1715,17 +1742,15 @@ function FocusAreasPicker({
                     onMouseEnter={() => setActive(i)}
                     onClick={() => toggle(label)}
                     className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-[14px] transition-colors ${
-                      isSelected
-                        ? "bg-[#7E6BAF] font-medium text-white"
-                        : isHot
-                          ? "bg-[#F0EAFB] text-[#3D2E6B]"
-                          : "text-[#3D2E6B] hover:bg-[#F7F3FE]"
+                      isHot
+                        ? "bg-[#F0EAFB] text-[#3D2E6B]"
+                        : "text-[#3D2E6B] hover:bg-[#F7F3FE]"
                     }`}
                   >
                     <span
                       className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-md border transition-colors ${
                         isSelected
-                          ? "border-white bg-white text-[#7E6BAF]"
+                          ? "border-[#7E6BAF] bg-[#7E6BAF] text-white"
                           : "border-[#D6CCEB] bg-white"
                       }`}
                     >
