@@ -627,7 +627,7 @@ function FindProviderPage() {
                 provider{filtered.length === 1 ? "" : "s"}
                 {category && (
                   <span className="text-slate-400">
-                    {" "}·{" "}
+                    {" · "}
                     {category === "doctor" && doctorSpecialty !== "all"
                       ? DOCTOR_SPECIALTIES.find((s) => s.id === doctorSpecialty)?.label
                       : CATEGORIES.find((c) => c.id === category)?.label}
