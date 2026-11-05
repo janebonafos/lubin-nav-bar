@@ -416,8 +416,14 @@ function FindProviderPage() {
                   type="button"
                   aria-pressed={active}
                   onClick={() => {
-                    setCategory(active ? null : c.id);
-                    if (!active && c.id !== "doctor") setDoctorSpecialty("all");
+                    const next = active ? null : c.id;
+                    setCategory(next);
+                    if (next !== "doctor") setDoctorSpecialty("all");
+                    // Clear stale picks that may not apply to the new category
+                    setConcerns([]);
+                    setModalities([]);
+                    setAgeGroups([]);
+                    setCredentials([]);
                   }}
                   className={
                     "rounded-full border px-5 py-2.5 text-[14px] font-semibold transition-colors " +
