@@ -58,6 +58,21 @@ const CATEGORIES: {
   },
 ];
 
+const SPECIALTY_TILES: {
+  id: DoctorSpecialtyId | "all";
+  label: string;
+  icon: typeof LayoutGrid;
+}[] = [
+  { id: "all", label: "All", icon: LayoutGrid },
+  { id: "gp", label: "General practice", icon: Stethoscope },
+  { id: "internal", label: "Internal medicine", icon: Heart },
+  { id: "pediatrics", label: "Pediatrics", icon: Baby },
+  { id: "obgyn", label: "OB-GYN", icon: Venus },
+  { id: "dermatology", label: "Dermatology", icon: Sparkles },
+  { id: "cardiology", label: "Cardiology", icon: HeartPulse },
+  { id: "neurology", label: "Neurology", icon: Brain },
+];
+
 const PRICE_RANGES = [
   { label: "Up to ₱1,500", min: 0, max: 1500 },
   { label: "₱1,500–₱3,000", min: 1500, max: 3000 },
