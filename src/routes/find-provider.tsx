@@ -96,6 +96,19 @@ const CONCERNS = [
   "LGBTQ+", "Career", "Mindfulness",
 ] as const;
 
+// Exact matches of demo providers' tags so filtering stays precise.
+const DOCTOR_CONCERNS = [
+  "Check-ups", "Chronic conditions", "Preventive care", "Diabetes",
+  "Heart & blood pressure", "Child & family health", "Vaccines",
+  "Women's health", "Prenatal", "Skin & allergies", "Acne", "Eczema",
+  "Chest pain", "Headaches & migraine", "Pain & injury", "Sleep & fatigue",
+] as const;
+
+const PSYCHIATRY_CONCERNS = [
+  "Anxiety", "Depression", "Mood", "Bipolar", "ADHD", "Sleep",
+  "Medication management",
+] as const;
+
 const AGE_GROUPS = [
   { code: "teens", label: "Teens (13–17)", match: ["Teens"] },
   { code: "young", label: "Young adults (18–25)", match: ["Young adults", "Students"] },
