@@ -578,27 +578,31 @@ function FindProviderPage() {
               ))}
             </FilterGroup>
 
-            <FilterGroup title="Age group">
-              {AGE_GROUPS.map((g) => (
-                <CheckboxRow
-                  key={g.code}
-                  label={g.label}
-                  checked={ageGroups.includes(g.code)}
-                  onChange={() => setAgeGroups((arr) => toggle(arr, g.code))}
-                />
-              ))}
-            </FilterGroup>
+            {category !== "doctor" && (
+              <FilterGroup title="Age group">
+                {AGE_GROUPS.map((g) => (
+                  <CheckboxRow
+                    key={g.code}
+                    label={g.label}
+                    checked={ageGroups.includes(g.code)}
+                    onChange={() => setAgeGroups((arr) => toggle(arr, g.code))}
+                  />
+                ))}
+              </FilterGroup>
+            )}
 
-            <FilterGroup title="Credentials / License">
-              {CREDENTIALS.map((c) => (
-                <CheckboxRow
-                  key={c.code}
-                  label={c.label}
-                  checked={credentials.includes(c.code)}
-                  onChange={() => setCredentials((arr) => toggle(arr, c.code))}
-                />
-              ))}
-            </FilterGroup>
+            {(category === null || category === "psychologist" || category === "therapy") && (
+              <FilterGroup title="Credentials / License">
+                {CREDENTIALS.map((c) => (
+                  <CheckboxRow
+                    key={c.code}
+                    label={c.label}
+                    checked={credentials.includes(c.code)}
+                    onChange={() => setCredentials((arr) => toggle(arr, c.code))}
+                  />
+                ))}
+              </FilterGroup>
+            )}
 
             {(category !== null ||
               priceIdx.length > 0 ||
