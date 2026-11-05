@@ -488,7 +488,7 @@ function FindProviderPage() {
                         {t.maskSrc ? (
                           <span
                             aria-hidden
-                            className="h-[18px] w-[18px]"
+                            className="h-6 w-6"
                             style={{
                               WebkitMaskImage: `url(${t.maskSrc})`,
                               maskImage: `url(${t.maskSrc})`,
