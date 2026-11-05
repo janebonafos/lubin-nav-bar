@@ -469,19 +469,25 @@ function FindProviderPage() {
                       aria-pressed={active}
                       onClick={() => setDoctorSpecialty(t.id)}
                       className={
-                        "flex flex-col items-center justify-center gap-2 rounded-2xl border bg-white px-2 py-4 text-center transition-colors " +
+                        "group flex flex-col items-center justify-center gap-2.5 rounded-2xl border bg-white px-2 py-4 text-center transition-all duration-200 " +
                         (active
-                          ? "border-brand-purple shadow-sm"
-                          : "border-[#E9E6FA] hover:border-brand-purple/50")
+                          ? "border-brand-purple shadow-[0_8px_20px_-8px_rgba(93,63,211,0.35)]"
+                          : "border-[#E9E6FA] hover:-translate-y-0.5 hover:border-brand-purple/40 hover:shadow-[0_8px_18px_-10px_rgba(93,63,211,0.28)]")
                       }
                     >
-                      <Icon
+                      <span
                         className={
-                          "h-6 w-6 " +
-                          (active ? "text-brand-purple" : "text-slate-500")
+                          "flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-b transition-colors duration-200 " +
+                          (active
+                            ? "from-brand-purple to-brand-purple-deep text-white shadow-[0_4px_10px_-2px_rgba(93,63,211,0.45)]"
+                            : "from-[#F5F2FD] to-[#ECE8FA] text-brand-purple group-hover:from-[#EFE9FC] group-hover:to-[#E3DCFA]")
                         }
-                        strokeWidth={1.75}
-                      />
+                      >
+                        <Icon
+                          className="h-[18px] w-[18px]"
+                          strokeWidth={1.9}
+                        />
+                      </span>
                       <span
                         className={
                           "text-[12px] font-semibold leading-tight " +
