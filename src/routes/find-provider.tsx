@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Search, MapPin, Star, BadgeCheck, Globe, Send, Sparkles, X, ExternalLink, Navigation, Hash, Building2, User, CalendarDays, Clock, Languages, ShieldCheck, Zap } from "lucide-react";
+import { Search, MapPin, Star, BadgeCheck, Globe, Send, Sparkles, X, ExternalLink, Navigation, Hash, Building2, User, CalendarDays, Clock, Languages, ShieldCheck, Zap, LayoutGrid, Stethoscope, Heart, Baby, Venus, HeartPulse, Brain } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { PROVIDERS, DOCTOR_SPECIALTIES, type DoctorSpecialtyId, type Provider } from "@/lib/providers";
 
@@ -402,7 +402,7 @@ function FindProviderPage() {
         {/* Consultation categories */}
         <section aria-label="Kind of consultation" className="mt-6">
           <h2 className="text-[18px] font-bold text-slate-800">
-            What kind of consultation do you need?
+            What kind of care do you need?
           </h2>
           <p className="mt-1 text-[13.5px] text-slate-500">
             Pick one to narrow the list — tap it again to see everyone.
