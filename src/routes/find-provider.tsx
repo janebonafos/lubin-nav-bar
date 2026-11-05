@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Search, MapPin, Star, BadgeCheck, Globe, Send, Sparkles, X, ExternalLink, Navigation, Hash, Building2, User, CalendarDays, Clock, Languages, ShieldCheck, Zap } from "lucide-react";
+import { Search, MapPin, Star, BadgeCheck, Globe, Send, Sparkles, X, ExternalLink, Navigation, Hash, Building2, User, CalendarDays, Clock, Languages, ShieldCheck, Zap, LayoutGrid, Stethoscope, Heart, Baby, Venus, HeartPulse, Brain } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { PROVIDERS, DOCTOR_SPECIALTIES, type DoctorSpecialtyId, type Provider } from "@/lib/providers";
 
@@ -56,6 +56,21 @@ const CATEGORIES: {
     blurb: "Talk therapy and counselling for everyday mental health support.",
     practices: ["Counselling", "Therapist"],
   },
+];
+
+const SPECIALTY_TILES: {
+  id: DoctorSpecialtyId | "all";
+  label: string;
+  icon: typeof LayoutGrid;
+}[] = [
+  { id: "all", label: "All", icon: LayoutGrid },
+  { id: "gp", label: "General practice", icon: Stethoscope },
+  { id: "internal", label: "Internal medicine", icon: Heart },
+  { id: "pediatrics", label: "Pediatrics", icon: Baby },
+  { id: "obgyn", label: "OB-GYN", icon: Venus },
+  { id: "dermatology", label: "Dermatology", icon: Sparkles },
+  { id: "cardiology", label: "Cardiology", icon: HeartPulse },
+  { id: "neurology", label: "Neurology", icon: Brain },
 ];
 
 const PRICE_RANGES = [
@@ -402,7 +417,7 @@ function FindProviderPage() {
         {/* Consultation categories */}
         <section aria-label="Kind of consultation" className="mt-6">
           <h2 className="text-[18px] font-bold text-slate-800">
-            What kind of consultation do you need?
+            What kind of care do you need?
           </h2>
           <p className="mt-1 text-[13.5px] text-slate-500">
             Pick one to narrow the list — tap it again to see everyone.
@@ -439,40 +454,45 @@ function FindProviderPage() {
           </div>
 
           {category === "doctor" && (
-            <div className="mt-4 rounded-2xl border border-[#E9E6FA] bg-white p-5 shadow-sm">
+            <div className="mt-4">
               <h3 className="text-[12px] font-bold uppercase tracking-wider text-[#A799E2]">
                 Which kind of doctor?
               </h3>
-              <div className="mt-3 flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  aria-pressed={doctorSpecialty === "all"}
-                  onClick={() => setDoctorSpecialty("all")}
-                  className={
-                    "rounded-full border px-3.5 py-1.5 text-[13px] font-medium transition-colors " +
-                    (doctorSpecialty === "all"
-                      ? "border-brand-purple bg-brand-purple text-white hover:bg-brand-purple-deep"
-                      : "border-[#E9E6FA] bg-white text-slate-600 hover:border-brand-purple/40 hover:text-brand-purple")
-                  }
-                >
-                  All specializations
-                </button>
-                {DOCTOR_SPECIALTIES.map((s) => (
-                  <button
-                    key={s.id}
-                    type="button"
-                    aria-pressed={doctorSpecialty === s.id}
-                    onClick={() => setDoctorSpecialty(s.id)}
-                    className={
-                      "rounded-full border px-3.5 py-1.5 text-[13px] font-medium transition-colors " +
-                      (doctorSpecialty === s.id
-                        ? "border-brand-purple bg-brand-purple text-white hover:bg-brand-purple-deep"
-                        : "border-[#E9E6FA] bg-white text-slate-600 hover:border-brand-purple/40 hover:text-brand-purple")
-                    }
-                  >
-                    {s.label}
-                  </button>
-                ))}
+              <div className="mt-3 grid grid-cols-2 gap-2.5 sm:grid-cols-4 lg:grid-cols-8">
+                {SPECIALTY_TILES.map((t) => {
+                  const active = doctorSpecialty === t.id;
+                  const Icon = t.icon;
+                  return (
+                    <button
+                      key={t.id}
+                      type="button"
+                      aria-pressed={active}
+                      onClick={() => setDoctorSpecialty(t.id)}
+                      className={
+                        "flex flex-col items-center justify-center gap-2 rounded-2xl border bg-white px-2 py-4 text-center transition-colors " +
+                        (active
+                          ? "border-brand-purple shadow-sm"
+                          : "border-[#E9E6FA] hover:border-brand-purple/50")
+                      }
+                    >
+                      <Icon
+                        className={
+                          "h-6 w-6 " +
+                          (active ? "text-brand-purple" : "text-slate-500")
+                        }
+                        strokeWidth={1.75}
+                      />
+                      <span
+                        className={
+                          "text-[12px] font-semibold leading-tight " +
+                          (active ? "text-brand-purple" : "text-slate-600")
+                        }
+                      >
+                        {t.label}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}
