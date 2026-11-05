@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Search, MapPin, Star, BadgeCheck, Globe, Send, Sparkles, X, ExternalLink, Navigation, Hash, Building2, User, CalendarDays, Clock, Languages, ShieldCheck, Zap, LayoutGrid, Stethoscope, Heart, Baby, Venus, ScanHeart, Brain, Hand } from "lucide-react";
+import { Search, MapPin, Star, BadgeCheck, Globe, Send, X, ExternalLink, Navigation, Hash, Building2, User, CalendarDays, Clock, Languages, ShieldCheck, Zap, LayoutGrid, Stethoscope, Heart, Baby, Venus, ScanHeart, Brain, Hand } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import dermatologyFace from "@/assets/dermatology-face.svg";
 import { PROVIDERS, DOCTOR_SPECIALTIES, type DoctorSpecialtyId, type Provider } from "@/lib/providers";
 
 export const Route = createFileRoute("/find-provider")({
@@ -62,13 +63,14 @@ const SPECIALTY_TILES: {
   id: DoctorSpecialtyId | "all";
   label: string;
   icon: typeof LayoutGrid;
+  maskSrc?: string;
 }[] = [
   { id: "all", label: "All", icon: LayoutGrid },
   { id: "gp", label: "General practice", icon: Stethoscope },
   { id: "internal", label: "Internal medicine", icon: Heart },
   { id: "pediatrics", label: "Pediatrics", icon: Baby },
   { id: "obgyn", label: "OB-GYN", icon: Venus },
-  { id: "dermatology", label: "Dermatology", icon: Hand },
+  { id: "dermatology", label: "Dermatology", icon: Hand, maskSrc: dermatologyFace },
   { id: "cardiology", label: "Cardiology", icon: ScanHeart },
   { id: "neurology", label: "Neurology", icon: Brain },
 ];
@@ -483,10 +485,28 @@ function FindProviderPage() {
                             : "from-[#F5F2FD] to-[#ECE8FA] text-brand-purple group-hover:from-[#EFE9FC] group-hover:to-[#E3DCFA]")
                         }
                       >
-                        <Icon
-                          className="h-[18px] w-[18px]"
-                          strokeWidth={1.9}
-                        />
+                        {t.maskSrc ? (
+                          <span
+                            aria-hidden
+                            className="h-6 w-6"
+                            style={{
+                              WebkitMaskImage: `url(${t.maskSrc})`,
+                              maskImage: `url(${t.maskSrc})`,
+                              WebkitMaskSize: "contain",
+                              maskSize: "contain",
+                              WebkitMaskRepeat: "no-repeat",
+                              maskRepeat: "no-repeat",
+                              WebkitMaskPosition: "center",
+                              maskPosition: "center",
+                              backgroundColor: "currentColor",
+                            }}
+                          />
+                        ) : (
+                          <Icon
+                            className="h-[18px] w-[18px]"
+                            strokeWidth={1.9}
+                          />
+                        )}
                       </span>
                       <span
                         className={
