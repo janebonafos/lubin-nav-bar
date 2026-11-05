@@ -509,7 +509,12 @@ function FindProviderPage() {
             </div>
 
             <FilterGroup title="Concern / Specialty">
-              {CONCERNS.map((c) => (
+              {(category === "doctor"
+                ? DOCTOR_CONCERNS
+                : category === "psychiatrist"
+                  ? PSYCHIATRY_CONCERNS
+                  : CONCERNS
+              ).map((c) => (
                 <CheckboxRow
                   key={c}
                   label={c}
