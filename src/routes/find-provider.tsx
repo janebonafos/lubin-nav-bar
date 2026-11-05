@@ -491,7 +491,7 @@ function FindProviderPage() {
                             aria-hidden
                             className={
                               "h-6 w-6 " +
-                              (active ? "text-white" : "text-brand-purple-deep")
+                              (active ? "text-white" : "text-brand-purple")
                             }
                             style={{
                               WebkitMaskImage: `url(${t.maskSrc})`,
