@@ -62,6 +62,7 @@ const SPECIALTY_TILES: {
   id: DoctorSpecialtyId | "all";
   label: string;
   icon: typeof LayoutGrid;
+  maskSrc?: string;
 }[] = [
   { id: "all", label: "All", icon: LayoutGrid },
   { id: "gp", label: "General practice", icon: Stethoscope },
@@ -483,10 +484,28 @@ function FindProviderPage() {
                             : "from-[#F5F2FD] to-[#ECE8FA] text-brand-purple group-hover:from-[#EFE9FC] group-hover:to-[#E3DCFA]")
                         }
                       >
-                        <Icon
-                          className="h-[18px] w-[18px]"
-                          strokeWidth={1.9}
-                        />
+                        {t.maskSrc ? (
+                          <span
+                            aria-hidden
+                            className="h-[18px] w-[18px]"
+                            style={{
+                              WebkitMaskImage: `url(${t.maskSrc})`,
+                              maskImage: `url(${t.maskSrc})`,
+                              WebkitMaskSize: "contain",
+                              maskSize: "contain",
+                              WebkitMaskRepeat: "no-repeat",
+                              maskRepeat: "no-repeat",
+                              WebkitMaskPosition: "center",
+                              maskPosition: "center",
+                              backgroundColor: "currentColor",
+                            }}
+                          />
+                        ) : (
+                          <Icon
+                            className="h-[18px] w-[18px]"
+                            strokeWidth={1.9}
+                          />
+                        )}
                       </span>
                       <span
                         className={
