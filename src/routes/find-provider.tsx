@@ -343,7 +343,7 @@ function FindProviderPage() {
           <p className="mt-1 text-[13.5px] text-slate-500">
             Pick one to narrow the list — tap it again to see everyone.
           </p>
-          <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="mt-4 flex flex-wrap items-center gap-2.5">
             {CATEGORIES.map((c) => {
               const active = category === c.id;
               return (
@@ -356,23 +356,13 @@ function FindProviderPage() {
                     if (!active && c.id !== "doctor") setDoctorSpecialty("all");
                   }}
                   className={
-                    "rounded-2xl border p-5 text-left transition-all duration-200 " +
+                    "rounded-full border px-5 py-2.5 text-[14px] font-semibold transition-colors " +
                     (active
-                      ? "border-brand-purple bg-[#F8F6FF] ring-2 ring-brand-purple/25 shadow-[0_14px_34px_-18px_rgba(124,113,176,0.45)]"
-                      : "border-[#E9E6FA] bg-white shadow-sm hover:-translate-y-0.5 hover:border-brand-purple/40 hover:shadow-[0_16px_34px_-20px_rgba(124,113,176,0.35)]")
+                      ? "border-brand-purple bg-brand-purple text-white hover:bg-brand-purple-deep hover:border-brand-purple-deep"
+                      : "border-[#E9E6FA] bg-white text-slate-700 hover:border-brand-purple/50 hover:text-brand-purple")
                   }
                 >
-                  <span className="flex items-center justify-between gap-2">
-                    <span className="text-[15.5px] font-bold text-slate-900">{c.label}</span>
-                    {active && (
-                      <span className="inline-flex h-5 w-5 flex-none items-center justify-center rounded-full bg-brand-purple text-white">
-                        <Check className="h-3.5 w-3.5" />
-                      </span>
-                    )}
-                  </span>
-                  <span className="mt-1.5 block text-[13px] leading-relaxed text-slate-500">
-                    {c.blurb}
-                  </span>
+                  {c.label}
                 </button>
               );
             })}
