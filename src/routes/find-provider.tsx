@@ -524,16 +524,18 @@ function FindProviderPage() {
               ))}
             </FilterGroup>
 
-            <FilterGroup title="Modality">
-              {MODALITIES.map((m) => (
-                <CheckboxRow
-                  key={m}
-                  label={m}
-                  checked={modalities.includes(m)}
-                  onChange={() => setModalities((arr) => toggle(arr, m))}
-                />
-              ))}
-            </FilterGroup>
+            {(category === null || category === "psychologist" || category === "therapy") && (
+              <FilterGroup title="Modality">
+                {MODALITIES.map((m) => (
+                  <CheckboxRow
+                    key={m}
+                    label={m}
+                    checked={modalities.includes(m)}
+                    onChange={() => setModalities((arr) => toggle(arr, m))}
+                  />
+                ))}
+              </FilterGroup>
+            )}
 
             <FilterGroup title="Availability">
               <p className="mb-1.5 mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Session mode</p>
