@@ -69,7 +69,7 @@ const SPECIALTY_TILES: {
   { id: "pediatrics", label: "Pediatrics", icon: Baby },
   { id: "obgyn", label: "OB-GYN", icon: Venus },
   { id: "dermatology", label: "Dermatology", icon: Sparkles },
-  { id: "cardiology", label: "Cardiology", icon: HeartPulse },
+  { id: "cardiology", label: "Cardiology", icon: ScanHeart },
   { id: "neurology", label: "Neurology", icon: Brain },
 ];
 
