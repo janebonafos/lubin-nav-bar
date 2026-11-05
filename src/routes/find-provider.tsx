@@ -335,8 +335,59 @@ function FindProviderPage() {
           </p>
         </header>
 
+        {/* Search bar */}
+        <section
+          aria-label="Search"
+          className="rounded-2xl border border-[#E9E6FA] bg-white p-3 shadow-[0_10px_30px_-18px_rgba(124,113,176,0.18)]"
+        >
+          <div className="flex flex-col gap-3 md:flex-row md:items-stretch">
+            <div className="relative flex-1">
+              <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#A799E2]" />
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search by name, specialty, or keyword"
+                className="w-full rounded-xl border border-transparent bg-[#F3F0FF]/60 px-11 py-3 text-[14px] text-slate-700 placeholder:text-slate-400 transition-all focus:border-brand-purple/40 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-purple/15"
+              />
+            </div>
+            <div className="relative md:w-[300px]">
+              <MapPin className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#A799E2]" />
+              <input
+                type="text"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                inputMode="text"
+                aria-label="Location — city, province, or area"
+                placeholder="City, province, or area"
+                className="w-full rounded-xl border border-transparent bg-[#F3F0FF]/60 px-11 py-3 pr-24 text-[14px] text-slate-700 placeholder:text-slate-400 transition-all focus:border-brand-purple/40 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-purple/15"
+              />
+              {/* Smart kind badge */}
+              {locKind && (
+                <span
+                  className="pointer-events-none absolute right-3 top-1/2 inline-flex -translate-y-1/2 items-center gap-1 rounded-full bg-white px-2 py-0.5 text-[10.5px] font-semibold text-brand-purple ring-1 ring-[#E9E6FA]"
+                  aria-label={locKind === "postal" ? "Detected postal code" : "Detected area"}
+                >
+                  {locKind === "postal" ? (
+                    <Hash className="h-3 w-3" />
+                  ) : (
+                    <Building2 className="h-3 w-3" />
+                  )}
+                  {locKind === "postal" ? "Postal" : "Area"}
+                </span>
+              )}
+            </div>
+            <button
+              type="button"
+              className="inline-flex items-center justify-center whitespace-nowrap rounded-xl bg-brand-purple px-8 py-3 text-[14px] font-semibold text-white shadow-sm transition-all hover:bg-brand-purple-dark active:scale-95"
+            >
+              Search
+            </button>
+          </div>
+        </section>
+
         {/* Consultation categories */}
-        <section aria-label="Kind of consultation" className="mb-6">
+        <section aria-label="Kind of consultation" className="mt-6">
           <h2 className="text-[18px] font-bold text-slate-800">
             What kind of consultation do you need?
           </h2>
@@ -406,57 +457,6 @@ function FindProviderPage() {
               </div>
             </div>
           )}
-        </section>
-
-        {/* Search bar */}
-        <section
-          aria-label="Search"
-          className="rounded-2xl border border-[#E9E6FA] bg-white p-3 shadow-[0_10px_30px_-18px_rgba(124,113,176,0.18)]"
-        >
-          <div className="flex flex-col gap-3 md:flex-row md:items-stretch">
-            <div className="relative flex-1">
-              <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#A799E2]" />
-              <input
-                type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search by name, specialty, or keyword"
-                className="w-full rounded-xl border border-transparent bg-[#F3F0FF]/60 px-11 py-3 text-[14px] text-slate-700 placeholder:text-slate-400 transition-all focus:border-brand-purple/40 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-purple/15"
-              />
-            </div>
-            <div className="relative md:w-[300px]">
-              <MapPin className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#A799E2]" />
-              <input
-                type="text"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                inputMode="text"
-                aria-label="Location — city, province, or area"
-                placeholder="City, province, or area"
-                className="w-full rounded-xl border border-transparent bg-[#F3F0FF]/60 px-11 py-3 pr-24 text-[14px] text-slate-700 placeholder:text-slate-400 transition-all focus:border-brand-purple/40 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-purple/15"
-              />
-              {/* Smart kind badge */}
-              {locKind && (
-                <span
-                  className="pointer-events-none absolute right-3 top-1/2 inline-flex -translate-y-1/2 items-center gap-1 rounded-full bg-white px-2 py-0.5 text-[10.5px] font-semibold text-brand-purple ring-1 ring-[#E9E6FA]"
-                  aria-label={locKind === "postal" ? "Detected postal code" : "Detected area"}
-                >
-                  {locKind === "postal" ? (
-                    <Hash className="h-3 w-3" />
-                  ) : (
-                    <Building2 className="h-3 w-3" />
-                  )}
-                  {locKind === "postal" ? "Postal" : "Area"}
-                </span>
-              )}
-            </div>
-            <button
-              type="button"
-              className="inline-flex items-center justify-center whitespace-nowrap rounded-xl bg-brand-purple px-8 py-3 text-[14px] font-semibold text-white shadow-sm transition-all hover:bg-brand-purple-dark active:scale-95"
-            >
-              Search
-            </button>
-          </div>
         </section>
 
         {/* Body */}
