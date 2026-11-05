@@ -96,6 +96,19 @@ const CONCERNS = [
   "LGBTQ+", "Career", "Mindfulness",
 ] as const;
 
+// Exact matches of demo providers' tags so filtering stays precise.
+const DOCTOR_CONCERNS = [
+  "Check-ups", "Chronic conditions", "Preventive care", "Diabetes",
+  "Heart & blood pressure", "Child & family health", "Vaccines",
+  "Women's health", "Prenatal", "Skin & allergies", "Acne", "Eczema",
+  "Chest pain", "Headaches & migraine", "Pain & injury", "Sleep & fatigue",
+] as const;
+
+const PSYCHIATRY_CONCERNS = [
+  "Anxiety", "Depression", "Mood", "Bipolar", "ADHD", "Sleep",
+  "Medication management",
+] as const;
+
 const AGE_GROUPS = [
   { code: "teens", label: "Teens (13–17)", match: ["Teens"] },
   { code: "young", label: "Young adults (18–25)", match: ["Young adults", "Students"] },
@@ -403,8 +416,14 @@ function FindProviderPage() {
                   type="button"
                   aria-pressed={active}
                   onClick={() => {
-                    setCategory(active ? null : c.id);
-                    if (!active && c.id !== "doctor") setDoctorSpecialty("all");
+                    const next = active ? null : c.id;
+                    setCategory(next);
+                    if (next !== "doctor") setDoctorSpecialty("all");
+                    // Clear stale picks that may not apply to the new category
+                    setConcerns([]);
+                    setModalities([]);
+                    setAgeGroups([]);
+                    setCredentials([]);
                   }}
                   className={
                     "rounded-full border px-5 py-2.5 text-[14px] font-semibold transition-colors " +
@@ -490,7 +509,12 @@ function FindProviderPage() {
             </div>
 
             <FilterGroup title="Concern / Specialty">
-              {CONCERNS.map((c) => (
+              {(category === "doctor"
+                ? DOCTOR_CONCERNS
+                : category === "psychiatrist"
+                  ? PSYCHIATRY_CONCERNS
+                  : CONCERNS
+              ).map((c) => (
                 <CheckboxRow
                   key={c}
                   label={c}
@@ -500,16 +524,18 @@ function FindProviderPage() {
               ))}
             </FilterGroup>
 
-            <FilterGroup title="Modality">
-              {MODALITIES.map((m) => (
-                <CheckboxRow
-                  key={m}
-                  label={m}
-                  checked={modalities.includes(m)}
-                  onChange={() => setModalities((arr) => toggle(arr, m))}
-                />
-              ))}
-            </FilterGroup>
+            {(category === null || category === "psychologist" || category === "therapy") && (
+              <FilterGroup title="Modality">
+                {MODALITIES.map((m) => (
+                  <CheckboxRow
+                    key={m}
+                    label={m}
+                    checked={modalities.includes(m)}
+                    onChange={() => setModalities((arr) => toggle(arr, m))}
+                  />
+                ))}
+              </FilterGroup>
+            )}
 
             <FilterGroup title="Availability">
               <p className="mb-1.5 mt-0.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400">Session mode</p>
@@ -552,27 +578,31 @@ function FindProviderPage() {
               ))}
             </FilterGroup>
 
-            <FilterGroup title="Age group">
-              {AGE_GROUPS.map((g) => (
-                <CheckboxRow
-                  key={g.code}
-                  label={g.label}
-                  checked={ageGroups.includes(g.code)}
-                  onChange={() => setAgeGroups((arr) => toggle(arr, g.code))}
-                />
-              ))}
-            </FilterGroup>
+            {category !== "doctor" && (
+              <FilterGroup title="Age group">
+                {AGE_GROUPS.map((g) => (
+                  <CheckboxRow
+                    key={g.code}
+                    label={g.label}
+                    checked={ageGroups.includes(g.code)}
+                    onChange={() => setAgeGroups((arr) => toggle(arr, g.code))}
+                  />
+                ))}
+              </FilterGroup>
+            )}
 
-            <FilterGroup title="Credentials / License">
-              {CREDENTIALS.map((c) => (
-                <CheckboxRow
-                  key={c.code}
-                  label={c.label}
-                  checked={credentials.includes(c.code)}
-                  onChange={() => setCredentials((arr) => toggle(arr, c.code))}
-                />
-              ))}
-            </FilterGroup>
+            {(category === null || category === "psychologist" || category === "therapy") && (
+              <FilterGroup title="Credentials / License">
+                {CREDENTIALS.map((c) => (
+                  <CheckboxRow
+                    key={c.code}
+                    label={c.label}
+                    checked={credentials.includes(c.code)}
+                    onChange={() => setCredentials((arr) => toggle(arr, c.code))}
+                  />
+                ))}
+              </FilterGroup>
+            )}
 
             {(category !== null ||
               priceIdx.length > 0 ||
