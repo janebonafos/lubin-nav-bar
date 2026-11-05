@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Search, MapPin, Star, BadgeCheck, Globe, Send, Sparkles, X, ExternalLink, Navigation, Hash, Building2, User, CalendarDays, Clock, Languages, ShieldCheck, Zap, LayoutGrid, Stethoscope, Heart, Baby, Venus, ScanHeart, Brain, Hand } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import dermatologyFace from "@/assets/dermatology-face.svg";
 import { PROVIDERS, DOCTOR_SPECIALTIES, type DoctorSpecialtyId, type Provider } from "@/lib/providers";
 
 export const Route = createFileRoute("/find-provider")({
@@ -69,7 +70,7 @@ const SPECIALTY_TILES: {
   { id: "internal", label: "Internal medicine", icon: Heart },
   { id: "pediatrics", label: "Pediatrics", icon: Baby },
   { id: "obgyn", label: "OB-GYN", icon: Venus },
-  { id: "dermatology", label: "Dermatology", icon: Hand },
+  { id: "dermatology", label: "Dermatology", icon: Hand, maskSrc: dermatologyFace },
   { id: "cardiology", label: "Cardiology", icon: ScanHeart },
   { id: "neurology", label: "Neurology", icon: Brain },
 ];
