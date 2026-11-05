@@ -441,7 +441,7 @@ function FindProviderPage() {
                     setCredentials([]);
                   }}
                   className={
-                    "rounded-full border px-5 py-2.5 text-[14px] font-semibold transition-colors " +
+                    "rounded-xl border px-5 py-2.5 text-[14px] font-semibold transition-colors " +
                     (active
                       ? "border-brand-purple bg-brand-purple text-white hover:bg-brand-purple-deep hover:border-brand-purple-deep"
                       : "border-[#E9E6FA] bg-white text-slate-700 hover:border-brand-purple/50 hover:text-brand-purple")
