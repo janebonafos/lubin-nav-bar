@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Search, MapPin, Star, BadgeCheck, Globe, Send, Sparkles, X, ExternalLink, Navigation, Hash, Building2, User, CalendarDays, Clock, Languages, ShieldCheck, Zap, LayoutGrid, Stethoscope, Heart, Baby, Venus, HeartPulse, Brain } from "lucide-react";
+import { Search, MapPin, Star, BadgeCheck, Globe, Send, Sparkles, X, ExternalLink, Navigation, Hash, Building2, User, CalendarDays, Clock, Languages, ShieldCheck, Zap, LayoutGrid, Stethoscope, Heart, Baby, Venus, ScanHeart, Brain } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { PROVIDERS, DOCTOR_SPECIALTIES, type DoctorSpecialtyId, type Provider } from "@/lib/providers";
 
@@ -69,7 +69,7 @@ const SPECIALTY_TILES: {
   { id: "pediatrics", label: "Pediatrics", icon: Baby },
   { id: "obgyn", label: "OB-GYN", icon: Venus },
   { id: "dermatology", label: "Dermatology", icon: Sparkles },
-  { id: "cardiology", label: "Cardiology", icon: HeartPulse },
+  { id: "cardiology", label: "Cardiology", icon: ScanHeart },
   { id: "neurology", label: "Neurology", icon: Brain },
 ];
 
