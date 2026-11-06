@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { MedicalCertificateRequest } from "@/components/provider/MedicalCertificateRequest";
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import {
   ArrowLeft,
@@ -178,6 +179,7 @@ function ProviderProfilePage() {
   const heroNextService = earliestPair?.service ?? null;
   const heroBookTarget = earliestPair?.service ?? null;
   const [bookingService, setBookingService] = useState<Service | null>(null);
+  const [certOpen, setCertOpen] = useState(false);
 
   return (
     <div
@@ -277,6 +279,15 @@ function ProviderProfilePage() {
                       <Calendar className="h-5 w-5" />
                       Book Session
                     </button>
+                    {provider.practice === "Doctor" && (
+                      <button
+                        type="button"
+                        onClick={() => setCertOpen(true)}
+                        className="flex w-full items-center justify-center gap-2 rounded-2xl border border-brand-purple/40 bg-white py-3.5 text-sm font-bold text-brand-purple transition hover:border-brand-purple hover:bg-[#F4F0FF]"
+                      >
+                        Request medical certificate
+                      </button>
+                    )}
                   </div>
                 </div>
 
@@ -509,6 +520,13 @@ function ProviderProfilePage() {
         </section>
 
       </main>
+
+      <MedicalCertificateRequest
+        providerName={provider.name}
+        providerId={String(provider.id)}
+        open={certOpen}
+        onOpenChange={setCertOpen}
+      />
 
       {bookingService && (
         <BookingModal
