@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AiIntakeRouteImport } from './routes/ai-intake'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as CheckInRouteImport } from './routes/check-in'
 import { Route as CheckoutRouteImport } from './routes/checkout'
@@ -55,6 +56,11 @@ import { Route as ApiPublicEmailPreviewRouteImport } from './routes/api/public/e
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AiIntakeRoute = AiIntakeRouteImport.update({
+  id: '/ai-intake',
+  path: '/ai-intake',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -268,6 +274,7 @@ const ApiPublicEmailPreviewRoute = ApiPublicEmailPreviewRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/ai-intake': typeof AiIntakeRoute
   '/auth': typeof AuthRoute
   '/check-in': typeof CheckInRoute
   '/checkout': typeof CheckoutRoute
@@ -312,6 +319,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/ai-intake': typeof AiIntakeRoute
   '/auth': typeof AuthRoute
   '/check-in': typeof CheckInRoute
   '/checkout': typeof CheckoutRoute
@@ -357,6 +365,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/ai-intake': typeof AiIntakeRoute
   '/auth': typeof AuthRoute
   '/check-in': typeof CheckInRoute
   '/checkout': typeof CheckoutRoute
@@ -403,6 +412,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/ai-intake'
     | '/auth'
     | '/check-in'
     | '/checkout'
@@ -447,6 +457,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/ai-intake'
     | '/auth'
     | '/check-in'
     | '/checkout'
@@ -491,6 +502,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/ai-intake'
     | '/auth'
     | '/check-in'
     | '/checkout'
@@ -536,6 +548,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AiIntakeRoute: typeof AiIntakeRoute
   AuthRoute: typeof AuthRoute
   CheckInRoute: typeof CheckInRoute
   CheckoutRoute: typeof CheckoutRoute
@@ -585,6 +598,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai-intake': {
+      id: '/ai-intake'
+      path: '/ai-intake'
+      fullPath: '/ai-intake'
+      preLoaderRoute: typeof AiIntakeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -890,6 +910,7 @@ const ProfileRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AiIntakeRoute: AiIntakeRoute,
   AuthRoute: AuthRoute,
   CheckInRoute: CheckInRoute,
   CheckoutRoute: CheckoutRoute,
