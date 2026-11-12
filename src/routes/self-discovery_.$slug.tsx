@@ -35,6 +35,15 @@ import AuthModal from "@/components/AuthModal";
 import { getAssessmentStatus, type AssessmentStatus } from "@/lib/patterns/scoring";
 import { useResultInsight } from "@/lib/patterns/useResultInsight";
 import ResultInsights, { BookingCard, TalkThroughCard } from "@/components/discovery/ResultInsights";
+import {
+  CrisisHelpCard,
+  LockedPreviews,
+  NextStepsCard,
+  SaveResultModal,
+  useSoftGate,
+} from "@/components/discovery/SoftGate";
+import { mockSignUp } from "@/lib/patterns/softGate";
+import { toast } from "sonner";
 import ShareResultModal from "@/components/discovery/ShareResultModal";
 
 const ABOUT_COPY: Record<string, string> = {
@@ -312,14 +321,6 @@ function Runner({ assessment }: { assessment: Assessment }) {
     clearInProgress(assessment.id);
     setCompletedAttempt(attempt);
     setPhase("result");
-    // Nudge guests to register so their results are saved properly.
-    if (typeof window !== "undefined") {
-      const isGuest =
-        window.localStorage.getItem("lubinai_guest_mode") !== "false";
-      if (isGuest) {
-        window.setTimeout(() => setRegisterOpen(true), 600);
-      }
-    }
   }
 
   function goBack() {
@@ -765,6 +766,9 @@ function ResultView({
   attempt: Attempt;
 }) {
   const [shareOpen, setShareOpen] = useState(false);
+  const [saveOpen, setSaveOpen] = useState(false);
+  const [maybeLater, setMaybeLater] = useState(false);
+  const gate = useSoftGate();
   const [showAnswers, setShowAnswers] = useState(false);
   const selfHarm =
     assessment.id === "phq-9" &&
@@ -841,40 +845,59 @@ function ResultView({
           </div>
         </div>
 
-        <div className="mt-8 h-px w-full bg-brand-purple/10" />
-
-        {/* Above-the-fold CTAs: AI chat + real provider consult */}
-        <div className="mt-6 grid items-stretch gap-3 md:grid-cols-2">
-          <TalkThroughCard assessment={assessment} attempt={attempt} status={status} />
-          <BookingCard status={status} />
+        <div className="mt-6 max-w-2xl">
+          <p className="text-[15px] leading-[1.7] text-brand-purple-dark/80">
+            {status.explanation} This isn't a diagnosis — it's a snapshot of how
+            things have been lately.
+          </p>
         </div>
 
-        <div className="mt-8">
-          <p className="font-serif-display text-lg font-light italic leading-relaxed text-brand-purple-dark md:text-xl">
-            “{attempt.summary}”
-          </p>
-          <div className="mt-8 grid gap-10 md:grid-cols-12">
-            <div className="md:col-span-7">
-              <HeroInsightRead
-                assessment={assessment}
-                score={attempt.score}
-                status={status}
-              />
+        <div className="mt-6">
+          <CrisisHelpCard />
+        </div>
+
+        {!gate.signedUp ? (
+          <div className="mt-8">
+            <button
+              type="button"
+              onClick={() => setSaveOpen(true)}
+              className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-brand-purple px-6 py-3.5 text-[15px] font-semibold text-white shadow-[0_8px_20px_-6px_rgba(61,46,107,0.45)] transition hover:bg-brand-purple-deep md:w-auto"
+            >
+              Save to my Health Passport
+            </button>
+            <div className="mt-6">
+              <LockedPreviews onUnlock={() => setSaveOpen(true)} />
             </div>
-            <div className="md:col-span-5">
-              <div className="mt-6">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-purple/70">
-                  About this result
-                </p>
-                <p className="mt-3 text-[14px] leading-[1.7] text-brand-purple-dark/70">
-                  {status.explanation} This isn't a diagnosis — it's a snapshot of
-                  this moment, and a useful thing to bring into a conversation with
-                  someone you trust.
-                </p>
+            {!maybeLater && (
+              <div className="mt-2 text-center">
+                <button
+                  type="button"
+                  onClick={() => setMaybeLater(true)}
+                  className="text-[13px] font-medium text-brand-purple underline-offset-2 hover:underline"
+                >
+                  Maybe later
+                </button>
               </div>
+            )}
+          </div>
+        ) : (
+          <div className="mt-8 space-y-4">
+            <p className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[12.5px] font-semibold text-brand-purple-dark">
+              <CheckCircle2 className="h-4 w-4 text-brand-purple" /> Saved to your Health Passport
+            </p>
+            <div className="grid items-stretch gap-3 md:grid-cols-2">
+              <NextStepsCard intakeDone={gate.intakeDone} />
+              <TalkThroughCard assessment={assessment} attempt={attempt} status={status} />
+            </div>
+            {gate.intakeDone && <BookingCard status={status} />}
+            <div className="pt-4">
+              <p className="font-serif-display text-lg font-light italic leading-relaxed text-brand-purple-dark md:text-xl">
+                “{attempt.summary}”
+              </p>
+              <HeroInsightRead assessment={assessment} score={attempt.score} status={status} />
             </div>
           </div>
-        </div>
+        )}
 
         {/* Answer expander — minimal */}
         <div className="mt-12">
@@ -928,12 +951,11 @@ function ResultView({
         </div>
       </div>
 
-      <ResultInsights assessment={assessment} attempt={attempt} />
-
-      <SupportCard
-        crisis={isCrisisResult(assessment, attempt)}
-        heavy={status.tone.includes("F4ECFB") || status.tone.includes("orange")}
-      />
+      {gate.signedUp && (
+        <div className="mt-6">
+          <ResultInsights assessment={assessment} attempt={attempt} />
+        </div>
+      )}
 
       {/* Bottom utility actions */}
       <div className="mt-16 border-t border-brand-purple/10 pt-8">
@@ -964,6 +986,17 @@ function ResultView({
           </p>
         </div>
       </div>
+
+      <SaveResultModal
+        open={saveOpen}
+        onClose={() => setSaveOpen(false)}
+        onDone={() => {
+          saveAttempt(attempt);
+          mockSignUp();
+          setSaveOpen(false);
+          toast.success("Saved to your Health Passport ✓");
+        }}
+      />
 
       <ShareResultModal
         open={shareOpen}
