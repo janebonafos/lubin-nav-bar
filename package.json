@@ -4,6 +4,7 @@
   "sideEffects": false,
   "type": "module",
   "overrides": {
+    "dompurify": "^3.4.17",
     "seroval": "^1.5.3",
     "seroval-plugins": "^1.5.3"
   },
