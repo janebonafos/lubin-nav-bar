@@ -6,6 +6,7 @@ import {
   ArrowRight,
   Clock,
   CalendarCheck,
+  MessageCircle,
   CheckCircle2,
   ChevronDown,
   RotateCcw,
@@ -32,9 +33,9 @@ import type { Assessment, Attempt } from "@/lib/patterns/types";
 import CrisisOverlay from "@/components/patterns/CrisisOverlay";
 import BreathingPause from "@/components/patterns/BreathingPause";
 import AuthModal from "@/components/AuthModal";
-import { getAssessmentStatus, type AssessmentStatus } from "@/lib/patterns/scoring";
-import { useResultInsight } from "@/lib/patterns/useResultInsight";
-import ResultInsights, { BookingCard, TalkThroughCard } from "@/components/discovery/ResultInsights";
+import { getAssessmentStatus, getScoreBands, type AssessmentStatus } from "@/lib/patterns/scoring";
+import { fallbackInsight, useResultInsight } from "@/lib/patterns/useResultInsight";
+import ResultInsights, { BookingCard, GaugeSection, TalkThroughCard } from "@/components/discovery/ResultInsights";
 import {
   CrisisHelpCard,
   NextStepsCard,
@@ -864,34 +865,31 @@ function ResultView({
             >
               Save to my Health Passport
             </Button>
-            <div className="mt-6 space-y-6">
-              <ResultLockedSection
-                title="What this score means"
-                preview={`${attempt.summary} ${status.explanation} Your score reflects how you answered across all ${assessment.questions.length} questions — here's the full picture of what's behind it…`}
-                onUnlock={() => setSaveOpen(true)}
-              />
-              <ResultLockedSection
-                title="What this means for you"
-                preview={`Your answers point to ${status.label.toLowerCase()}. ${status.explanation} Looking at how you answered each question, a few patterns stand out — here's what they suggest about where you are right now, and the gentle next steps that tend to help most…`}
-                onUnlock={() => setSaveOpen(true)}
-              />
-              <ResultLockedSection
-                title="Show my answers"
-                preview={
-                  shareAnswers.length > 0
-                    ? shareAnswers
-                        .slice(0, 3)
-                        .map((a, i) => `${i + 1}. ${a.question} — ${a.answer}`)
-                        .join("  ·  ") + "  ·  …"
-                    : "Every question and the answer you gave, saved in one place…"
-                }
-                onUnlock={() => setSaveOpen(true)}
-              />
-              <ResultLockedSection
-                title="Your gauge"
-                preview={`Your score of ${attempt.score} out of ${assessment.maxScore} falls in the "${status.label}" band. ${status.explanation} On the full scale, scores are grouped into four bands — seeing exactly where yours sits helps you track change over time…`}
-                onUnlock={() => setSaveOpen(true)}
-              />
+            <div className="mt-6 grid items-stretch gap-4 md:grid-cols-2">
+              <section className="flex flex-col rounded-[2rem] bg-brand-purple-dark p-6 text-primary-foreground">
+                <div className="flex items-start gap-3">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary-foreground/15"><MessageCircle className="h-4 w-4" /></span>
+                  <div><h2 className="text-[15px] font-semibold">Talk through with Lubin AI</h2><p className="mt-1 text-[12px] text-primary-foreground/65">AI help understanding your result</p></div>
+                </div>
+                <p className="mt-5 text-[14px] leading-relaxed text-primary-foreground/80">Ask what your result means or what to try next. This action doesn't share it with a provider.</p>
+                <div className="mt-6"><Button onClick={() => setSaveOpen(true)} className="rounded-full bg-background text-brand-purple-dark hover:bg-brand-lavender">Ask Lubin AI <ArrowRight className="h-4 w-4" /></Button></div>
+              </section>
+              <section className="flex flex-col rounded-[2rem] border border-brand-purple/10 bg-background p-6">
+                <p className="rounded-full bg-brand-lavender px-3 py-1 text-[11px] font-semibold uppercase text-brand-purple-dark">Included for you</p>
+                <h2 className="mt-5 font-display text-2xl font-light italic text-brand-purple-dark">Talk to a real provider — 30 minutes, free</h2>
+                <p className="mt-3 text-[14px] leading-relaxed text-brand-purple-dark/65">Your free consultation is with a real provider on Lubin, not AI. No commitment afterwards.</p>
+                <div className="mt-6"><Button onClick={() => setSaveOpen(true)} className="rounded-full bg-brand-purple text-primary-foreground hover:bg-brand-purple-deep">Talk to a provider — free</Button></div>
+              </section>
+            </div>
+            <div className="mt-8 grid gap-6 md:grid-cols-2">
+              <div>
+                <p className="font-display text-2xl font-light italic leading-relaxed text-brand-purple-dark">“{attempt.summary}”</p>
+                <p className="mt-6 text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-purple/70">What this score means</p>
+                <p className="mt-2 text-[12px] text-brand-purple-dark/55">General guidance — not AI-generated</p>
+                <p className="mt-4 text-[15px] leading-[1.7] text-brand-purple-dark/80">{status.explanation}</p>
+                <ResultReadMore onClick={() => setSaveOpen(true)} />
+              </div>
+              <p className="text-[14px] leading-[1.8] text-brand-purple-dark/65">{status.explanation} This isn't a diagnosis — it's a snapshot of this moment, and a useful thing to bring into a conversation with someone you trust.</p>
             </div>
           </div>
         ) : (
@@ -914,10 +912,10 @@ function ResultView({
         )}
 
         {/* Answer expander — minimal */}
-        {gate.signedUp && <div className="mt-12">
+        {<div className="mt-12">
           <button
             type="button"
-            onClick={() => setShowAnswers((v) => !v)}
+            onClick={() => gate.signedUp ? setShowAnswers((v) => !v) : setSaveOpen(true)}
             aria-expanded={showAnswers}
             className="group inline-flex items-center gap-2 text-[13.5px] font-semibold text-brand-purple transition hover:text-brand-purple-dark"
           >
@@ -927,7 +925,7 @@ function ResultView({
               strokeWidth={2.2}
             />
           </button>
-          {showAnswers && (
+          {gate.signedUp && showAnswers && (
             <motion.ol
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
@@ -965,11 +963,23 @@ function ResultView({
         </div>}
       </div>
 
-      {gate.signedUp && (
-        <div className="mt-6">
-          <ResultInsights assessment={assessment} attempt={attempt} />
-        </div>
-      )}
+      <div className="mt-6">
+        {gate.signedUp ? <ResultInsights assessment={assessment} attempt={attempt} /> : (
+          <div className="space-y-16">
+            <GaugeSection assessment={assessment} attempt={attempt} status={status} bands={getScoreBands(assessment.id, assessment.maxScore, assessment.lowerIsBetter)} />
+            <section className="relative border-l border-brand-purple/20 pl-6 md:pl-8">
+              <div className="flex items-center gap-2"><Sparkles className="h-4 w-4 text-brand-purple" /><p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-purple/70">General guidance & next steps</p></div>
+              <h2 className="mt-2 font-display text-2xl font-light italic text-brand-purple-dark md:text-3xl">What this means for you</h2>
+              <p className="mt-5 max-w-2xl text-[16px] leading-[1.7] text-brand-purple-dark/80">{fallbackInsight(assessment, status).meaning}</p>
+              <div className="mt-8 flex max-w-2xl items-start gap-5">
+                <span className="font-display text-4xl font-light italic leading-none text-brand-purple/20">01</span>
+                <div><h3 className="text-[15px] font-semibold text-brand-purple-dark">{fallbackInsight(assessment, status).steps[0]?.title}</h3><p className="mt-1 text-[14px] leading-[1.7] text-brand-purple-dark/65">{fallbackInsight(assessment, status).steps[0]?.detail} …</p></div>
+              </div>
+              <ResultReadMore onClick={() => setSaveOpen(true)} />
+            </section>
+          </div>
+        )}
+      </div>
 
       {/* Bottom utility actions */}
       <div className="mt-16 border-t border-brand-purple/10 pt-8">
@@ -1035,49 +1045,9 @@ function ResultView({
   );
 }
 
-// Account prompts appear only after a reader requests more detail or saving.
-// Signed-out previews show a short real excerpt cut with an ellipsis;
-// the full content only mounts after the prototype account gate unlocks.
-function ResultLockedSection({
-  title,
-  preview,
-  onUnlock,
-}: {
-  title: string;
-  preview: string;
-  onUnlock: () => void;
-}) {
-  return (
-    <section
-      aria-label={`${title} — account required`}
-      className="overflow-hidden rounded-3xl border border-brand-purple/15 bg-background p-5 md:p-6"
-    >
-      <h2 className="text-[15px] font-semibold text-brand-purple-dark">
-        {title}
-      </h2>
-      <div className="relative mt-3">
-        <p
-          inert
-          aria-hidden="true"
-          className="line-clamp-4 select-none text-[15px] leading-[1.75] text-brand-purple-dark/80"
-        >
-          {preview}
-        </p>
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-background to-transparent" />
-      </div>
-      <button
-        type="button"
-        onClick={onUnlock}
-        className="group mt-3 inline-flex items-center gap-1.5 text-[13.5px] font-semibold text-brand-purple transition hover:text-brand-purple-dark"
-      >
-        Keep reading — free account needed
-        <ArrowRight
-          className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
-          strokeWidth={2.2}
-        />
-      </button>
-    </section>
-  );
+// Preserve the editorial result layout; only deeper reading requests open the account prompt.
+function ResultReadMore({ onClick }: { onClick: () => void }) {
+  return <Button type="button" variant="link" onClick={onClick} className="mt-4 h-auto p-0 text-[14px] font-semibold text-brand-purple hover:text-brand-purple-dark">Read more <ArrowRight className="h-4 w-4" /></Button>;
 }
 
 function ResultAccountModal({

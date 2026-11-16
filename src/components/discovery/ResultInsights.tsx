@@ -79,7 +79,7 @@ export default function ResultInsights({
 // Gauge
 // ============================================================
 
-function GaugeSection({
+export function GaugeSection({
   assessment,
   attempt,
   status,
