@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowLeft,
@@ -8,7 +8,6 @@ import {
   CalendarCheck,
   CheckCircle2,
   ChevronDown,
-  Lock,
   RotateCcw,
   ShieldCheck,
   Share2,
@@ -33,13 +32,12 @@ import type { Assessment, Attempt } from "@/lib/patterns/types";
 import CrisisOverlay from "@/components/patterns/CrisisOverlay";
 import BreathingPause from "@/components/patterns/BreathingPause";
 import AuthModal from "@/components/AuthModal";
-import { getAssessmentStatus, type AssessmentStatus } from "@/lib/patterns/scoring";
+import { getAssessmentStatus, getScoreBands, type AssessmentStatus } from "@/lib/patterns/scoring";
 import { useResultInsight } from "@/lib/patterns/useResultInsight";
 import ResultInsights, { BookingCard, TalkThroughCard } from "@/components/discovery/ResultInsights";
 import {
   CrisisHelpCard,
   NextStepsCard,
-  SaveResultModal,
   useSoftGate,
 } from "@/components/discovery/SoftGate";
 import { mockSignUp } from "@/lib/patterns/softGate";
@@ -849,7 +847,7 @@ function ResultView({
 
         <div className="mt-6 max-w-2xl">
           <p className="text-[15px] leading-[1.7] text-brand-purple-dark/80">
-            {status.explanation}{gate.signedUp && " This isn't a diagnosis — it's a snapshot of how things have been lately."}
+            {status.explanation} This isn't a diagnosis — it's a snapshot of how things have been lately.
           </p>
         </div>
 
@@ -859,40 +857,33 @@ function ResultView({
 
         {!gate.signedUp ? (
           <div className="mt-8">
-            <Button
-              type="button"
-              onClick={() => setSaveOpen(true)}
-              className="inline-flex h-auto w-full items-center justify-center gap-2 rounded-full bg-brand-purple px-6 py-3.5 text-[15px] font-semibold text-primary-foreground shadow-sm transition hover:bg-brand-purple-deep md:w-auto"
-            >
-              Save to my Health Passport
-            </Button>
-            <div className="mt-6 space-y-6">
-              <ResultLockedSection title="What this score means" onUnlock={() => setSaveOpen(true)}>
-                <p className="text-[15px] leading-[1.75] text-brand-purple-dark/80">A fuller explanation of your result and the patterns in your answers.</p>
-                <div className="mt-3 h-3 w-9/12 rounded-full bg-brand-lavender" />
-              </ResultLockedSection>
-              <ResultLockedSection title="What this means for you" onUnlock={() => setSaveOpen(true)}>
-                <p className="text-[15px] leading-[1.75] text-brand-purple-dark/80">Your personal AI insights and tips based on this check-in.</p>
-                <div className="mt-4 space-y-3">
-                  <div className="h-3 w-11/12 rounded-full bg-brand-lavender" />
-                  <div className="h-3 w-8/12 rounded-full bg-brand-lavender" />
+            <section aria-label="Your result" className="space-y-6">
+              <div>
+                <h2 className="text-[15px] font-semibold text-brand-purple-dark">What this score means</h2>
+                <p className="mt-3 text-[15px] leading-[1.75] text-brand-purple-dark/80">{attempt.summary}</p>
+                <Button type="button" variant="link" onClick={() => setSaveOpen(true)} className="mt-2 h-auto px-0 text-brand-purple hover:text-brand-purple-dark">
+                  Read more <ArrowRight className="h-4 w-4" />
+                </Button>
+              </div>
+              <div>
+                <h2 className="text-[15px] font-semibold text-brand-purple-dark">Your gauge</h2>
+                <p className="mt-2 text-[13.5px] text-brand-purple-dark/70">Where {attempt.score} sits on this scale</p>
+                <meter aria-label="Your score" min={0} max={assessment.maxScore} value={attempt.score} className="mt-3 h-4 w-full accent-brand-purple" />
+                <div className="mt-2 flex justify-between text-[13px] text-brand-purple-dark/60"><span>0</span><span>{assessment.maxScore}</span></div>
+                <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2">
+                  {getScoreBands(assessment.id, assessment.maxScore, assessment.lowerIsBetter).map((band) => (
+                    <p key={band.label} className={`text-[12px] ${band.label === status.label ? "font-semibold text-brand-purple-dark" : "text-brand-purple-dark/60"}`}>
+                      {band.label} · {band.from}–{band.to}
+                    </p>
+                  ))}
                 </div>
-              </ResultLockedSection>
-              <ResultLockedSection title="Show my answers" onUnlock={() => setSaveOpen(true)}>
-                <div className="space-y-4">
-                  <div className="h-3 w-11/12 rounded-full bg-brand-lavender" />
-                  <div className="h-3 w-9/12 rounded-full bg-brand-lavender" />
-                  <div className="h-3 w-10/12 rounded-full bg-brand-lavender" />
-                </div>
-              </ResultLockedSection>
-              <ResultLockedSection title="Your gauge" onUnlock={() => setSaveOpen(true)}>
-                <p className="text-[15px] text-brand-purple-dark/80">Where your result sits on this scale</p>
-                <div className="mt-8 h-1.5 rounded-full bg-brand-lavender">
-                  <div className="h-full w-1/2 rounded-full bg-brand-purple" />
-                </div>
-                <div className="mt-4 flex justify-between text-[13px] text-brand-purple-dark/60"><span>0</span><span>{assessment.maxScore}</span></div>
-              </ResultLockedSection>
-            </div>
+              </div>
+              <div className="flex flex-wrap gap-3 border-t border-brand-purple/10 pt-5">
+                <Button type="button" variant="link" onClick={() => setSaveOpen(true)} className="h-auto px-0 text-brand-purple hover:text-brand-purple-dark">Show more <ChevronDown className="h-4 w-4" /></Button>
+                <Button type="button" variant="link" onClick={() => setSaveOpen(true)} className="h-auto text-brand-purple hover:text-brand-purple-dark">Show my answers <ChevronDown className="h-4 w-4" /></Button>
+              </div>
+            </section>
+            <Button type="button" onClick={() => setSaveOpen(true)} className="mt-6 inline-flex h-auto w-full items-center justify-center gap-2 rounded-full bg-brand-purple px-6 py-3.5 text-[15px] font-semibold text-primary-foreground shadow-sm transition hover:bg-brand-purple-deep md:w-auto">Save to my Health Passport</Button>
           </div>
         ) : (
           <div className="mt-8 space-y-4">
@@ -1001,7 +992,7 @@ function ResultView({
         </div>
       </div>
 
-      <SaveResultModal
+      <ResultAccountModal
         open={saveOpen}
         onClose={() => setSaveOpen(false)}
         onDone={() => {
@@ -1035,29 +1026,44 @@ function ResultView({
   );
 }
 
-// Signed-out previews never mount personal answers or AI insight readers.
-function ResultLockedSection({
-  title,
-  onUnlock,
-  children,
+// Account prompts appear only after a reader requests more detail or saving.
+function ResultAccountModal({
+  open,
+  onClose,
+  onDone,
 }: {
-  title: string;
-  onUnlock: () => void;
-  children: ReactNode;
+  open: boolean;
+  onClose: () => void;
+  onDone: () => void;
 }) {
+  const [mode, setMode] = useState<"signup" | "signin">("signup");
+  const [email, setEmail] = useState("");
+  useEffect(() => {
+    if (!open) { setMode("signup"); setEmail(""); }
+  }, [open]);
+  useEffect(() => {
+    if (!open) return;
+    const closeOnEscape = (event: KeyboardEvent) => { if (event.key === "Escape") onClose(); };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [open, onClose]);
+  if (!open) return null;
   return (
-    <section aria-label={`${title} — account required`} className="relative overflow-hidden rounded-3xl border border-brand-purple/15 bg-background p-5 md:p-6">
-      <h2 className="text-[15px] font-semibold text-brand-purple-dark">{title}</h2>
-      <div inert aria-hidden="true" className="mt-4 min-h-44 select-none blur-[5px]">
-        {children}
+    <div className="fixed inset-0 z-[70] flex items-end justify-center md:items-center md:p-4">
+      <div className="absolute inset-0 bg-brand-purple-dark/40 backdrop-blur-sm" onClick={onClose} />
+      <div role="dialog" aria-modal="true" aria-labelledby="result-account-title" className="relative w-full max-w-md rounded-t-3xl bg-background p-6 shadow-2xl md:rounded-3xl md:p-7">
+        <Button type="button" variant="ghost" size="icon" aria-label="Close" onClick={onClose} className="absolute right-3 top-3 text-brand-purple-dark"><X className="h-5 w-5" /></Button>
+        <h2 id="result-account-title" className="pr-8 text-xl font-semibold text-brand-purple-dark">{mode === "signup" ? "Explore your result further" : "Sign in to Lubin"}</h2>
+        <p className="mt-2 text-sm leading-relaxed text-brand-purple-dark/70">Create a free account or sign in for deeper insights and to save this result to your Health Passport.</p>
+        <form onSubmit={(event) => { event.preventDefault(); if (/\S+@\S+\.\S+/.test(email)) onDone(); }} className="mt-6 flex flex-col gap-3">
+          <label htmlFor="result-account-email" className="text-[13px] font-medium text-brand-purple-dark">Email</label>
+          <input id="result-account-email" type="email" required autoFocus value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" className="rounded-xl border border-brand-purple/20 bg-background px-4 py-3 text-sm text-brand-purple-dark focus:border-brand-purple focus:outline-none" />
+          <Button type="submit" disabled={!/\S+@\S+\.\S+/.test(email)} className="h-auto rounded-full bg-brand-purple py-3 text-primary-foreground hover:bg-brand-purple-deep">{mode === "signup" ? "Create free account" : "Sign in"}</Button>
+          <Button type="button" variant="link" onClick={() => setMode(mode === "signup" ? "signin" : "signup")} className="h-auto whitespace-normal text-brand-purple">{mode === "signup" ? "Already have an account? Sign in" : "New to Lubin? Create a free account"}</Button>
+        </form>
+        <p className="mt-4 text-center text-[12px] text-brand-purple-dark/60">Free. No payment. You can keep viewing your result without an account.</p>
       </div>
-      <div className="absolute inset-x-5 bottom-5 top-14 flex flex-col items-center justify-center gap-3 text-center md:inset-x-6 md:bottom-6">
-        <Lock aria-hidden="true" className="h-5 w-5 text-brand-purple" />
-        <p className="max-w-xs text-[14px] font-semibold leading-relaxed text-brand-purple-dark">Create a free account to see your full result</p>
-        <Button type="button" onClick={onUnlock} className="h-auto max-w-full whitespace-normal rounded-full bg-brand-purple px-5 py-2.5 text-[13px] font-semibold text-primary-foreground hover:bg-brand-purple-deep">Create free account</Button>
-        <p className="text-[12px] text-brand-purple-dark/60">Free. No payment.</p>
-      </div>
-    </section>
+    </div>
   );
 }
 
