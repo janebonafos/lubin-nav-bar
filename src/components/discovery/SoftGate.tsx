@@ -16,20 +16,20 @@ export function useSoftGate() {
 
 export function CrisisHelpCard() {
   return (
-    <section className="rounded-3xl border border-amber-200/70 bg-[#FEF9EE] p-5">
+    <section className="rounded-3xl border border-brand-purple/15 bg-brand-lavender/60 p-5">
       <div className="flex items-start gap-3">
-        <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-[#FBE89A]/70 text-[#7A5A2C]">
+        <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-brand-lavender text-brand-purple-dark">
           <Phone className="h-4 w-4" />
         </span>
         <div className="min-w-0">
-          <p className="text-[14px] font-bold text-[#7A5A2C]">Need help right now?</p>
-          <p className="mt-0.5 text-[13px] leading-[1.55] text-[#8A6A3C]">
+          <p className="text-[14px] font-bold text-brand-purple-dark">Need help right now?</p>
+          <p className="mt-0.5 text-[13px] leading-[1.55] text-brand-purple-dark/70">
             Free, confidential support, any time.
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
-            <a href="tel:2919" className="rounded-full bg-white px-3 py-1.5 text-[13px] font-semibold text-[#7A5A2C] no-underline shadow-sm">Hopeline PH · 2919</a>
-            <a href="tel:1553" className="rounded-full bg-white px-3 py-1.5 text-[13px] font-semibold text-[#7A5A2C] no-underline shadow-sm">NCMH · 1553</a>
-            <a href="https://findahelpline.com" target="_blank" rel="noreferrer" className="rounded-full bg-white px-3 py-1.5 text-[13px] font-semibold text-[#7A5A2C] no-underline shadow-sm">findahelpline.com</a>
+            <a href="tel:2919" className="rounded-full bg-background px-3 py-1.5 text-[13px] font-semibold text-brand-purple-dark no-underline shadow-sm transition hover:bg-brand-lavender">Hopeline PH · 2919</a>
+            <a href="tel:1553" className="rounded-full bg-background px-3 py-1.5 text-[13px] font-semibold text-brand-purple-dark no-underline shadow-sm transition hover:bg-brand-lavender">NCMH · 1553</a>
+            <a href="https://findahelpline.com" target="_blank" rel="noreferrer" className="rounded-full bg-background px-3 py-1.5 text-[13px] font-semibold text-brand-purple-dark no-underline shadow-sm transition hover:bg-brand-lavender">findahelpline.com</a>
           </div>
         </div>
       </div>

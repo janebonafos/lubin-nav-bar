@@ -821,7 +821,7 @@ function ResultView({
             <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-purple/70">
               Clinical Reference: {assessment.clinicalName}
             </p>
-            <h1 className="mt-3 font-serif-display text-4xl font-light leading-[1.05] text-brand-purple-dark md:text-5xl">
+            <h1 className="mt-3 font-display text-4xl font-light italic leading-[1.05] text-brand-purple-dark md:text-5xl">
               {assessment.name}
             </h1>
             <div className="mt-4 flex flex-wrap items-center gap-3">
@@ -850,10 +850,6 @@ function ResultView({
           <p className="text-[15px] leading-[1.7] text-brand-purple-dark/80">
             {status.explanation} This isn't a diagnosis — it's a snapshot of how things have been lately.
           </p>
-        </div>
-
-        <div className="mt-6">
-          <CrisisHelpCard />
         </div>
 
         {!gate.signedUp ? (
@@ -979,6 +975,10 @@ function ResultView({
             </section>
           </div>
         )}
+      </div>
+
+      <div className="mt-16">
+        <CrisisHelpCard />
       </div>
 
       {/* Bottom utility actions */}
