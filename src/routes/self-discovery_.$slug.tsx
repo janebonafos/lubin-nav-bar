@@ -32,7 +32,7 @@ import {
 import type { Assessment, Attempt } from "@/lib/patterns/types";
 import CrisisOverlay from "@/components/patterns/CrisisOverlay";
 import BreathingPause from "@/components/patterns/BreathingPause";
-import AuthModal from "@/components/AuthModal";
+import AuthModal, { type UserRole } from "@/components/AuthModal";
 import { getAssessmentStatus, getScoreBands, type AssessmentStatus } from "@/lib/patterns/scoring";
 import { fallbackInsight, useResultInsight } from "@/lib/patterns/useResultInsight";
 import ResultInsights, { BookingCard, GaugeSection, TalkThroughCard } from "@/components/discovery/ResultInsights";
@@ -1059,34 +1059,25 @@ function ResultAccountModal({
   onClose: () => void;
   onDone: () => void;
 }) {
-  const [mode, setMode] = useState<"signup" | "signin">("signup");
-  const [email, setEmail] = useState("");
-  useEffect(() => {
-    if (!open) { setMode("signup"); setEmail(""); }
-  }, [open]);
-  useEffect(() => {
-    if (!open) return;
-    const closeOnEscape = (event: KeyboardEvent) => { if (event.key === "Escape") onClose(); };
-    window.addEventListener("keydown", closeOnEscape);
-    return () => window.removeEventListener("keydown", closeOnEscape);
-  }, [open, onClose]);
-  if (!open) return null;
+  const finish = (role?: UserRole) => {
+    if (!role) return;
+    try {
+      window.localStorage.setItem("lubin.userRole", role);
+      window.localStorage.setItem("lubin.signedIn", "1");
+      window.dispatchEvent(new Event("lubin:auth-change"));
+    } catch { /* Keep the same local-only account flow if storage is unavailable. */ }
+    onDone();
+  };
   return (
-    <div className="fixed inset-0 z-[70] flex items-end justify-center md:items-center md:p-4">
-      <div className="absolute inset-0 bg-brand-purple-dark/40 backdrop-blur-sm" onClick={onClose} />
-      <div role="dialog" aria-modal="true" aria-labelledby="result-account-title" className="relative w-full max-w-md rounded-t-3xl bg-background p-6 shadow-2xl md:rounded-3xl md:p-7">
-        <Button type="button" variant="ghost" size="icon" aria-label="Close" onClick={onClose} className="absolute right-3 top-3 text-brand-purple-dark"><X className="h-5 w-5" /></Button>
-        <h2 id="result-account-title" className="pr-8 text-xl font-semibold text-brand-purple-dark">{mode === "signup" ? "Explore your result further" : "Sign in to Lubin"}</h2>
-        <p className="mt-2 text-sm leading-relaxed text-brand-purple-dark/70">Create a free account or sign in for deeper insights and to save this result to your Health Passport.</p>
-        <form onSubmit={(event) => { event.preventDefault(); if (/\S+@\S+\.\S+/.test(email)) onDone(); }} className="mt-6 flex flex-col gap-3">
-          <label htmlFor="result-account-email" className="text-[13px] font-medium text-brand-purple-dark">Email</label>
-          <input id="result-account-email" type="email" required autoFocus value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" className="rounded-xl border border-brand-purple/20 bg-background px-4 py-3 text-sm text-brand-purple-dark focus:border-brand-purple focus:outline-none" />
-          <Button type="submit" disabled={!/\S+@\S+\.\S+/.test(email)} className="h-auto rounded-full bg-brand-purple py-3 text-primary-foreground hover:bg-brand-purple-deep">{mode === "signup" ? "Create free account" : "Sign in"}</Button>
-          <Button type="button" variant="link" onClick={() => setMode(mode === "signup" ? "signin" : "signup")} className="h-auto whitespace-normal text-brand-purple">{mode === "signup" ? "Already have an account? Sign in" : "New to Lubin? Create a free account"}</Button>
-        </form>
-        <p className="mt-4 text-center text-[12px] text-brand-purple-dark/60">Free. No payment. You can keep viewing your result without an account.</p>
-      </div>
-    </div>
+    <AuthModal
+      open={open}
+      mode="signup"
+      onClose={onClose}
+      onContinueWithGoogle={finish}
+      onContinueWithLinkedIn={finish}
+      onContinueWithFacebook={finish}
+      onContinueWithEmail={finish}
+    />
   );
 }
 

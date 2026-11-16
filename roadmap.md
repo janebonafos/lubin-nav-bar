@@ -1,5 +1,7 @@
 # Health Passport patient design
 
+- [ ] Reuse existing registration/sign-in modal for self-check results and verify completion preserves and unlocks the result.
+
 - [x] Move result helpline below guidance and match assessment/gauge headings across all checks; verify presentation.
 
 - [x] Restore the reference result layout with short readable guidance and registration/sign-in on Read more; verify the flow.
