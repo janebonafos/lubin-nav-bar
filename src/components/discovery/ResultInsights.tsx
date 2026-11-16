@@ -102,7 +102,7 @@ export function GaugeSection({
           <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-purple/70">
             Your gauge
           </p>
-          <h2 className="mt-2 font-serif-display text-2xl font-light italic text-brand-purple-dark md:text-3xl">
+          <h2 className="mt-2 font-display text-2xl font-light italic text-brand-purple-dark md:text-3xl">
             Where {attempt.score} sits on this scale
           </h2>
           <p className="mt-2 text-[13.5px] leading-[1.6] text-brand-purple-dark/60">
@@ -207,7 +207,7 @@ function AiReadSection({
             AI Insights & next steps
           </p>
         </div>
-        <h2 className="mt-2 font-serif-display text-2xl font-light italic text-brand-purple-dark md:text-3xl">
+        <h2 className="mt-2 font-display text-2xl font-light italic text-brand-purple-dark md:text-3xl">
           What this means for you
         </h2>
 

@@ -1,5 +1,7 @@
 # Health Passport patient design
 
+- [x] Move result helpline below guidance and match assessment/gauge headings across all checks; verify presentation.
+
 - [x] Restore the reference result layout with short readable guidance and registration/sign-in on Read more; verify the flow.
 
 - [x] Show the self-check result without blur and verify account prompts only after read-more or save actions.
