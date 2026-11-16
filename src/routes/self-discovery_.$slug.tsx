@@ -868,13 +868,13 @@ function ResultView({
                   <div><h2 className="text-[15px] font-semibold">Talk through with Lubin AI</h2><p className="mt-1 text-[12px] text-primary-foreground/65">AI help understanding your result</p></div>
                 </div>
                 <p className="mt-5 text-[14px] leading-relaxed text-primary-foreground/80">Ask what your result means or what to try next. This action doesn't share it with a provider.</p>
-                <div className="mt-6"><Button onClick={() => setSaveOpen(true)} className="rounded-full bg-background text-brand-purple-dark hover:bg-brand-lavender">Ask Lubin AI <ArrowRight className="h-4 w-4" /></Button></div>
+                <div className="mt-auto pt-6"><Button onClick={() => setSaveOpen(true)} className="rounded-full bg-background text-brand-purple-dark hover:bg-brand-lavender">Ask Lubin AI <ArrowRight className="h-4 w-4" /></Button></div>
               </section>
               <section className="flex flex-col rounded-[2rem] border border-brand-purple/10 bg-background p-6">
                 <p className="rounded-full bg-brand-lavender px-3 py-1 text-[11px] font-semibold uppercase text-brand-purple-dark">Included for you</p>
                 <h2 className="mt-5 font-display text-2xl font-light italic text-brand-purple-dark">Talk to a real provider — 30 minutes, free</h2>
                 <p className="mt-3 text-[14px] leading-relaxed text-brand-purple-dark/65">Your free consultation is with a real provider on Lubin, not AI. No commitment afterwards.</p>
-                <div className="mt-6"><Button onClick={() => setSaveOpen(true)} className="rounded-full bg-brand-purple text-primary-foreground hover:bg-brand-purple-deep">Talk to a provider — free</Button></div>
+                <div className="mt-auto pt-6"><Button onClick={() => setSaveOpen(true)} className="rounded-full bg-brand-purple text-primary-foreground hover:bg-brand-purple-deep">Talk to a provider — free</Button></div>
               </section>
             </div>
             <div className="mt-8 grid gap-6 md:grid-cols-2">
