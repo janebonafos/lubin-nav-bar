@@ -868,7 +868,7 @@ function ResultView({
               <div>
                 <h2 className="text-[15px] font-semibold text-brand-purple-dark">Your gauge</h2>
                 <p className="mt-2 text-[13.5px] text-brand-purple-dark/70">Where {attempt.score} sits on this scale</p>
-                <meter aria-label="Your score" min={0} max={assessment.maxScore} value={attempt.score} className="mt-3 h-4 w-full accent-brand-purple" />
+                <meter aria-label="Your score" min={0} max={assessment.maxScore} value={attempt.score} className="mt-3 h-4 w-full [&::-webkit-meter-bar]:border-0 [&::-webkit-meter-bar]:bg-brand-lavender [&::-webkit-meter-optimum-value]:bg-brand-purple [&::-moz-meter-bar]:bg-brand-purple" />
                 <div className="mt-2 flex justify-between text-[13px] text-brand-purple-dark/60"><span>0</span><span>{assessment.maxScore}</span></div>
                 <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2">
                   {getScoreBands(assessment.id, assessment.maxScore, assessment.lowerIsBetter).map((band) => (

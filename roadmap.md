@@ -1,6 +1,6 @@
 # Health Passport patient design
 
-- [ ] Show the self-check result without blur and verify account prompts only after read-more or save actions.
+- [x] Show the self-check result without blur and verify account prompts only after read-more or save actions.
 
 - [x] Update only the signed-out self-check result gate and verify free signup, saving, crisis access, and unchanged signed-in access.
 
