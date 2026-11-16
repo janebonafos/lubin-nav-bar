@@ -329,19 +329,6 @@ export default function AuthModal({
                 >
                   <ArrowLeft className="h-3.5 w-3.5" /> Back to role selection
                 </button>
-                {isSignup && (
-                  <p className="mt-3 text-center text-[12px] text-[#7E6BAF]">
-                    By continuing with Google, LinkedIn or Facebook, you agree to {brandName}'s{" "}
-                    <a href={termsHref} className="font-medium text-[#5A4E8A] underline underline-offset-2 hover:text-[#3D2E6B]">
-                      Terms
-                    </a>{" "}
-                    and{" "}
-                    <a href={privacyHref} className="font-medium text-[#5A4E8A] underline underline-offset-2 hover:text-[#3D2E6B]">
-                      Privacy Policy
-                    </a>
-                    .
-                  </p>
-                )}
                 <div className="mt-4 flex flex-col gap-2.5">
                   {([
                     { key: "google" as Provider, Icon: GoogleIcon },
@@ -375,6 +362,20 @@ export default function AuthModal({
                   })}
                 </div>
               </>
+            )}
+
+            {isSignup && canShowAuthMethods && (
+              <p className="mt-4 text-center text-[12px] text-brand-purple">
+                By continuing with Google, LinkedIn or Facebook, you agree to {brandName}'s{" "}
+                <a href={termsHref} className="font-medium text-brand-purple-dark underline underline-offset-2 hover:text-brand-purple-deep">
+                  Terms
+                </a>{" "}
+                and{" "}
+                <a href={privacyHref} className="font-medium text-brand-purple-dark underline underline-offset-2 hover:text-brand-purple-deep">
+                  Privacy Policy
+                </a>
+                .
+              </p>
             )}
 
             <p className="mt-4 text-center text-[13px] text-[#5A4E8A]">
