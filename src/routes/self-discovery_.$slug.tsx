@@ -8,7 +8,6 @@ import {
   CalendarCheck,
   CheckCircle2,
   ChevronDown,
-  Lock,
   RotateCcw,
   ShieldCheck,
   Share2,
