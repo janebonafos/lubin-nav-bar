@@ -1,6 +1,6 @@
 # Architecture rules
 
-- Keep self-check score, summary, gauge and crisis help public on the result route; prompt through the local prototype account gate only on deeper-detail or save actions, and mount answer/AI readers only after unlock to preserve other screens.
+- Keep the original editorial self-check layout, score, short guidance, gauge and crisis help public; use inline Read more actions through the local prototype account gate, and mount full answer/AI readers only after unlock to preserve other screens.
 
 - Keep the Mermaid dependency's DOMPurify override at a patched release (at least 3.4.17) until upstream guarantees it; this prevents vulnerable transitive sanitizer versions from returning.
 
