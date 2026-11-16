@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowLeft,
@@ -8,6 +8,7 @@ import {
   CalendarCheck,
   CheckCircle2,
   ChevronDown,
+  Lock,
   RotateCcw,
   ShieldCheck,
   Share2,
@@ -37,7 +38,6 @@ import { useResultInsight } from "@/lib/patterns/useResultInsight";
 import ResultInsights, { BookingCard, TalkThroughCard } from "@/components/discovery/ResultInsights";
 import {
   CrisisHelpCard,
-  LockedPreviews,
   NextStepsCard,
   SaveResultModal,
   useSoftGate,
@@ -45,6 +45,7 @@ import {
 import { mockSignUp } from "@/lib/patterns/softGate";
 import { toast } from "sonner";
 import ShareResultModal from "@/components/discovery/ShareResultModal";
+import { Button } from "@/components/ui/button";
 
 const ABOUT_COPY: Record<string, string> = {
   "phq-9":
@@ -88,6 +89,8 @@ export const Route = createFileRoute("/self-discovery_/$slug")({
         { name: "description", content: description },
         { property: "og:title", content: title },
         { property: "og:description", content: description },
+        { property: "og:type", content: "website" },
+        { name: "twitter:card", content: "summary_large_image" },
       ],
     };
   },
@@ -767,7 +770,6 @@ function ResultView({
 }) {
   const [shareOpen, setShareOpen] = useState(false);
   const [saveOpen, setSaveOpen] = useState(false);
-  const [maybeLater, setMaybeLater] = useState(false);
   const gate = useSoftGate();
   const [showAnswers, setShowAnswers] = useState(false);
   const selfHarm =
@@ -847,8 +849,7 @@ function ResultView({
 
         <div className="mt-6 max-w-2xl">
           <p className="text-[15px] leading-[1.7] text-brand-purple-dark/80">
-            {status.explanation} This isn't a diagnosis — it's a snapshot of how
-            things have been lately.
+            {status.explanation}{gate.signedUp && " This isn't a diagnosis — it's a snapshot of how things have been lately."}
           </p>
         </div>
 
@@ -858,27 +859,40 @@ function ResultView({
 
         {!gate.signedUp ? (
           <div className="mt-8">
-            <button
+            <Button
               type="button"
               onClick={() => setSaveOpen(true)}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-brand-purple px-6 py-3.5 text-[15px] font-semibold text-white shadow-[0_8px_20px_-6px_rgba(61,46,107,0.45)] transition hover:bg-brand-purple-deep md:w-auto"
+              className="inline-flex h-auto w-full items-center justify-center gap-2 rounded-full bg-brand-purple px-6 py-3.5 text-[15px] font-semibold text-primary-foreground shadow-sm transition hover:bg-brand-purple-deep md:w-auto"
             >
               Save to my Health Passport
-            </button>
-            <div className="mt-6">
-              <LockedPreviews onUnlock={() => setSaveOpen(true)} />
+            </Button>
+            <div className="mt-6 space-y-6">
+              <ResultLockedSection title="What this score means" onUnlock={() => setSaveOpen(true)}>
+                <p className="text-[15px] leading-[1.75] text-brand-purple-dark/80">A fuller explanation of your result and the patterns in your answers.</p>
+                <div className="mt-3 h-3 w-9/12 rounded-full bg-brand-lavender" />
+              </ResultLockedSection>
+              <ResultLockedSection title="What this means for you" onUnlock={() => setSaveOpen(true)}>
+                <p className="text-[15px] leading-[1.75] text-brand-purple-dark/80">Your personal AI insights and tips based on this check-in.</p>
+                <div className="mt-4 space-y-3">
+                  <div className="h-3 w-11/12 rounded-full bg-brand-lavender" />
+                  <div className="h-3 w-8/12 rounded-full bg-brand-lavender" />
+                </div>
+              </ResultLockedSection>
+              <ResultLockedSection title="Show my answers" onUnlock={() => setSaveOpen(true)}>
+                <div className="space-y-4">
+                  <div className="h-3 w-11/12 rounded-full bg-brand-lavender" />
+                  <div className="h-3 w-9/12 rounded-full bg-brand-lavender" />
+                  <div className="h-3 w-10/12 rounded-full bg-brand-lavender" />
+                </div>
+              </ResultLockedSection>
+              <ResultLockedSection title="Your gauge" onUnlock={() => setSaveOpen(true)}>
+                <p className="text-[15px] text-brand-purple-dark/80">Where your result sits on this scale</p>
+                <div className="mt-8 h-1.5 rounded-full bg-brand-lavender">
+                  <div className="h-full w-1/2 rounded-full bg-brand-purple" />
+                </div>
+                <div className="mt-4 flex justify-between text-[13px] text-brand-purple-dark/60"><span>0</span><span>{assessment.maxScore}</span></div>
+              </ResultLockedSection>
             </div>
-            {!maybeLater && (
-              <div className="mt-2 text-center">
-                <button
-                  type="button"
-                  onClick={() => setMaybeLater(true)}
-                  className="text-[13px] font-medium text-brand-purple underline-offset-2 hover:underline"
-                >
-                  Maybe later
-                </button>
-              </div>
-            )}
           </div>
         ) : (
           <div className="mt-8 space-y-4">
@@ -900,7 +914,7 @@ function ResultView({
         )}
 
         {/* Answer expander — minimal */}
-        <div className="mt-12">
+        {gate.signedUp && <div className="mt-12">
           <button
             type="button"
             onClick={() => setShowAnswers((v) => !v)}
@@ -948,7 +962,7 @@ function ResultView({
               })}
             </motion.ol>
           )}
-        </div>
+        </div>}
       </div>
 
       {gate.signedUp && (
@@ -991,7 +1005,9 @@ function ResultView({
         open={saveOpen}
         onClose={() => setSaveOpen(false)}
         onDone={() => {
-          saveAttempt(attempt);
+          if (!getAttemptsFor(assessment.id).some((saved) => saved.id === attempt.id)) {
+            saveAttempt(attempt);
+          }
           mockSignUp();
           setSaveOpen(false);
           toast.success("Saved to your Health Passport ✓");
@@ -1016,6 +1032,32 @@ function ResultView({
         }}
       />
     </motion.section>
+  );
+}
+
+// Signed-out previews never mount personal answers or AI insight readers.
+function ResultLockedSection({
+  title,
+  onUnlock,
+  children,
+}: {
+  title: string;
+  onUnlock: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <section aria-label={`${title} — account required`} className="relative overflow-hidden rounded-3xl border border-brand-purple/15 bg-background p-5 md:p-6">
+      <h2 className="text-[15px] font-semibold text-brand-purple-dark">{title}</h2>
+      <div inert aria-hidden="true" className="mt-4 min-h-44 select-none blur-[5px]">
+        {children}
+      </div>
+      <div className="absolute inset-x-5 bottom-5 top-14 flex flex-col items-center justify-center gap-3 text-center md:inset-x-6 md:bottom-6">
+        <Lock aria-hidden="true" className="h-5 w-5 text-brand-purple" />
+        <p className="max-w-xs text-[14px] font-semibold leading-relaxed text-brand-purple-dark">Create a free account to see your full result</p>
+        <Button type="button" onClick={onUnlock} className="h-auto max-w-full whitespace-normal rounded-full bg-brand-purple px-5 py-2.5 text-[13px] font-semibold text-primary-foreground hover:bg-brand-purple-deep">Create free account</Button>
+        <p className="text-[12px] text-brand-purple-dark/60">Free. No payment.</p>
+      </div>
+    </section>
   );
 }
 
