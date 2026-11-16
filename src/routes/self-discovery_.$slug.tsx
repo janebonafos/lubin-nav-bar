@@ -769,6 +769,7 @@ function ResultView({
 }) {
   const [shareOpen, setShareOpen] = useState(false);
   const [saveOpen, setSaveOpen] = useState(false);
+  const [shareGateOpen, setShareGateOpen] = useState(false);
   const gate = useSoftGate();
   const [showAnswers, setShowAnswers] = useState(false);
   const selfHarm =
@@ -998,7 +999,9 @@ function ResultView({
             <span className="hidden h-3 w-px bg-brand-purple/15 sm:block" />
             <button
               type="button"
-              onClick={() => setShareOpen(true)}
+              onClick={() =>
+                gate.signedUp ? setShareOpen(true) : setShareGateOpen(true)
+              }
               className="inline-flex items-center gap-2 rounded-full px-4 py-2 text-[13px] font-medium text-brand-purple-dark/70 transition hover:bg-brand-lavender/40 hover:text-brand-purple-dark"
             >
               <Share2 className="h-4 w-4" strokeWidth={2.1} />
@@ -1021,6 +1024,17 @@ function ResultView({
           mockSignUp();
           setSaveOpen(false);
           toast.success("Saved to your Health Passport ✓");
+        }}
+      />
+
+      {/* Sharing needs an account; the share sheet opens right after signup/sign-in. */}
+      <ResultAccountModal
+        open={shareGateOpen}
+        onClose={() => setShareGateOpen(false)}
+        onDone={() => {
+          mockSignUp();
+          setShareGateOpen(false);
+          setShareOpen(true);
         }}
       />
 
