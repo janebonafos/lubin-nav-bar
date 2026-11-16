@@ -1,5 +1,7 @@
 # Architecture rules
 
+- Keep self-check signed-out previews local to the result route and do not mount answer or AI readers until the existing prototype account gate unlocks; this preserves other screens and prevents interactive access behind visual blur.
+
 - Keep the Mermaid dependency's DOMPurify override at a patched release (at least 3.4.17) until upstream guarantees it; this prevents vulnerable transitive sanitizer versions from returning.
 
 - Intake settings separate form sections and standard measures into tabs with collapsible section groups, preserving the existing shared local intake store and preview/editor flows.
