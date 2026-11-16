@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { X, ArrowRight, ArrowLeft, Check, Loader2 } from "lucide-react";
+import { X, ArrowRight, ArrowLeft, Check, Loader2, Mail, Info } from "lucide-react";
+import { checkEmail, registerEmailAccount, type EmailCheck } from "@/lib/auth/emailAccounts";
 import {
   PROXY_RELATIONSHIPS,
   clearProxyPending,
@@ -17,7 +18,7 @@ export type UserRole = "client" | "provider";
 
 export type { ProxySignup };
 
-type Provider = "google" | "linkedin" | "facebook";
+type Provider = "google" | "linkedin" | "facebook" | "email";
 
 interface AuthModalProps {
   open: boolean;
@@ -64,6 +65,7 @@ const PROVIDER_LABEL: Record<Provider, string> = {
   google: "Google",
   linkedin: "LinkedIn",
   facebook: "Facebook",
+  email: "email",
 };
 
 export default function AuthModal({
@@ -95,6 +97,8 @@ export default function AuthModal({
   const [relationshipOther, setRelationshipOther] = useState("");
   const [personName, setPersonName] = useState("");
   const [savedProxy, setSavedProxy] = useState<ProxySignup | null>(null);
+  const [email, setEmail] = useState("");
+  const [emailCheck, setEmailCheck] = useState<EmailCheck | null>(null);
 
   useEffect(() => setMode(initialMode), [initialMode, open]);
 
@@ -109,6 +113,8 @@ export default function AuthModal({
       setRelationshipOther("");
       setPersonName("");
       setSavedProxy(null);
+      setEmail("");
+      setEmailCheck(null);
       return;
     }
 
@@ -154,6 +160,7 @@ export default function AuthModal({
     setSelectedRole(null);
     setStep("choose");
     setAuthedProvider(null);
+    setEmailCheck(null);
     onSwitchMode?.(next);
   };
 
@@ -173,8 +180,11 @@ export default function AuthModal({
   const finish = (provider: Provider, proxy: ProxySignup | null) => {
     if (isSignup && selectedRole === "client") saveProxySignup(proxy);
     clearProxyPending();
+    if (provider === "email" && selectedRole) registerEmailAccount(email, selectedRole);
     const cb =
-      provider === "google"
+      provider === "email"
+        ? (onContinueWithEmail ?? onContinueWithGoogle)
+        : provider === "google"
         ? onContinueWithGoogle
         : provider === "linkedin"
           ? onContinueWithLinkedIn
@@ -210,6 +220,15 @@ export default function AuthModal({
       setStep("welcome");
     }, 650);
   };
+
+  const submitEmail = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedRole) return;
+    const result = checkEmail(email, mode, selectedRole);
+    setEmailCheck(result);
+    if (result.kind === "ok") handleProvider("email");
+  };
+  const roleWord = (r: UserRole) => (r === "provider" ? "provider" : "client");
 
   const providerLabel = PROVIDER_LABEL[authedProvider ?? "google"];
   const title =
@@ -361,12 +380,94 @@ export default function AuthModal({
                     );
                   })}
                 </div>
+
+                <div className="my-4 flex items-center gap-3 text-[12px] text-[#7E6BAF]">
+                  <span className="h-px flex-1 bg-[#E6DFF4]" /> or use your email <span className="h-px flex-1 bg-[#E6DFF4]" />
+                </div>
+                <form onSubmit={submitEmail} noValidate className="flex flex-col gap-2.5">
+                  <label htmlFor="auth-email" className="text-[13px] font-semibold text-[#3D2E6B]">
+                    Email address
+                  </label>
+                  <input
+                    id="auth-email"
+                    type="email"
+                    inputMode="email"
+                    autoComplete="email"
+                    maxLength={254}
+                    value={email}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      setEmailCheck(null);
+                    }}
+                    placeholder="you@example.com"
+                    aria-invalid={emailCheck?.kind === "invalid"}
+                    aria-describedby="auth-email-note"
+                    className={`rounded-full border bg-white px-5 py-3 text-[14px] text-[#1F1B2E] outline-none transition focus:border-[#7E6BAF] focus:ring-2 focus:ring-[#E6DFF4] ${
+                      emailCheck?.kind === "invalid" ? "border-destructive" : "border-[#E6DFF4]"
+                    }`}
+                  />
+                  <div id="auth-email-note" aria-live="polite">
+                    {emailCheck?.kind === "invalid" && (
+                      <p className="px-2 text-[12px] text-destructive">
+                        Enter a valid email, like name@example.com.
+                      </p>
+                    )}
+                    {emailCheck && emailCheck.kind !== "invalid" && emailCheck.kind !== "ok" && (
+                      <div className="flex gap-2.5 rounded-2xl border border-[#E6DFF4] bg-brand-lavender/60 p-3.5 text-[13px] text-[#3D2E6B]">
+                        <Info className="mt-0.5 h-4 w-4 shrink-0 text-[#7E6BAF]" />
+                        <div>
+                          {emailCheck.kind === "exists" && (
+                            <>
+                              <p className="font-semibold">This email already has a {brandName} account.</p>
+                              <p className="mt-0.5">Sign in to pick up where you left off.</p>
+                              <button type="button" onClick={() => { setMode("signin"); setEmailCheck(null); }} className="mt-2 font-semibold text-[#7E6BAF] underline-offset-2 hover:underline hover:text-[#3D2E6B]">
+                                Sign in with this email
+                              </button>
+                            </>
+                          )}
+                          {emailCheck.kind === "not-found" && (
+                            <>
+                              <p className="font-semibold">We couldn't find an account with this email.</p>
+                              <p className="mt-0.5">Check for typos, or create a free account.</p>
+                              <button type="button" onClick={() => { setMode("signup"); setEmailCheck(null); }} className="mt-2 font-semibold text-[#7E6BAF] underline-offset-2 hover:underline hover:text-[#3D2E6B]">
+                                Create an account with this email
+                              </button>
+                            </>
+                          )}
+                          {emailCheck.kind === "other-role" && (
+                            <>
+                              <p className="font-semibold">
+                                This email is registered as a {roleWord(emailCheck.registeredAs)} account.
+                              </p>
+                              <p className="mt-0.5">
+                                {emailCheck.registeredAs === "provider"
+                                  ? "To get support for yourself, use a different personal email — your provider account stays separate."
+                                  : "To join as a provider, use a different email — your client account stays separate."}
+                              </p>
+                              <button type="button" onClick={() => { const r = emailCheck.registeredAs; handleSelectRole(r); setMode("signin"); setEmailCheck(null); }} className="mt-2 font-semibold text-[#7E6BAF] underline-offset-2 hover:underline hover:text-[#3D2E6B]">
+                                Sign in as a {roleWord(emailCheck.registeredAs)} instead
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <button
+                    type="submit"
+                    disabled={loadingProvider !== null || !email.trim()}
+                    className="flex items-center justify-center gap-2 rounded-full bg-brand-purple-dark px-5 py-3 text-[14px] font-semibold text-primary-foreground transition hover:bg-brand-purple-deep disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {loadingProvider === "email" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
+                    {isSignup ? "Continue with email" : "Sign in with email"}
+                  </button>
+                </form>
               </>
             )}
 
             {isSignup && canShowAuthMethods && (
               <p className="mt-4 text-center text-[12px] text-brand-purple">
-                By continuing with Google, LinkedIn or Facebook, you agree to {brandName}'s{" "}
+                By continuing with Google, LinkedIn, Facebook or email, you agree to {brandName}'s{" "}
                 <a href={termsHref} className="font-medium text-brand-purple-dark underline underline-offset-2 hover:text-brand-purple-deep">
                   Terms
                 </a>{" "}
