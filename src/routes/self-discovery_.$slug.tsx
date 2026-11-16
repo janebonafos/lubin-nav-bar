@@ -8,6 +8,7 @@ import {
   CalendarCheck,
   CheckCircle2,
   ChevronDown,
+  Lock,
   RotateCcw,
   ShieldCheck,
   Share2,
@@ -32,7 +33,7 @@ import type { Assessment, Attempt } from "@/lib/patterns/types";
 import CrisisOverlay from "@/components/patterns/CrisisOverlay";
 import BreathingPause from "@/components/patterns/BreathingPause";
 import AuthModal from "@/components/AuthModal";
-import { getAssessmentStatus, getScoreBands, type AssessmentStatus } from "@/lib/patterns/scoring";
+import { getAssessmentStatus, type AssessmentStatus } from "@/lib/patterns/scoring";
 import { useResultInsight } from "@/lib/patterns/useResultInsight";
 import ResultInsights, { BookingCard, TalkThroughCard } from "@/components/discovery/ResultInsights";
 import {
@@ -857,33 +858,39 @@ function ResultView({
 
         {!gate.signedUp ? (
           <div className="mt-8">
-            <section aria-label="Your result" className="space-y-6">
-              <div>
-                <h2 className="text-[15px] font-semibold text-brand-purple-dark">What this score means</h2>
-                <p className="mt-3 text-[15px] leading-[1.75] text-brand-purple-dark/80">{attempt.summary}</p>
-                <Button type="button" variant="link" onClick={() => setSaveOpen(true)} className="mt-2 h-auto px-0 text-brand-purple hover:text-brand-purple-dark">
-                  Read more <ArrowRight className="h-4 w-4" />
-                </Button>
-              </div>
-              <div>
-                <h2 className="text-[15px] font-semibold text-brand-purple-dark">Your gauge</h2>
-                <p className="mt-2 text-[13.5px] text-brand-purple-dark/70">Where {attempt.score} sits on this scale</p>
-                <meter aria-label="Your score" min={0} max={assessment.maxScore} value={attempt.score} className="mt-3 h-4 w-full [&::-webkit-meter-bar]:border-0 [&::-webkit-meter-bar]:bg-brand-lavender [&::-webkit-meter-optimum-value]:bg-brand-purple [&::-moz-meter-bar]:bg-brand-purple" />
-                <div className="mt-2 flex justify-between text-[13px] text-brand-purple-dark/60"><span>0</span><span>{assessment.maxScore}</span></div>
-                <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2">
-                  {getScoreBands(assessment.id, assessment.maxScore, assessment.lowerIsBetter).map((band) => (
-                    <p key={band.label} className={`text-[12px] ${band.label === status.label ? "font-semibold text-brand-purple-dark" : "text-brand-purple-dark/60"}`}>
-                      {band.label} · {band.from}–{band.to}
-                    </p>
-                  ))}
-                </div>
-              </div>
-              <div className="flex flex-wrap gap-3 border-t border-brand-purple/10 pt-5">
-                <Button type="button" variant="link" onClick={() => setSaveOpen(true)} className="h-auto px-0 text-brand-purple hover:text-brand-purple-dark">Show more <ChevronDown className="h-4 w-4" /></Button>
-                <Button type="button" variant="link" onClick={() => setSaveOpen(true)} className="h-auto text-brand-purple hover:text-brand-purple-dark">Show my answers <ChevronDown className="h-4 w-4" /></Button>
-              </div>
-            </section>
-            <Button type="button" onClick={() => setSaveOpen(true)} className="mt-6 inline-flex h-auto w-full items-center justify-center gap-2 rounded-full bg-brand-purple px-6 py-3.5 text-[15px] font-semibold text-primary-foreground shadow-sm transition hover:bg-brand-purple-deep md:w-auto">Save to my Health Passport</Button>
+            <Button
+              type="button"
+              onClick={() => setSaveOpen(true)}
+              className="inline-flex h-auto w-full items-center justify-center gap-2 rounded-full bg-brand-purple px-6 py-3.5 text-[15px] font-semibold text-primary-foreground shadow-sm transition hover:bg-brand-purple-deep md:w-auto"
+            >
+              Save to my Health Passport
+            </Button>
+            <div className="mt-6 space-y-6">
+              <ResultLockedSection
+                title="What this score means"
+                preview={attempt.summary}
+                onUnlock={() => setSaveOpen(true)}
+              />
+              <ResultLockedSection
+                title="What this means for you"
+                preview="Your personal AI insights and tips based on this check-in — what's behind your score, and gentle next steps that fit where you are right now…"
+                onUnlock={() => setSaveOpen(true)}
+              />
+              <ResultLockedSection
+                title="Show my answers"
+                preview={
+                  shareAnswers[0]
+                    ? `${shareAnswers[0].question} — ${shareAnswers[0].answer}…`
+                    : "Every question and the answer you gave, saved in one place…"
+                }
+                onUnlock={() => setSaveOpen(true)}
+              />
+              <ResultLockedSection
+                title="Your gauge"
+                preview={`Where your score of ${attempt.score} out of ${assessment.maxScore} sits on this scale, and what each band means…`}
+                onUnlock={() => setSaveOpen(true)}
+              />
+            </div>
           </div>
         ) : (
           <div className="mt-8 space-y-4">
@@ -1027,6 +1034,55 @@ function ResultView({
 }
 
 // Account prompts appear only after a reader requests more detail or saving.
+// Signed-out previews show a short real excerpt cut with an ellipsis;
+// the full content only mounts after the prototype account gate unlocks.
+function ResultLockedSection({
+  title,
+  preview,
+  onUnlock,
+}: {
+  title: string;
+  preview: string;
+  onUnlock: () => void;
+}) {
+  return (
+    <section
+      aria-label={`${title} — account required`}
+      className="overflow-hidden rounded-3xl border border-brand-purple/15 bg-background p-5 md:p-6"
+    >
+      <h2 className="text-[15px] font-semibold text-brand-purple-dark">
+        {title}
+      </h2>
+      <div className="relative mt-3">
+        <p
+          inert
+          aria-hidden="true"
+          className="line-clamp-2 select-none text-[15px] leading-[1.75] text-brand-purple-dark/80"
+        >
+          {preview}
+        </p>
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-background to-transparent" />
+      </div>
+      <div className="mt-4 flex flex-col items-center gap-2.5 rounded-2xl bg-brand-lavender/40 px-4 py-4 text-center">
+        <Lock aria-hidden="true" className="h-4 w-4 text-brand-purple" />
+        <p className="max-w-xs text-[13.5px] font-semibold leading-relaxed text-brand-purple-dark">
+          Create a free account to see your full result
+        </p>
+        <Button
+          type="button"
+          onClick={onUnlock}
+          className="h-auto max-w-full whitespace-normal rounded-full bg-brand-purple px-5 py-2 text-[13px] font-semibold text-primary-foreground hover:bg-brand-purple-deep"
+        >
+          Create free account
+        </Button>
+        <p className="text-[11.5px] text-brand-purple-dark/60">
+          Free. No payment.
+        </p>
+      </div>
+    </section>
+  );
+}
+
 function ResultAccountModal({
   open,
   onClose,
