@@ -8,7 +8,6 @@ import {
   CalendarCheck,
   CheckCircle2,
   ChevronDown,
-  Lock,
   RotateCcw,
   ShieldCheck,
   Share2,
@@ -1063,22 +1062,17 @@ function ResultLockedSection({
         </p>
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-background to-transparent" />
       </div>
-      <div className="mt-4 flex flex-col items-center gap-2.5 rounded-2xl bg-brand-lavender/40 px-4 py-4 text-center">
-        <Lock aria-hidden="true" className="h-4 w-4 text-brand-purple" />
-        <p className="max-w-xs text-[13.5px] font-semibold leading-relaxed text-brand-purple-dark">
-          Create a free account to see your full result
-        </p>
-        <Button
-          type="button"
-          onClick={onUnlock}
-          className="h-auto max-w-full whitespace-normal rounded-full bg-brand-purple px-5 py-2 text-[13px] font-semibold text-primary-foreground hover:bg-brand-purple-deep"
-        >
-          Create free account
-        </Button>
-        <p className="text-[11.5px] text-brand-purple-dark/60">
-          Free. No payment.
-        </p>
-      </div>
+      <button
+        type="button"
+        onClick={onUnlock}
+        className="group mt-3 inline-flex items-center gap-1.5 text-[13.5px] font-semibold text-brand-purple transition hover:text-brand-purple-dark"
+      >
+        Keep reading — free account needed
+        <ArrowRight
+          className="h-4 w-4 transition-transform group-hover:translate-x-0.5"
+          strokeWidth={2.2}
+        />
+      </button>
     </section>
   );
 }
