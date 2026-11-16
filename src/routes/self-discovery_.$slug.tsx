@@ -857,33 +857,39 @@ function ResultView({
 
         {!gate.signedUp ? (
           <div className="mt-8">
-            <section aria-label="Your result" className="space-y-6">
-              <div>
-                <h2 className="text-[15px] font-semibold text-brand-purple-dark">What this score means</h2>
-                <p className="mt-3 text-[15px] leading-[1.75] text-brand-purple-dark/80">{attempt.summary}</p>
-                <Button type="button" variant="link" onClick={() => setSaveOpen(true)} className="mt-2 h-auto px-0 text-brand-purple hover:text-brand-purple-dark">
-                  Read more <ArrowRight className="h-4 w-4" />
-                </Button>
-              </div>
-              <div>
-                <h2 className="text-[15px] font-semibold text-brand-purple-dark">Your gauge</h2>
-                <p className="mt-2 text-[13.5px] text-brand-purple-dark/70">Where {attempt.score} sits on this scale</p>
-                <meter aria-label="Your score" min={0} max={assessment.maxScore} value={attempt.score} className="mt-3 h-4 w-full [&::-webkit-meter-bar]:border-0 [&::-webkit-meter-bar]:bg-brand-lavender [&::-webkit-meter-optimum-value]:bg-brand-purple [&::-moz-meter-bar]:bg-brand-purple" />
-                <div className="mt-2 flex justify-between text-[13px] text-brand-purple-dark/60"><span>0</span><span>{assessment.maxScore}</span></div>
-                <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2">
-                  {getScoreBands(assessment.id, assessment.maxScore, assessment.lowerIsBetter).map((band) => (
-                    <p key={band.label} className={`text-[12px] ${band.label === status.label ? "font-semibold text-brand-purple-dark" : "text-brand-purple-dark/60"}`}>
-                      {band.label} · {band.from}–{band.to}
-                    </p>
-                  ))}
-                </div>
-              </div>
-              <div className="flex flex-wrap gap-3 border-t border-brand-purple/10 pt-5">
-                <Button type="button" variant="link" onClick={() => setSaveOpen(true)} className="h-auto px-0 text-brand-purple hover:text-brand-purple-dark">Show more <ChevronDown className="h-4 w-4" /></Button>
-                <Button type="button" variant="link" onClick={() => setSaveOpen(true)} className="h-auto text-brand-purple hover:text-brand-purple-dark">Show my answers <ChevronDown className="h-4 w-4" /></Button>
-              </div>
-            </section>
-            <Button type="button" onClick={() => setSaveOpen(true)} className="mt-6 inline-flex h-auto w-full items-center justify-center gap-2 rounded-full bg-brand-purple px-6 py-3.5 text-[15px] font-semibold text-primary-foreground shadow-sm transition hover:bg-brand-purple-deep md:w-auto">Save to my Health Passport</Button>
+            <Button
+              type="button"
+              onClick={() => setSaveOpen(true)}
+              className="inline-flex h-auto w-full items-center justify-center gap-2 rounded-full bg-brand-purple px-6 py-3.5 text-[15px] font-semibold text-primary-foreground shadow-sm transition hover:bg-brand-purple-deep md:w-auto"
+            >
+              Save to my Health Passport
+            </Button>
+            <div className="mt-6 space-y-6">
+              <ResultLockedSection
+                title="What this score means"
+                preview={attempt.summary}
+                onUnlock={() => setSaveOpen(true)}
+              />
+              <ResultLockedSection
+                title="What this means for you"
+                preview="Your personal AI insights and tips based on this check-in — what's behind your score, and gentle next steps that fit where you are right now…"
+                onUnlock={() => setSaveOpen(true)}
+              />
+              <ResultLockedSection
+                title="Show my answers"
+                preview={
+                  shareAnswers[0]
+                    ? `${shareAnswers[0].question} — ${shareAnswers[0].answer}…`
+                    : "Every question and the answer you gave, saved in one place…"
+                }
+                onUnlock={() => setSaveOpen(true)}
+              />
+              <ResultLockedSection
+                title="Your gauge"
+                preview={`Where your score of ${attempt.score} out of ${assessment.maxScore} sits on this scale, and what each band means…`}
+                onUnlock={() => setSaveOpen(true)}
+              />
+            </div>
           </div>
         ) : (
           <div className="mt-8 space-y-4">
