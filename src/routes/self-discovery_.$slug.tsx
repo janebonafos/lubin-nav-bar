@@ -6,6 +6,7 @@ import {
   ArrowRight,
   Clock,
   CalendarCheck,
+  MessageCircle,
   CheckCircle2,
   ChevronDown,
   RotateCcw,
@@ -33,8 +34,8 @@ import CrisisOverlay from "@/components/patterns/CrisisOverlay";
 import BreathingPause from "@/components/patterns/BreathingPause";
 import AuthModal from "@/components/AuthModal";
 import { getAssessmentStatus, type AssessmentStatus } from "@/lib/patterns/scoring";
-import { useResultInsight } from "@/lib/patterns/useResultInsight";
-import ResultInsights, { BookingCard, TalkThroughCard } from "@/components/discovery/ResultInsights";
+import { fallbackInsight, useResultInsight } from "@/lib/patterns/useResultInsight";
+import ResultInsights, { BookingCard, GaugeSection, TalkThroughCard } from "@/components/discovery/ResultInsights";
 import {
   CrisisHelpCard,
   NextStepsCard,
