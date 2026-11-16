@@ -867,7 +867,7 @@ function ResultView({
             <div className="mt-6 space-y-6">
               <ResultLockedSection
                 title="What this score means"
-                preview={attempt.summary}
+                preview={`${attempt.summary} ${status.explanation} Your score reflects how you answered across all ${assessment.questions.length} questions — here's the full picture of what's behind it…`}
                 onUnlock={() => setSaveOpen(true)}
               />
               <ResultLockedSection
