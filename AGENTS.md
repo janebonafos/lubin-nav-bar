@@ -1,6 +1,6 @@
 # Architecture rules
 
-- Keep the original editorial self-check layout, score, short guidance, gauge and crisis help public; use inline Read more actions through the shared AuthModal prototype registration/sign-in flow, and mount full answer/AI readers only after completion to preserve other screens and consistent account steps.
+- Keep the original editorial self-check layout, score, short guidance, gauge and crisis help public; use inline Read more actions through the shared AuthModal prototype registration/sign-in flow, require that same account step before sharing a result, and mount full answer/AI readers only after completion to preserve other screens and consistent account steps.
 
 - Keep the Mermaid dependency's DOMPurify override at a patched release (at least 3.4.17) until upstream guarantees it; this prevents vulnerable transitive sanitizer versions from returning.
 

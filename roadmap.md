@@ -1,5 +1,7 @@
 # Health Passport patient design
 
+- [x] Make Share results ask guests to register or sign in first, then open the share sheet; verify the flow.
+
 - [x] Reuse existing registration/sign-in modal for self-check results and verify completion preserves and unlocks the result.
 
 - [x] Move result helpline below guidance and match assessment/gauge headings across all checks; verify presentation.
