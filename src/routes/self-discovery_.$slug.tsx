@@ -8,6 +8,7 @@ import {
   CalendarCheck,
   CheckCircle2,
   ChevronDown,
+  Lock,
   RotateCcw,
   ShieldCheck,
   Share2,
@@ -32,7 +33,7 @@ import type { Assessment, Attempt } from "@/lib/patterns/types";
 import CrisisOverlay from "@/components/patterns/CrisisOverlay";
 import BreathingPause from "@/components/patterns/BreathingPause";
 import AuthModal from "@/components/AuthModal";
-import { getAssessmentStatus, getScoreBands, type AssessmentStatus } from "@/lib/patterns/scoring";
+import { getAssessmentStatus, type AssessmentStatus } from "@/lib/patterns/scoring";
 import { useResultInsight } from "@/lib/patterns/useResultInsight";
 import ResultInsights, { BookingCard, TalkThroughCard } from "@/components/discovery/ResultInsights";
 import {
@@ -1033,6 +1034,55 @@ function ResultView({
 }
 
 // Account prompts appear only after a reader requests more detail or saving.
+// Signed-out previews show a short real excerpt cut with an ellipsis;
+// the full content only mounts after the prototype account gate unlocks.
+function ResultLockedSection({
+  title,
+  preview,
+  onUnlock,
+}: {
+  title: string;
+  preview: string;
+  onUnlock: () => void;
+}) {
+  return (
+    <section
+      aria-label={`${title} — account required`}
+      className="overflow-hidden rounded-3xl border border-brand-purple/15 bg-background p-5 md:p-6"
+    >
+      <h2 className="text-[15px] font-semibold text-brand-purple-dark">
+        {title}
+      </h2>
+      <div className="relative mt-3">
+        <p
+          inert
+          aria-hidden="true"
+          className="line-clamp-2 select-none text-[15px] leading-[1.75] text-brand-purple-dark/80"
+        >
+          {preview}
+        </p>
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-background to-transparent" />
+      </div>
+      <div className="mt-4 flex flex-col items-center gap-2.5 rounded-2xl bg-brand-lavender/40 px-4 py-4 text-center">
+        <Lock aria-hidden="true" className="h-4 w-4 text-brand-purple" />
+        <p className="max-w-xs text-[13.5px] font-semibold leading-relaxed text-brand-purple-dark">
+          Create a free account to see your full result
+        </p>
+        <Button
+          type="button"
+          onClick={onUnlock}
+          className="h-auto max-w-full whitespace-normal rounded-full bg-brand-purple px-5 py-2 text-[13px] font-semibold text-primary-foreground hover:bg-brand-purple-deep"
+        >
+          Create free account
+        </Button>
+        <p className="text-[11.5px] text-brand-purple-dark/60">
+          Free. No payment.
+        </p>
+      </div>
+    </section>
+  );
+}
+
 function ResultAccountModal({
   open,
   onClose,
