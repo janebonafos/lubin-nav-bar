@@ -1,6 +1,6 @@
 # Health Passport patient design
 
-- [ ] Update only the signed-out self-check result gate and verify free signup, saving, crisis access, and unchanged signed-in access.
+- [x] Update only the signed-out self-check result gate and verify free signup, saving, crisis access, and unchanged signed-in access.
 
 - [x] Simplify Client Intake Forms presentation and verify selection, question editing, preview and measures.
 - [x] Drop the "Consent & admin" group (billing/insurance and consent sections) from Client Intake Forms.
