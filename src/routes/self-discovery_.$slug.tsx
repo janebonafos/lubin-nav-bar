@@ -867,26 +867,29 @@ function ResultView({
             <div className="mt-6 space-y-6">
               <ResultLockedSection
                 title="What this score means"
-                preview={attempt.summary}
+                preview={`${attempt.summary} ${status.explanation} Your score reflects how you answered across all ${assessment.questions.length} questions — here's the full picture of what's behind it…`}
                 onUnlock={() => setSaveOpen(true)}
               />
               <ResultLockedSection
                 title="What this means for you"
-                preview="Your personal AI insights and tips based on this check-in — what's behind your score, and gentle next steps that fit where you are right now…"
+                preview={`Your answers point to ${status.label.toLowerCase()}. ${status.explanation} Looking at how you answered each question, a few patterns stand out — here's what they suggest about where you are right now, and the gentle next steps that tend to help most…`}
                 onUnlock={() => setSaveOpen(true)}
               />
               <ResultLockedSection
                 title="Show my answers"
                 preview={
-                  shareAnswers[0]
-                    ? `${shareAnswers[0].question} — ${shareAnswers[0].answer}…`
+                  shareAnswers.length > 0
+                    ? shareAnswers
+                        .slice(0, 3)
+                        .map((a, i) => `${i + 1}. ${a.question} — ${a.answer}`)
+                        .join("  ·  ") + "  ·  …"
                     : "Every question and the answer you gave, saved in one place…"
                 }
                 onUnlock={() => setSaveOpen(true)}
               />
               <ResultLockedSection
                 title="Your gauge"
-                preview={`Where your score of ${attempt.score} out of ${assessment.maxScore} sits on this scale, and what each band means…`}
+                preview={`Your score of ${attempt.score} out of ${assessment.maxScore} falls in the "${status.label}" band. ${status.explanation} On the full scale, scores are grouped into four bands — seeing exactly where yours sits helps you track change over time…`}
                 onUnlock={() => setSaveOpen(true)}
               />
             </div>
@@ -1056,11 +1059,11 @@ function ResultLockedSection({
         <p
           inert
           aria-hidden="true"
-          className="line-clamp-2 select-none text-[15px] leading-[1.75] text-brand-purple-dark/80"
+          className="line-clamp-4 select-none text-[15px] leading-[1.75] text-brand-purple-dark/80"
         >
           {preview}
         </p>
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-background to-transparent" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-background to-transparent" />
       </div>
       <button
         type="button"
