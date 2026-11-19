@@ -1,5 +1,6 @@
 # Health Passport patient design
 
+- [x] Restyle the privacy consent card as option E: bottom sheet on phone, centered card with grab handle on desktop; verify both layouts.
 - [x] Add a responsive privacy consent card after sign-in or first save, optional Privacy settings, and verify all states.
 
 - [x] Make Share results ask guests to register or sign in first, then open the share sheet; verify the flow.

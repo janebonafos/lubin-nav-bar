@@ -62,8 +62,9 @@ export default function CareConsentCard() {
         onOpenAutoFocus={(event) => event.preventDefault()}
         onInteractOutside={(event) => event.preventDefault()}
         onEscapeKeyDown={(event) => { if (saving) event.preventDefault(); }}
-        className="z-[10001] w-[calc(100%-32px)] max-w-[480px] max-h-[calc(100dvh-32px)] gap-0 overflow-y-auto rounded-lg border-brand-purple/15 bg-card p-6 font-sans text-brand-purple-dark shadow-xl sm:p-8 [&>button:last-child]:hidden"
+        className="z-[10001] w-[calc(100%-32px)] max-w-[480px] max-h-[calc(100dvh-32px)] gap-0 overflow-y-auto rounded-lg border-brand-purple/15 bg-card p-6 font-sans text-brand-purple-dark shadow-xl sm:p-8 [&>button:last-child]:hidden max-sm:bottom-0 max-sm:left-0 max-sm:top-auto max-sm:w-full max-sm:max-w-none max-sm:translate-x-0 max-sm:translate-y-0 max-sm:rounded-b-none max-sm:rounded-t-2xl max-sm:border-x-0 max-sm:border-b-0 max-sm:pb-8 max-sm:data-[state=open]:slide-in-from-bottom max-sm:data-[state=closed]:slide-out-to-bottom"
       >
+        <div aria-hidden="true" className="mx-auto mb-5 h-1.5 w-10 rounded-full bg-brand-purple/20" />
         <p className="text-xs font-semibold text-brand-purple">Your privacy</p>
         <DialogTitle className="mt-3 text-2xl font-semibold leading-tight tracking-normal">Keep your chats and health entries?</DialogTitle>
         <DialogDescription className="mt-3 text-sm leading-relaxed text-brand-purple-dark/75">
