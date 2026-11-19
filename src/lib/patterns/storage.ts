@@ -1,4 +1,5 @@
 import type { Attempt, InProgress } from "./types";
+import { hasCareConsent } from "@/lib/privacy/consent";
 
 const COMPLETED_KEY = "completed_attempts";
 const IN_PROGRESS_PREFIX = "lubinai_inprogress_";
@@ -31,7 +32,7 @@ export function loadAttempts(): Attempt[] {
 }
 
 export function saveAttempt(attempt: Attempt): void {
-  if (!isBrowser()) return;
+  if (!isBrowser() || !hasCareConsent()) return;
   const all = loadAttempts();
   all.push(attempt);
   window.localStorage.setItem(COMPLETED_KEY, JSON.stringify(all));
@@ -87,7 +88,7 @@ export function loadInProgress(assessmentId: string): InProgress | null {
 }
 
 export function saveInProgress(value: InProgress): void {
-  if (!isBrowser()) return;
+  if (!isBrowser() || !hasCareConsent()) return;
   try {
     window.localStorage.setItem(
       IN_PROGRESS_PREFIX + value.assessmentId,

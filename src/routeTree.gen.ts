@@ -48,6 +48,7 @@ import { Route as ProviderRxRequestsRouteImport } from './routes/provider.rx-req
 import { Route as ResultTokenRouteImport } from './routes/result.$token'
 import { Route as RxClaimClaimIdRouteImport } from './routes/rx-claim.$claimId'
 import { Route as SelfDiscoverySlugRouteImport } from './routes/self-discovery_.$slug'
+import { Route as SettingsPrivacyRouteImport } from './routes/settings.privacy'
 import { Route as ShareTokenRouteImport } from './routes/share.$token'
 import { Route as SharePreviewRouteImport } from './routes/share.preview'
 import { Route as ApiPublicAppointmentMessageInboundRouteImport } from './routes/api/public/appointment-message-inbound'
@@ -250,6 +251,11 @@ const SelfDiscoverySlugRoute = SelfDiscoverySlugRouteImport.update({
   path: '/self-discovery/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SettingsPrivacyRoute = SettingsPrivacyRouteImport.update({
+  id: '/settings/privacy',
+  path: '/settings/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ShareTokenRoute = ShareTokenRouteImport.update({
   id: '/share/$token',
   path: '/share/$token',
@@ -312,6 +318,7 @@ export interface FileRoutesByFullPath {
   '/result/$token': typeof ResultTokenRoute
   '/rx-claim/$claimId': typeof RxClaimClaimIdRoute
   '/self-discovery/$slug': typeof SelfDiscoverySlugRoute
+  '/settings/privacy': typeof SettingsPrivacyRoute
   '/share/$token': typeof ShareTokenRoute
   '/share/preview': typeof SharePreviewRoute
   '/api/public/appointment-message-inbound': typeof ApiPublicAppointmentMessageInboundRoute
@@ -357,6 +364,7 @@ export interface FileRoutesByTo {
   '/result/$token': typeof ResultTokenRoute
   '/rx-claim/$claimId': typeof RxClaimClaimIdRoute
   '/self-discovery/$slug': typeof SelfDiscoverySlugRoute
+  '/settings/privacy': typeof SettingsPrivacyRoute
   '/share/$token': typeof ShareTokenRoute
   '/share/preview': typeof SharePreviewRoute
   '/api/public/appointment-message-inbound': typeof ApiPublicAppointmentMessageInboundRoute
@@ -403,6 +411,7 @@ export interface FileRoutesById {
   '/result/$token': typeof ResultTokenRoute
   '/rx-claim/$claimId': typeof RxClaimClaimIdRoute
   '/self-discovery_/$slug': typeof SelfDiscoverySlugRoute
+  '/settings/privacy': typeof SettingsPrivacyRoute
   '/share/$token': typeof ShareTokenRoute
   '/share/preview': typeof SharePreviewRoute
   '/api/public/appointment-message-inbound': typeof ApiPublicAppointmentMessageInboundRoute
@@ -450,6 +459,7 @@ export interface FileRouteTypes {
     | '/result/$token'
     | '/rx-claim/$claimId'
     | '/self-discovery/$slug'
+    | '/settings/privacy'
     | '/share/$token'
     | '/share/preview'
     | '/api/public/appointment-message-inbound'
@@ -495,6 +505,7 @@ export interface FileRouteTypes {
     | '/result/$token'
     | '/rx-claim/$claimId'
     | '/self-discovery/$slug'
+    | '/settings/privacy'
     | '/share/$token'
     | '/share/preview'
     | '/api/public/appointment-message-inbound'
@@ -540,6 +551,7 @@ export interface FileRouteTypes {
     | '/result/$token'
     | '/rx-claim/$claimId'
     | '/self-discovery_/$slug'
+    | '/settings/privacy'
     | '/share/$token'
     | '/share/preview'
     | '/api/public/appointment-message-inbound'
@@ -585,6 +597,7 @@ export interface RootRouteChildren {
   ResultTokenRoute: typeof ResultTokenRoute
   RxClaimClaimIdRoute: typeof RxClaimClaimIdRoute
   SelfDiscoverySlugRoute: typeof SelfDiscoverySlugRoute
+  SettingsPrivacyRoute: typeof SettingsPrivacyRoute
   ShareTokenRoute: typeof ShareTokenRoute
   SharePreviewRoute: typeof SharePreviewRoute
   ApiPublicAppointmentMessageInboundRoute: typeof ApiPublicAppointmentMessageInboundRoute
@@ -866,6 +879,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SelfDiscoverySlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/settings/privacy': {
+      id: '/settings/privacy'
+      path: '/settings/privacy'
+      fullPath: '/settings/privacy'
+      preLoaderRoute: typeof SettingsPrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/share/$token': {
       id: '/share/$token'
       path: '/share/$token'
@@ -947,6 +967,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResultTokenRoute: ResultTokenRoute,
   RxClaimClaimIdRoute: RxClaimClaimIdRoute,
   SelfDiscoverySlugRoute: SelfDiscoverySlugRoute,
+  SettingsPrivacyRoute: SettingsPrivacyRoute,
   ShareTokenRoute: ShareTokenRoute,
   SharePreviewRoute: SharePreviewRoute,
   ApiPublicAppointmentMessageInboundRoute:

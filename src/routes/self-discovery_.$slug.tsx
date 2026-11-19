@@ -42,6 +42,7 @@ import {
   useSoftGate,
 } from "@/components/discovery/SoftGate";
 import { mockSignUp } from "@/lib/patterns/softGate";
+import { hasCareConsent, PRIVACY_CHANGED, requestCareConsent } from "@/lib/privacy/consent";
 import { toast } from "sonner";
 import ShareResultModal from "@/components/discovery/ShareResultModal";
 import { Button } from "@/components/ui/button";
@@ -770,6 +771,13 @@ function ResultView({
   const [shareOpen, setShareOpen] = useState(false);
   const [saveOpen, setSaveOpen] = useState(false);
   const [shareGateOpen, setShareGateOpen] = useState(false);
+  const [savedWithConsent, setSavedWithConsent] = useState(false);
+  useEffect(() => {
+    const update = () => setSavedWithConsent(hasCareConsent() && getAttemptsFor(assessment.id).some((saved) => saved.id === attempt.id));
+    update();
+    window.addEventListener(PRIVACY_CHANGED, update);
+    return () => window.removeEventListener(PRIVACY_CHANGED, update);
+  }, [assessment.id, attempt.id]);
   const gate = useSoftGate();
   const [showAnswers, setShowAnswers] = useState(false);
   const selfHarm =
@@ -891,9 +899,9 @@ function ResultView({
           </div>
         ) : (
           <div className="mt-8 space-y-4">
-            <p className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[12.5px] font-semibold text-brand-purple-dark">
+            {savedWithConsent ? <p className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-[12.5px] font-semibold text-brand-purple-dark">
               <CheckCircle2 className="h-4 w-4 text-brand-purple" /> Saved to your Health Passport
-            </p>
+            </p> : <Button onClick={() => requestCareConsent(() => { saveAttempt(attempt); setSavedWithConsent(true); toast.success("Saved to your Health Passport ✓"); })} className="bg-brand-purple-dark text-primary-foreground hover:bg-brand-purple-deep">Save to my Health Passport</Button>}
             <div className="grid items-stretch gap-3 md:grid-cols-2">
               <NextStepsCard intakeDone={gate.intakeDone} />
               <TalkThroughCard assessment={assessment} attempt={attempt} status={status} />
@@ -1018,12 +1026,13 @@ function ResultView({
         open={saveOpen}
         onClose={() => setSaveOpen(false)}
         onDone={() => {
-          if (!getAttemptsFor(assessment.id).some((saved) => saved.id === attempt.id)) {
-            saveAttempt(attempt);
-          }
           mockSignUp();
           setSaveOpen(false);
-          toast.success("Saved to your Health Passport ✓");
+          requestCareConsent(() => {
+            if (!getAttemptsFor(assessment.id).some((saved) => saved.id === attempt.id)) saveAttempt(attempt);
+            setSavedWithConsent(true);
+            toast.success("Saved to your Health Passport ✓");
+          });
         }}
       />
 

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { X, ArrowRight, ArrowLeft, Check, Loader2, Mail, Info } from "lucide-react";
 import { checkEmail, registerEmailAccount, type EmailCheck } from "@/lib/auth/emailAccounts";
+import { requestCareConsent } from "@/lib/privacy/consent";
 import {
   PROXY_RELATIONSHIPS,
   clearProxyPending,
@@ -190,6 +191,7 @@ export default function AuthModal({
           ? onContinueWithLinkedIn
           : onContinueWithFacebook;
     cb?.(selectedRole ?? undefined, proxy);
+    window.setTimeout(() => requestCareConsent(), 0);
   };
 
   /**

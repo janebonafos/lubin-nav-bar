@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { ArrowUp } from "lucide-react";
 import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
+import { hasCareConsent, PRIVACY_CHANGED, requestCareConsent } from "@/lib/privacy/consent";
 
 type Msg = { role: "user" | "assistant"; content: string };
 type Thread = { id: string; title: string; messages: Msg[]; updatedAt: number };
@@ -38,10 +40,12 @@ export default function EmbeddedChat() {
   const [hydrated, setHydrated] = useState(false);
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
+  const [canPersist, setCanPersist] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
+    setCanPersist(hasCareConsent());
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       const savedActive = localStorage.getItem(ACTIVE_KEY) ?? "";
@@ -64,7 +68,7 @@ export default function EmbeddedChat() {
   }, []);
 
   useEffect(() => {
-    if (!hydrated) return;
+    if (!hydrated || !canPersist) return;
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(threads));
       localStorage.setItem(ACTIVE_KEY, activeId);
@@ -74,7 +78,13 @@ export default function EmbeddedChat() {
     try {
       window.dispatchEvent(new CustomEvent(UPDATE_EVENT));
     } catch { /* ignore */ }
-  }, [threads, activeId, hydrated]);
+  }, [threads, activeId, hydrated, canPersist]);
+
+  useEffect(() => {
+    const update = () => setCanPersist(hasCareConsent());
+    window.addEventListener(PRIVACY_CHANGED, update);
+    return () => window.removeEventListener(PRIVACY_CHANGED, update);
+  }, []);
 
   // Listen to sidebar actions: select / new / delete
   useEffect(() => {
@@ -227,6 +237,7 @@ export default function EmbeddedChat() {
 
   return (
     <div className="flex h-[calc(100vh-220px)] min-h-[720px] flex-col overflow-hidden rounded-2xl border border-[#E3DBF5]/60 bg-gradient-to-br from-[#F7F4FF] via-[#EEE9FB] to-[#F4EEFB]">
+      {!canPersist && <div className="flex justify-end px-4 pt-3"><Button variant="link" onClick={() => requestCareConsent()} className="text-brand-purple-dark">Save chat</Button></div>}
       <div ref={scrollRef} className="relative flex-1 overflow-y-auto">
         <div className="mx-auto flex w-full max-w-2xl flex-col gap-4 px-4 py-6">
           {isEmpty ? (

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { requestCareConsent } from "@/lib/privacy/consent";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X,
@@ -158,14 +159,15 @@ export default function CheckInFlow({
   const handleSave = () => {
     if (mood == null || intensityIdx == null) return;
     const opt = INTENSITY[mood].options[intensityIdx];
-    onSave?.({
+    const payload: CheckInPayload = {
       mood,
       intensityIdx,
       intensityEmoji: opt.emoji,
       intensityLabel: opt.label,
       topics,
       note: note.trim(),
-    });
+    };
+    requestCareConsent(() => onSave?.(payload));
   };
 
   return (

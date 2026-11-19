@@ -1,5 +1,7 @@
 # Health Passport patient design
 
+- [x] Add a responsive privacy consent card after sign-in or first save, optional Privacy settings, and verify all states.
+
 - [x] Make Share results ask guests to register or sign in first, then open the share sheet; verify the flow.
 
 - [x] Reuse existing registration/sign-in modal for self-check results and verify completion preserves and unlocks the result.

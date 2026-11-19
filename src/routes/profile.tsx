@@ -813,6 +813,7 @@ function ProfilePage() {
                   Legal
                 </p>
                 <div className="mt-1 space-y-0.5">
+                  <Link to="/settings/privacy" className="block rounded-lg px-3 py-2 text-sm font-medium text-brand-purple-dark hover:bg-brand-lavender">Settings → Privacy</Link>
                   <a
                     href="/terms"
                     target="_blank"
