@@ -5,6 +5,13 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { canSaveInformation, hasCareConsent, PRIVACY_EVENT, storeCareConsent } from "@/lib/privacy/consent";
 
+const DETAILS = [
+  { label: "What gets saved", body: "Your chats and the health entries you add." },
+  { label: "Who can see it", body: "Only you, unless you choose to share something with a provider." },
+  { label: "Research and AI training", body: "Separate, optional choices in Settings → Privacy. Both start off, and saying no never limits your care." },
+  { label: "Change your mind", body: "Turn saving off anytime in Settings → Privacy." },
+];
+
 export default function CareConsentCard() {
   const [open, setOpen] = useState(false);
   const [checked, setChecked] = useState(false);
@@ -60,18 +67,33 @@ export default function CareConsentCard() {
         <p className="text-xs font-semibold text-brand-purple">Your privacy</p>
         <DialogTitle className="mt-3 text-2xl font-semibold leading-tight tracking-normal">Keep your chats and health entries?</DialogTitle>
         <DialogDescription className="mt-3 text-sm leading-relaxed text-brand-purple-dark/75">
-          Lubin saves them only with your OK, so your care can pick up where you left off.
+          Nothing is saved unless you say yes. With your OK, Lubin keeps them so your care can pick up where you left off.
         </DialogDescription>
         <div className="mt-6 grid grid-cols-[20px_minmax(0,1fr)] items-start gap-3">
           <Checkbox id="care-consent" checked={checked} disabled={saving} onCheckedChange={(value) => setChecked(value === true)} className="mt-0.5 h-5 w-5 border-brand-purple/50 data-[state=checked]:bg-brand-purple-dark" />
-          <div className="min-w-0">
-            <label htmlFor="care-consent" className="cursor-pointer text-sm leading-relaxed">I consent to Lubin storing and using my health information to provide my care.</label>
-            <Button variant="link" onClick={() => setExpanded((value) => !value)} aria-expanded={expanded} aria-controls="care-consent-details" className="mt-1 flex h-auto justify-start p-0 text-sm text-brand-purple-dark">
-              Learn more <ChevronDown className={expanded ? "rotate-180" : ""} />
-            </Button>
-          </div>
+          <label htmlFor="care-consent" className="min-w-0 cursor-pointer text-sm leading-relaxed">
+            I'm OK with Lubin saving my chats and health entries to support my care.
+          </label>
         </div>
-        {expanded && <p id="care-consent-details" className="mt-3 text-sm leading-relaxed text-brand-purple-dark/70">This covers saving your chats and health entries to support your care. Research and AI training are separate, optional choices in Settings → Privacy. You can change your choices there later.</p>}
+        <Button
+          variant="link"
+          onClick={() => setExpanded((value) => !value)}
+          aria-expanded={expanded}
+          aria-controls="care-consent-details"
+          className="mt-2 flex h-auto justify-start p-0 pl-8 text-sm text-brand-purple-dark"
+        >
+          {expanded ? "Show less" : "Show more"} <ChevronDown className={expanded ? "rotate-180" : ""} />
+        </Button>
+        {expanded && (
+          <dl id="care-consent-details" className="mt-3 space-y-2 rounded-lg bg-brand-lavender/45 p-4">
+            {DETAILS.map((item) => (
+              <div key={item.label} className="grid grid-cols-[minmax(0,1fr)] gap-0.5">
+                <dt className="text-xs font-semibold text-brand-purple-dark">{item.label}</dt>
+                <dd className="text-sm leading-relaxed text-brand-purple-dark/75">{item.body}</dd>
+              </div>
+            ))}
+          </dl>
+        )}
         {error && <p role="alert" className="mt-4 text-sm text-destructive">Couldn't save, try again</p>}
         <Button onClick={save} disabled={!canSaveInformation(checked, saving)} aria-busy={saving} className="mt-6 h-12 w-full whitespace-normal bg-brand-purple-dark text-sm font-semibold text-primary-foreground hover:bg-brand-purple-deep disabled:opacity-50">
           {saving && <Loader2 className="animate-spin motion-reduce:animate-none" />} {saving ? "Saving…" : "Yes, save my information"}
