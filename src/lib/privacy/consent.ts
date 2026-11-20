@@ -10,12 +10,11 @@ export function hasCareConsent(): boolean {
   catch { return false; }
 }
 
-export function canSaveInformation(checked: boolean, saving: boolean): boolean {
-  return checked && !saving;
+export function canSaveInformation(saving: boolean): boolean {
+  return !saving;
 }
 
-export function storeCareConsent(checked: boolean): void {
-  if (!checked) throw new Error("Consent is required");
+export function storeCareConsent(): void {
   window.localStorage.setItem(CONSENT_KEY, "yes");
   window.dispatchEvent(new Event(PRIVACY_CHANGED));
 }

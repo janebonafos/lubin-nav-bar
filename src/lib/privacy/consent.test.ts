@@ -2,12 +2,11 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { canSaveInformation, DEFAULT_CHOICES, storeCareConsent, hasCareConsent, CONSENT_KEY } from "./consent";
 
-test("saving requires a ticked checkbox", () => {
-  assert.equal(canSaveInformation(false, false), false);
-  assert.equal(canSaveInformation(true, false), true);
+test("saving is allowed as soon as the person taps I agree", () => {
+  assert.equal(canSaveInformation(false), true);
 });
 test("saving cannot be submitted twice while in progress", () => {
-  assert.equal(canSaveInformation(true, true), false);
+  assert.equal(canSaveInformation(true), false);
 });
 test("research is off by default", () => { assert.equal(DEFAULT_CHOICES.research, false); });
 test("AI training is off by default", () => { assert.equal(DEFAULT_CHOICES.aiTraining, false); });
@@ -20,9 +19,8 @@ test("only explicit consent enables local saving", () => {
   } });
   try {
     assert.equal(hasCareConsent(), false);
-    assert.throws(() => storeCareConsent(false));
     assert.equal(values.has(CONSENT_KEY), false);
-    storeCareConsent(true);
+    storeCareConsent();
     assert.equal(hasCareConsent(), true);
   } finally {
     if (original) Object.defineProperty(globalThis, "window", original);
