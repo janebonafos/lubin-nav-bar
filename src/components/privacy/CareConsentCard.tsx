@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { ChevronDown, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
-import { canSaveInformation, hasCareConsent, PRIVACY_EVENT, storeCareConsent } from "@/lib/privacy/consent";
+import { canSaveInformation, hasCareConsent, isProviderRole, PRIVACY_EVENT, storeCareConsent } from "@/lib/privacy/consent";
 
 const DETAILS = [
   { label: "What gets saved", body: "Your chats and the health entries you add." },
@@ -27,7 +27,7 @@ export default function CareConsentCard() {
   useEffect(() => {
     const request = (event: Event) => {
       const action = (event as CustomEvent<{ onSave?: () => void | Promise<void> }>).detail?.onSave;
-      if (hasCareConsent()) { if (action) void action(); return; }
+      if (hasCareConsent() || isProviderRole()) { if (action) void action(); return; }
       if (action && !actions.current.includes(action)) actions.current.push(action);
       setOpen(true);
     };

@@ -10,6 +10,13 @@ export function hasCareConsent(): boolean {
   catch { return false; }
 }
 
+// Providers manage other people's data under their own terms, so the
+// care-saving consent prompt is for patients only.
+export function isProviderRole(): boolean {
+  try { return typeof window !== "undefined" && window.localStorage.getItem("lubin.userRole") === "provider"; }
+  catch { return false; }
+}
+
 export function canSaveInformation(saving: boolean): boolean {
   return !saving;
 }
