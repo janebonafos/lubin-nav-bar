@@ -1,19 +1,21 @@
 import { useEffect, useMemo, useState } from "react";
 import {
+  ArrowRight,
   BookmarkPlus,
-  ClipboardList,
   LifeBuoy,
+  Lightbulb,
   MessageCircle,
-  Pill,
   Pin,
   StickyNote,
   Trash2,
   X,
   type LucideIcon,
 } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import {
   SAVED_KIND_LABELS,
+  SAVED_KIND_SINGULAR,
   loadSavedItems,
   removeSavedItem,
   saveToPassport,
@@ -25,9 +27,8 @@ import {
 
 const ICONS: Record<SavedKind, LucideIcon> = {
   chat: MessageCircle,
-  medication: Pill,
-  assessment: ClipboardList,
-  help: LifeBuoy,
+  tip: Lightbulb,
+  support: LifeBuoy,
   note: StickyNote,
 };
 
@@ -55,13 +56,13 @@ export default function SavedToPassport() {
   }, [items, filter]);
 
   return (
-    <section aria-label="Saved to your passport" className="rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-brand-purple/10 md:p-8">
+    <section aria-label="Lubin Saved Memories" className="rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-brand-purple/10 md:p-8">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <div className="mb-2 text-[10px] font-bold uppercase tracking-widest text-brand-purple/60">Saved to your passport</div>
-          <h3 className="font-display text-2xl text-brand-purple-dark">Things worth keeping</h3>
+          <div className="mb-2 text-[10px] font-bold uppercase tracking-widest text-brand-purple/60">Lubin &amp; you</div>
+          <h3 className="font-display text-2xl text-brand-purple-dark">Lubin Saved Memories</h3>
           <p className="mt-1 max-w-md text-sm text-brand-purple-dark/65">
-            Helpful chats, medications, results and requests you chose to save — ready to look back on or bring to a visit.
+            Meaningful conversations, calming techniques and personal reflections you asked Lubin to keep. Scores, medications and documents stay in their own tabs.
           </p>
         </div>
         <button
@@ -69,7 +70,7 @@ export default function SavedToPassport() {
           onClick={() => setAdding(true)}
           className="inline-flex items-center gap-2 rounded-full bg-brand-purple px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-purple-deep"
         >
-          <BookmarkPlus className="h-4 w-4" /> Save something
+          <BookmarkPlus className="h-4 w-4" /> Save a memory
         </button>
       </div>
 
@@ -90,7 +91,7 @@ export default function SavedToPassport() {
                   : "bg-brand-lavender/60 text-brand-purple-dark hover:bg-brand-lavender"
               }`}
             >
-              {k === "all" ? "All" : SAVED_KIND_LABELS[k]} <span className="opacity-70">{count}</span>
+              {k === "all" ? "All memories" : SAVED_KIND_LABELS[k]} <span className="opacity-70">{count}</span>
             </button>
           );
         })}
@@ -99,7 +100,7 @@ export default function SavedToPassport() {
       <ul className="mt-5 divide-y divide-brand-purple/10">
         {shown.length === 0 && (
           <li className="py-8 text-center text-sm text-brand-purple-dark/60">
-            Nothing saved here yet. Tap "Save to passport" in a chat, result or medication to keep it.
+            No memories yet. When something in a chat feels worth keeping, ask Lubin to save it.
           </li>
         )}
         {shown.map((item) => {
@@ -122,7 +123,7 @@ export default function SavedToPassport() {
                   </div>
                   <p className={`mt-1 text-sm text-brand-purple-dark/70 ${open ? "" : "line-clamp-1"}`}>{item.summary}</p>
                   <p className="mt-1 text-xs text-brand-purple-dark/50">
-                    {SAVED_KIND_LABELS[item.kind].replace(/s$/, "")} · {item.source} · {when(item.savedAt)}
+                    {SAVED_KIND_SINGULAR[item.kind]} · {item.source} · {when(item.savedAt)}
                   </p>
                 </button>
               </div>
@@ -135,6 +136,15 @@ export default function SavedToPassport() {
                       ))}
                     </ul>
                   )}
+                  {item.related && (
+                    <Link
+                      to="/my-health-passport"
+                      search={{ tab: item.related.tab }}
+                      className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-purple hover:text-brand-purple-deep"
+                    >
+                      {item.related.label} <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  )}
                   <div className="flex flex-wrap gap-2">
                     <button type="button" onClick={() => togglePinned(item.id)} className="inline-flex items-center gap-1.5 rounded-full border border-brand-purple/20 px-3.5 py-1.5 text-xs font-semibold text-brand-purple-dark hover:bg-brand-lavender/60">
                       <Pin className="h-3.5 w-3.5" /> {item.pinned ? "Unpin" : "Pin for next visit"}
@@ -143,7 +153,7 @@ export default function SavedToPassport() {
                       type="button"
                       onClick={() => {
                         removeSavedItem(item.id);
-                        toast("Removed from your Health Passport");
+                        toast("Removed from your memories");
                       }}
                       className="inline-flex items-center gap-1.5 rounded-full border border-brand-purple/20 px-3.5 py-1.5 text-xs font-semibold text-brand-purple-dark hover:bg-brand-lavender/60"
                     >
@@ -172,14 +182,14 @@ function SaveSheet({ onClose }: { onClose: () => void }) {
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-brand-purple-dark/40 sm:items-center" onClick={onClose}>
       <div
         role="dialog"
-        aria-label="Save to your Health Passport"
+        aria-label="Save a memory"
         onClick={(e) => e.stopPropagation()}
         className="w-full rounded-t-3xl bg-white p-6 shadow-xl sm:max-w-[480px] sm:rounded-3xl"
       >
         <div className="flex items-start justify-between">
           <div>
             <div className="text-[10px] font-bold uppercase tracking-widest text-brand-purple/60">Health Passport</div>
-            <h4 className="font-display mt-1 text-xl text-brand-purple-dark">Save to your passport</h4>
+            <h4 className="font-display mt-1 text-xl text-brand-purple-dark">Save a memory</h4>
           </div>
           <button type="button" onClick={onClose} aria-label="Close" className="rounded-full p-1 text-brand-purple-dark/60 hover:bg-brand-lavender">
             <X className="h-5 w-5" />
@@ -200,7 +210,7 @@ function SaveSheet({ onClose }: { onClose: () => void }) {
                 }`}
               >
                 <Icon className="h-5 w-5" strokeWidth={1.75} />
-                {SAVED_KIND_LABELS[k].replace(/s$/, "")}
+                {SAVED_KIND_SINGULAR[k]}
               </button>
             );
           })}
@@ -223,7 +233,7 @@ function SaveSheet({ onClose }: { onClose: () => void }) {
           }}
           className="mt-5 w-full rounded-full bg-brand-purple py-3 text-sm font-semibold text-white transition-colors hover:bg-brand-purple-deep disabled:opacity-50"
         >
-          Save to passport
+          Save memory
         </button>
         <p className="mt-3 text-center text-xs text-brand-purple-dark/50">Only you can see this unless you choose to share it.</p>
       </div>

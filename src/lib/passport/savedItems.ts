@@ -1,6 +1,9 @@
-// Prototype-only: things a person chose to keep in their Health Passport
-// (chats, medications, assessments, help requests, notes). Browser-local.
-export type SavedKind = "chat" | "medication" | "assessment" | "help" | "note";
+// Prototype-only: "Lubin Saved Memories" — personal, non-clinical moments a person
+// asked Lubin to keep. Scores, prescriptions and documents live in their own
+// Passport tabs; a memory may link there via `related`. Browser-local.
+export type SavedKind = "chat" | "tip" | "support" | "note";
+
+export type RelatedTab = "progress" | "medications" | "records" | "visits";
 
 export type SavedItem = {
   id: string;
@@ -11,62 +14,71 @@ export type SavedItem = {
   savedAt: number;
   pinned?: boolean;
   highlights?: string[];
+  related?: { tab: RelatedTab; label: string };
 };
 
 export const SAVED_KIND_LABELS: Record<SavedKind, string> = {
-  chat: "Chats",
-  medication: "Medications",
-  assessment: "Assessments",
-  help: "Help requests",
-  note: "Notes",
+  chat: "Chat moments",
+  tip: "Helpful tips",
+  support: "Support contacts",
+  note: "Notes to self",
 };
 
-const KEY = "lubin.passport.saved.v1";
+export const SAVED_KIND_SINGULAR: Record<SavedKind, string> = {
+  chat: "Chat moment",
+  tip: "Helpful tip",
+  support: "Support contact",
+  note: "Note to self",
+};
+
+const KEY = "lubin.passport.memories.v1";
 const EVENT = "lubin:passport:saved";
 const day = 86_400_000;
 
 export function sampleSavedItems(now = Date.now()): SavedItem[] {
   return [
     {
-      id: "s-chat-1",
+      id: "m-chat-1",
       kind: "chat",
-      title: "Talking through work stress",
-      summary: "You noticed stress peaks on Sunday nights and agreed to try a 10-minute wind-down before bed.",
-      source: "Lubin AI chat",
+      title: "Sunday nights feel heavier",
+      summary: "You noticed stress builds before the work week, and that naming it helped it feel smaller.",
+      source: "Chat with Lubin",
       savedAt: now - day,
       pinned: true,
-      highlights: ["Stress is highest before the work week", "Try a short wind-down routine", "Bring this up at your next visit"],
+      highlights: ["Stress peaks on Sunday evenings", "Naming the feeling made it easier", "Worth mentioning at your next visit"],
+      related: { tab: "progress", label: "See your mood check in Progress" },
     },
     {
-      id: "s-med-1",
-      kind: "medication",
-      title: "Sertraline 50 mg — started",
-      summary: "Once daily in the morning. Mild nausea in week one, now easing.",
-      source: "Added by you",
+      id: "m-tip-1",
+      kind: "tip",
+      title: "4-7-8 breathing before bed",
+      summary: "Breathe in for 4, hold for 7, out for 8. Repeat four times when your mind won't settle.",
+      source: "Tip from Lubin",
       savedAt: now - 3 * day,
     },
     {
-      id: "s-assess-1",
-      kind: "assessment",
-      title: "Mood & wellbeing check",
-      summary: "Score 9 of 27 · Mild. Sleep and energy were the main concerns.",
-      source: "Self-check",
+      id: "m-tip-2",
+      kind: "tip",
+      title: "Take your morning dose with breakfast",
+      summary: "Lubin suggested eating something first, since the nausea eased on days you did.",
+      source: "Tip from Lubin",
       savedAt: now - 5 * day,
+      related: { tab: "medications", label: "View your medications" },
     },
     {
-      id: "s-help-1",
-      kind: "help",
-      title: "Asked for help with sleep",
-      summary: "You asked for support finding a provider for trouble falling asleep.",
+      id: "m-support-1",
+      kind: "support",
+      title: "Sleep support near you",
+      summary: "A list of providers who help with trouble falling asleep, saved for when you're ready.",
       source: "Find support",
       savedAt: now - 8 * day,
     },
     {
-      id: "s-note-1",
+      id: "m-note-1",
       kind: "note",
       title: "Question for Dr. Reyes",
       summary: "Can I take my medication at night instead of the morning?",
-      source: "Note to self",
+      source: "Written by you",
       savedAt: now - 10 * day,
     },
   ];
