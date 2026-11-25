@@ -52,8 +52,20 @@ export default function SavedToPassport() {
 
   const shown = useMemo(() => {
     const list = filter === "all" ? items : items.filter((i) => i.kind === filter);
-    return [...list].sort((a, b) => Number(!!b.pinned) - Number(!!a.pinned) || b.savedAt - a.savedAt);
+    return [...list].sort((a, b) => b.savedAt - a.savedAt);
   }, [items, filter]);
+
+  const groups = useMemo(() => {
+    const weekAgo = Date.now() - 7 * 86_400_000;
+    const recent = shown.filter((i) => i.savedAt >= weekAgo);
+    const earlier = shown.filter((i) => i.savedAt < weekAgo);
+    const range = (list: SavedItem[]) =>
+      list.length ? `${when(list[list.length - 1]!.savedAt)} – ${when(list[0]!.savedAt)}` : "";
+    return [
+      { label: "This week", items: recent, range: range(recent) },
+      { label: "Earlier", items: earlier, range: range(earlier) },
+    ].filter((g) => g.items.length > 0);
+  }, [shown]);
 
   return (
     <section aria-label="Lubin Saved Memories" className="rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-brand-purple/10 md:p-8">
@@ -97,24 +109,30 @@ export default function SavedToPassport() {
         })}
       </div>
 
-      <ul className="mt-5 divide-y divide-brand-purple/10">
-        {shown.length === 0 && (
-          <li className="py-8 text-center text-sm text-brand-purple-dark/60">
-            No memories yet. When something in a chat feels worth keeping, ask Lubin to save it.
-          </li>
-        )}
-        {shown.map((item) => {
+      {shown.length === 0 && (
+        <p className="mt-6 py-8 text-center text-sm text-brand-purple-dark/60">
+          No memories yet. When something in a chat feels worth keeping, ask Lubin to save it.
+        </p>
+      )}
+      {groups.map((group) => (
+      <div key={group.label} className="mt-7">
+        <h4 className="font-display text-lg text-brand-purple-dark">{group.label}</h4>
+        <p className="text-xs text-brand-purple-dark/50">{group.range}</p>
+      <ul className="relative mt-4 space-y-3 pl-6 before:absolute before:bottom-4 before:left-[5px] before:top-4 before:w-px before:bg-brand-purple/25">
+        {group.items.map((item) => {
           const Icon = ICONS[item.kind];
           const open = openId === item.id;
           return (
-            <li key={item.id} className="py-4">
+            <li key={item.id} className="relative">
+              <span aria-hidden className="absolute -left-6 top-6 h-[11px] w-[11px] rounded-full border-2 border-brand-purple/50 bg-white" />
+              <div className="rounded-2xl bg-white p-4 ring-1 ring-brand-purple/10 transition-shadow hover:shadow-sm">
               <div className="flex items-start gap-4">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-lavender text-brand-purple-dark">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-lavender text-brand-purple-dark">
                   <Icon className="h-5 w-5" strokeWidth={1.75} />
                 </div>
                 <button type="button" onClick={() => setOpenId(open ? null : item.id)} className="min-w-0 flex-1 text-left">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="font-semibold text-brand-purple-dark">{item.title}</span>
+                    <span className="font-display text-lg italic text-brand-purple-dark">“{item.title}”</span>
                     {item.pinned && (
                       <span className="inline-flex items-center gap-1 rounded-md bg-brand-lavender px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-brand-purple">
                         <Pin className="h-3 w-3" /> Pinned
@@ -122,8 +140,8 @@ export default function SavedToPassport() {
                     )}
                   </div>
                   <p className={`mt-1 text-sm text-brand-purple-dark/70 ${open ? "" : "line-clamp-1"}`}>{item.summary}</p>
-                  <p className="mt-1 text-xs text-brand-purple-dark/50">
-                    {SAVED_KIND_SINGULAR[item.kind]} · {item.source} · {when(item.savedAt)}
+                  <p className="mt-2 text-[11px] font-semibold uppercase tracking-wider text-brand-purple-dark/50">
+                    {SAVED_KIND_SINGULAR[item.kind]} <span className="font-normal normal-case tracking-normal">· {item.source} · {when(item.savedAt)}</span>
                   </p>
                 </button>
               </div>
@@ -162,10 +180,13 @@ export default function SavedToPassport() {
                   </div>
                 </div>
               )}
+              </div>
             </li>
           );
         })}
       </ul>
+      </div>
+      ))}
 
       {adding && <SaveSheet onClose={() => setAdding(false)} />}
     </section>
