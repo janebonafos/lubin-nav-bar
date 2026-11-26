@@ -69,6 +69,7 @@ import IntakeRequestCard from "@/components/intake/IntakeRequestCard";
 import HealthDetailsCard from "@/components/passport/HealthDetailsCard";
 import CaregiverAccessCard from "@/components/passport/CaregiverAccessCard";
 import PassportHome from "@/components/passport/PassportHome";
+import SavedToPassport from "@/components/passport/SavedToPassport";
 import VisitsTimeline from "@/components/passport/VisitsTimeline";
 import ClientPrescriptionsSection from "@/components/profile/ClientPrescriptionsSection";
 import RecordsSection from "@/components/passport/RecordsSection";
@@ -88,7 +89,7 @@ export const Route = createFileRoute("/my-health-passport")({
   component: PassportPage,
   validateSearch: z
     .object({
-      tab: z.enum(["home", "overview", "progress", "share", "details", "visits", "medications", "records"]).optional(),
+      tab: z.enum(["home", "overview", "progress", "share", "details", "visits", "medications", "records", "memories"]).optional(),
       share: z.string().optional(),
       auth: z.enum(["signup", "signin"]).optional(),
       from: z.string().optional(),
@@ -144,6 +145,7 @@ const MOODS = [
 
 type PassportTab =
   | "home"
+  | "memories"
   | "overview"
   | "progress"
   | "share"
@@ -154,6 +156,7 @@ type PassportTab =
 
 const TAB_AREA: Record<PassportTab, PassportArea> = {
   home: "overview",
+  memories: "overview",
   details: "overview",
   visits: "visits",
   medications: "medications",
@@ -177,7 +180,7 @@ function PassportPage() {
   const search = Route.useSearch();
   const forceEmpty = search.empty === true;
   const [tab, setTab] = useState<
-    "home" | "overview" | "progress" | "share" | "details" | "visits" | "medications" | "records"
+    PassportTab
   >(
     search.tab ?? "home",
   );
@@ -330,7 +333,7 @@ function PassportPage() {
         />
 
         {/* Header */}
-        {tab !== "home" && <header className="mt-8 flex items-start justify-between gap-4">
+        {tab !== "home" && tab !== "memories" && <header className="mt-8 flex items-start justify-between gap-4">
           <div>
             <div className="inline-flex items-center gap-2 rounded-lg bg-white/60 px-3 py-1.5 ring-1 ring-brand-purple/15 backdrop-blur-sm">
               <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-brand-purple">
@@ -347,10 +350,11 @@ function PassportPage() {
         </header>}
         {area === "overview" && (
           <PassportSubNav
-            value={tab === "details" ? "details" : "home"}
+            value={tab}
             options={[
               { id: "home", label: "Overview" },
               { id: "details", label: detailsName ? `${detailsName}'s health card` : "Health card" },
+              { id: "memories", label: "Lubin Saved Memories" },
             ]}
             onChange={(id) => setTab(id as typeof tab)}
           />
@@ -377,7 +381,7 @@ function PassportPage() {
         )}
 
         {/* Gentle session prep nudges — same request as the appointment card */}
-        {tab !== "home" && tab !== "share" && tab !== "details" && tab !== "visits" && tab !== "medications" && tab !== "records" && upcomingAppointments.length > 0 && (
+        {tab !== "home" && tab !== "memories" && tab !== "share" && tab !== "details" && tab !== "visits" && tab !== "medications" && tab !== "records" && upcomingAppointments.length > 0 && (
           <div className="mt-8 space-y-4">
             {upcomingAppointments.map((appt) => (
               <IntakeRequestCard
@@ -392,6 +396,7 @@ function PassportPage() {
 
         {/* Tab content */}
         <div className="mt-8">
+          {tab === "memories" && <SavedToPassport />}
           {tab === "home" && !forceEmpty && holder.isProxy && (
             <PassportHolderPanel holder={holder} compact />
           )}

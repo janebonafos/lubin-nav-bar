@@ -20,7 +20,6 @@ import {
 import { ensureSamplePrescriptionRecord } from "@/lib/prescription/sampleRecord";
 import { passportId } from "@/lib/intake/healthDetails";
 import PassportEmptyState from "./PassportEmptyState";
-import SavedToPassport from "./SavedToPassport";
 
 type PassportDestination =
   | "card"
@@ -203,7 +202,6 @@ export default function PassportHome({
           />
         </div>
 
-        <SavedToPassport />
       </div>
 
       {/* Readiness sidebar */}

@@ -1,5 +1,8 @@
 # Health Passport patient design
 
+- [x] Move Lubin Saved Memories to a separate tab and verify navigation on desktop and phone.
+- [x] Present three compact, low-icon memory design options for selection.
+
 - [x] Keep long Saved Memories timelines manageable with search, pinned filtering and pagination; verify desktop and phone.
 
 - [x] Restyle the privacy consent card as option E: bottom sheet on phone, centered card with grab handle on desktop; verify both layouts.

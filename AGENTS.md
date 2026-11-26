@@ -1,6 +1,6 @@
 # Architecture rules
 
-- Keep memory search, pinned filtering and pagination in the Passport presentation layer over the existing browser-local store; this bounds long timelines without changing saving workflows.
+- Keep Saved Memories in its own Overview-area subtab, with search, pinned filtering and pagination over the existing browser-local store; this keeps the overview short without changing saving workflows.
 
 - Keep care-saving consent in one event-driven, browser-local prototype dialog triggered after shared account completion or explicit save actions, never route loads; keep optional uses in Privacy settings so declining does not block care.
 
