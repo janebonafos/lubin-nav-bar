@@ -1,5 +1,7 @@
 # Health Passport patient design
 
+- [x] Keep long Saved Memories timelines manageable with search, pinned filtering and pagination; verify desktop and phone.
+
 - [x] Restyle the privacy consent card as option E: bottom sheet on phone, centered card with grab handle on desktop; verify both layouts.
 - [x] Add a responsive privacy consent card after sign-in or first save, optional Privacy settings, and verify all states.
 
