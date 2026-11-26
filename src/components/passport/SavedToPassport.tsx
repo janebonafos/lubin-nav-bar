@@ -68,7 +68,7 @@ export default function SavedToPassport() {
     return [...list].sort((a, b) => b.savedAt - a.savedAt);
   }, [items, filter, query, pinnedOnly]);
 
-  const pageSize = 5;
+  const pageSize = 8;
   const pages = Math.max(1, Math.ceil(shown.length / pageSize));
   const currentPage = Math.min(page, pages);
   const visible = useMemo(() => shown.slice((currentPage - 1) * pageSize, currentPage * pageSize), [shown, currentPage]);
@@ -78,20 +78,7 @@ export default function SavedToPassport() {
     document.getElementById("saved-memories-list")?.scrollIntoView({ block: "start" });
   };
 
-  const groups = useMemo(() => {
-    const weekAgo = Date.now() - 7 * 86_400_000;
-    const recent = visible.filter((i) => i.savedAt >= weekAgo);
-    const earlier = visible.filter((i) => i.savedAt < weekAgo);
-    const range = (list: SavedItem[]) => {
-      const first = list[0];
-      const last = list.at(-1);
-      return first && last ? `${when(last.savedAt)} – ${when(first.savedAt)}` : "";
-    };
-    return [
-      { label: "This week", items: recent, range: range(recent) },
-      { label: "Earlier", items: earlier, range: range(earlier) },
-    ].filter((g) => g.items.length > 0);
-  }, [visible]);
+  const openItem = items.find((i) => i.id === openId) ?? null;
 
   return (
     <section id="saved-memories-list" aria-label="Lubin Saved Memories" className="scroll-mt-24 rounded-[2rem] bg-card p-6 shadow-sm ring-1 ring-brand-purple/10 md:p-8">
@@ -150,79 +137,26 @@ export default function SavedToPassport() {
           {items.length === 0 ? "No memories yet. When something in a chat feels worth keeping, ask Lubin to save it." : "No memories match your search or filters."}
         </p>
       )}
-      {groups.map((group) => (
-      <div key={group.label} className="mt-7">
-        <h4 className="font-display text-lg text-brand-purple-dark">{group.label}</h4>
-        <p className="text-xs text-brand-purple-dark/50">{group.range}</p>
-      <ul className="relative mt-4 space-y-3 pl-6 before:absolute before:bottom-4 before:left-[5px] before:top-4 before:w-px before:bg-brand-purple/25">
-        {group.items.map((item) => {
-          const Icon = ICONS[item.kind];
-          const open = openId === item.id;
-          return (
-            <li key={item.id} className="relative">
-              <span aria-hidden className="absolute -left-6 top-6 h-[11px] w-[11px] rounded-full border-2 border-brand-purple/50 bg-card" />
-              <div className="rounded-2xl bg-card p-4 ring-1 ring-brand-purple/10 transition-shadow hover:shadow-sm">
-              <div className="flex items-start gap-4">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-lavender text-brand-purple-dark">
-                  <Icon className="h-5 w-5" strokeWidth={1.75} />
-                </div>
-                <button type="button" onClick={() => setOpenId(open ? null : item.id)} className="min-w-0 flex-1 text-left">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="font-display text-lg italic text-brand-purple-dark">“{item.title}”</span>
-                    {item.pinned && (
-                      <span className="inline-flex items-center gap-1 rounded-md bg-brand-lavender px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-brand-purple">
-                        <Pin className="h-3 w-3" /> Pinned
-                      </span>
-                    )}
+      {visible.length > 0 && (
+        <ul className="mt-5 divide-y divide-brand-purple/10 overflow-hidden rounded-2xl ring-1 ring-brand-purple/10">
+          {visible.map((item) => (
+            <li key={item.id}>
+              <button type="button" onClick={() => setOpenId(item.id)} className="flex w-full items-center gap-4 px-4 py-3 text-left transition-colors hover:bg-brand-lavender/40">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="truncate text-sm font-semibold text-brand-purple-dark">{item.title}</span>
+                    {item.pinned && <span className="shrink-0 rounded-md bg-brand-lavender px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-brand-purple">Pinned</span>}
                   </div>
-                  <p className={`mt-1 text-sm text-brand-purple-dark/70 ${open ? "" : "line-clamp-1"}`}>{item.summary}</p>
-                  <p className="mt-2 text-[11px] font-semibold uppercase tracking-wider text-brand-purple-dark/50">
-                    {SAVED_KIND_SINGULAR[item.kind]} <span className="font-normal normal-case tracking-normal">· {item.source} · {when(item.savedAt)}</span>
-                  </p>
-                </button>
-              </div>
-              {open && (
-                <div className="ml-14 mt-3 space-y-3">
-                  {item.highlights && (
-                    <ul className="space-y-1.5 rounded-xl bg-brand-lavender/40 p-4 text-sm text-brand-purple-dark">
-                      {item.highlights.map((h) => (
-                        <li key={h} className="flex gap-2"><span className="text-brand-purple">•</span>{h}</li>
-                      ))}
-                    </ul>
-                  )}
-                  {item.related && (
-                    <Link
-                      to="/my-health-passport"
-                      search={{ tab: item.related.tab }}
-                      className="inline-flex items-center gap-1.5 text-sm font-semibold text-brand-purple hover:text-brand-purple-deep"
-                    >
-                      {item.related.label} <ArrowRight className="h-4 w-4" />
-                    </Link>
-                  )}
-                  <div className="flex flex-wrap gap-2">
-                    <button type="button" onClick={() => togglePinned(item.id)} className="inline-flex items-center gap-1.5 rounded-full border border-brand-purple/20 px-3.5 py-1.5 text-xs font-semibold text-brand-purple-dark hover:bg-brand-lavender/60">
-                      <Pin className="h-3.5 w-3.5" /> {item.pinned ? "Unpin" : "Pin for next visit"}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        removeSavedItem(item.id);
-                        toast("Removed from your memories");
-                      }}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-brand-purple/20 px-3.5 py-1.5 text-xs font-semibold text-brand-purple-dark hover:bg-brand-lavender/60"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" /> Remove
-                    </button>
-                  </div>
+                  <p className="mt-0.5 truncate text-xs text-brand-purple-dark/60">{SAVED_KIND_SINGULAR[item.kind]} · {item.summary}</p>
                 </div>
-              )}
-              </div>
+                <span className="shrink-0 text-xs text-brand-purple-dark/50">{when(item.savedAt)}</span>
+                <ChevronRight aria-hidden className="h-4 w-4 shrink-0 text-brand-purple/50" />
+              </button>
             </li>
-          );
-        })}
-      </ul>
-      </div>
-      ))}
+          ))}
+        </ul>
+      )}
+      {openItem && <MemoryDetail item={openItem} onClose={() => setOpenId(null)} />}
 
       {shown.length > 0 && <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-brand-purple/10 pt-4">
         <p role="status" className="text-xs text-brand-purple-dark/65">{(currentPage - 1) * pageSize + 1}–{Math.min(currentPage * pageSize, shown.length)} of {shown.length} memories</p>
@@ -302,6 +236,38 @@ function SaveSheet({ onClose }: { onClose: () => void }) {
           Save memory
         </button>
         <p className="mt-3 text-center text-xs text-brand-purple-dark/50">Only you can see this unless you choose to share it.</p>
+      </div>
+    </div>
+  );
+}
+
+function MemoryDetail({ item, onClose }: { item: SavedItem; onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-brand-purple-dark/40 sm:items-center" onClick={onClose}>
+      <div role="dialog" aria-label={item.title} onClick={(e) => e.stopPropagation()} className="max-h-[85vh] w-full overflow-y-auto rounded-t-3xl bg-card p-6 shadow-xl sm:max-w-[520px] sm:rounded-3xl">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <div className="text-[10px] font-bold uppercase tracking-widest text-brand-purple/60">{SAVED_KIND_SINGULAR[item.kind]} · {when(item.savedAt)}</div>
+            <h4 className="font-display mt-1 text-xl text-brand-purple-dark">{item.title}</h4>
+            <p className="mt-1 text-xs text-brand-purple-dark/50">{item.source}</p>
+          </div>
+          <button type="button" onClick={onClose} aria-label="Close" className="rounded-full p-1 text-brand-purple-dark/60 hover:bg-brand-lavender"><X className="h-5 w-5" /></button>
+        </div>
+        <p className="mt-4 text-sm leading-relaxed text-brand-purple-dark/80">{item.summary}</p>
+        {item.highlights && (
+          <ul className="mt-4 space-y-1.5 rounded-xl bg-brand-lavender/40 p-4 text-sm text-brand-purple-dark">
+            {item.highlights.map((h) => <li key={h} className="flex gap-2"><span className="text-brand-purple">•</span>{h}</li>)}
+          </ul>
+        )}
+        {item.related && (
+          <Link to="/my-health-passport" search={{ tab: item.related.tab }} onClick={onClose} className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-purple hover:text-brand-purple-deep">
+            {item.related.label} <ArrowRight className="h-4 w-4" />
+          </Link>
+        )}
+        <div className="mt-5 flex flex-wrap gap-2">
+          <button type="button" onClick={() => togglePinned(item.id)} className="rounded-full border border-brand-purple/20 px-3.5 py-1.5 text-xs font-semibold text-brand-purple-dark hover:bg-brand-lavender/60">{item.pinned ? "Unpin" : "Pin for next visit"}</button>
+          <button type="button" onClick={() => { removeSavedItem(item.id); toast("Removed from your memories"); onClose(); }} className="inline-flex items-center gap-1.5 rounded-full border border-brand-purple/20 px-3.5 py-1.5 text-xs font-semibold text-brand-purple-dark hover:bg-brand-lavender/60"><Trash2 className="h-3.5 w-3.5" /> Remove</button>
+        </div>
       </div>
     </div>
   );
